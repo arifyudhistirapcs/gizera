@@ -17,7 +17,7 @@ export default defineConfig({
     poolOptions: {
       threads: {
         singleThread: false,
-        isolate: false // Faster but less isolated
+        isolate: true
       }
     },
     // Reduce reporter verbosity for faster output

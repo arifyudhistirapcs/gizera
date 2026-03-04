@@ -3,8 +3,15 @@ import api from './api'
 const attendanceService = {
   // Get attendance report with date range and optional employee filter
   async getAttendanceReport(params = {}) {
-    const response = await api.get('/attendance/report', { params })
-    return response.data
+    try {
+      console.log('[attendanceService] Calling API with params:', params)
+      const response = await api.get('/attendance/report', { params })
+      console.log('[attendanceService] API response:', response)
+      return response.data
+    } catch (error) {
+      console.error('[attendanceService] API error:', error)
+      throw error
+    }
   },
 
   // Get attendance by date range for specific employee

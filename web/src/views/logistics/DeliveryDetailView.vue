@@ -59,6 +59,7 @@
             v-if="deliveryDetail"
             :current-status="deliveryDetail.current_status"
             :activity-log="activityLog"
+            @view-epod="showEPODModal"
           />
         </a-card>
 
@@ -72,6 +73,60 @@
         </a-card>
       </a-spin>
     </div>
+
+    <!-- e-POD Modal -->
+    <a-modal
+      v-model:open="epodModalVisible"
+      title="Detail e-POD (Bukti Pengiriman)"
+      :footer="null"
+      width="700px"
+    >
+      <a-spin :spinning="epodLoading">
+        <div v-if="epodData">
+          <a-descriptions bordered :column="1" style="margin-bottom: 16px">
+            <a-descriptions-item label="Nama Penerima">
+              {{ epodData.recipient_name || '-' }}
+            </a-descriptions-item>
+            <a-descriptions-item label="Waktu Selesai">
+              {{ formatDateTime(epodData.completed_at) }}
+            </a-descriptions-item>
+            <a-descriptions-item label="Lokasi GPS">
+              <a :href="getGoogleMapsUrl(epodData.latitude, epodData.longitude)" target="_blank">
+                {{ epodData.latitude?.toFixed(6) }}, {{ epodData.longitude?.toFixed(6) }}
+                <environment-outlined style="margin-left: 4px" />
+              </a>
+            </a-descriptions-item>
+          </a-descriptions>
+
+          <!-- Photo Section -->
+          <div style="margin-bottom: 16px">
+            <h4 style="margin-bottom: 8px">📷 Foto Bukti Pengiriman</h4>
+            <div v-if="epodData.photo_url" class="epod-image-container">
+              <a-image
+                :src="getImageUrl(epodData.photo_url)"
+                :preview="{ src: getImageUrl(epodData.photo_url) }"
+                style="max-width: 100%; max-height: 300px; object-fit: contain"
+              />
+            </div>
+            <a-empty v-else description="Tidak ada foto" :image-style="{ height: '60px' }" />
+          </div>
+
+          <!-- Signature Section -->
+          <div>
+            <h4 style="margin-bottom: 8px">✍️ Tanda Tangan Penerima</h4>
+            <div v-if="epodData.signature_url" class="epod-image-container">
+              <a-image
+                :src="getImageUrl(epodData.signature_url)"
+                :preview="{ src: getImageUrl(epodData.signature_url) }"
+                style="max-width: 100%; max-height: 200px; object-fit: contain; background: #f5f5f5; border-radius: 8px"
+              />
+            </div>
+            <a-empty v-else description="Tidak ada tanda tangan" :image-style="{ height: '60px' }" />
+          </div>
+        </div>
+        <a-empty v-else description="Data e-POD tidak ditemukan" />
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
@@ -79,18 +134,24 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { ReloadOutlined } from '@ant-design/icons-vue'
-import { getDeliveryDetail, getActivityLog } from '@/services/monitoringService'
+import { ReloadOutlined, EnvironmentOutlined } from '@ant-design/icons-vue'
+import { getDeliveryDetail, getActivityLog, getEPODByDeliveryTask } from '@/services/monitoringService'
 import DeliveryTimeline from '@/components/DeliveryTimeline.vue'
 import ActivityLogTable from '@/components/ActivityLogTable.vue'
 
 const router = useRouter()
 const route = useRoute()
 
+// API base URL for images
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+
 // State
 const loading = ref(false)
 const deliveryDetail = ref(null)
 const activityLog = ref([])
+const epodModalVisible = ref(false)
+const epodLoading = ref(false)
+const epodData = ref(null)
 
 // Methods
 const goBack = () => {
@@ -148,6 +209,60 @@ const fetchActivityLog = async () => {
   }
 }
 
+const showEPODModal = async () => {
+  epodModalVisible.value = true
+  epodLoading.value = true
+  
+  try {
+    const id = route.params.id
+    // Use 'record' type since we're in monitoring view which uses delivery_record_id
+    const response = await getEPODByDeliveryTask(id, 'record')
+    
+    if (response.success) {
+      epodData.value = response.epod
+    } else {
+      message.error(response.message || 'Gagal memuat data e-POD')
+      epodData.value = null
+    }
+  } catch (error) {
+    console.error('Error fetching e-POD:', error)
+    if (error.response?.status === 404) {
+      message.warning('Data e-POD belum tersedia')
+    } else {
+      message.error(error.response?.data?.message || 'Gagal memuat data e-POD')
+    }
+    epodData.value = null
+  } finally {
+    epodLoading.value = false
+  }
+}
+
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return '-'
+  const date = new Date(dateStr)
+  return date.toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const getGoogleMapsUrl = (lat, lng) => {
+  return `https://www.google.com/maps?q=${lat},${lng}`
+}
+
+const getImageUrl = (url) => {
+  if (!url) return ''
+  // If URL is already absolute, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  // Otherwise, prepend API base URL
+  return `${API_BASE_URL}${url}`
+}
+
 // Lifecycle
 onMounted(() => {
   fetchData()
@@ -166,5 +281,18 @@ onMounted(() => {
 :deep(.ant-descriptions-item-label) {
   font-weight: 600;
   background-color: #fafafa;
+}
+
+.epod-image-container {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #fafafa;
+  text-align: center;
+}
+
+.epod-image-container :deep(.ant-image) {
+  display: block;
+  margin: 0 auto;
 }
 </style>

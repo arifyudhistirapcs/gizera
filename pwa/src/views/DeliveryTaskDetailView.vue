@@ -1,40 +1,44 @@
 <template>
-  <div class="delivery-task-detail-container">
+  <div class="detail-view">
     <!-- Navigation Bar -->
-    <van-nav-bar 
-      title="Detail Tugas Pengiriman" 
-      left-arrow 
+    <van-nav-bar
+      title="Detail Tugas Pengiriman"
+      left-arrow
       fixed
       @click-left="goBack"
     >
       <template #right>
-        <div class="nav-right-actions">
+        <div class="detail-view__nav-actions">
           <SyncStatusIndicator />
-          <van-icon 
-            name="refresh" 
-            @click="refreshTask" 
-            :class="{ 'rotating': isRefreshing }"
-            class="refresh-icon"
+          <van-icon
+            name="replay"
+            size="20"
+            color="#ffffff"
+            :class="{ 'detail-view__refresh--spinning': isRefreshing }"
+            @click="refreshTask"
           />
         </div>
       </template>
     </van-nav-bar>
 
     <!-- Offline Indicator -->
-    <van-notice-bar 
-      v-if="!isOnline" 
-      type="warning" 
+    <van-notice-bar
+      v-if="!isOnline"
+      type="warning"
       text="Mode offline - Data mungkin tidak terbaru"
       left-icon="warning-o"
     />
 
     <!-- Loading State -->
-    <van-loading v-if="isLoading" type="spinner" vertical>
-      Memuat detail tugas...
-    </van-loading>
+    <div v-if="isLoading" class="detail-view__content">
+      <SkeletonCard :rows="2" />
+      <SkeletonCard :rows="3" />
+      <SkeletonCard :rows="2" />
+      <SkeletonCard :rows="2" />
+    </div>
 
     <!-- Error State -->
-    <van-empty 
+    <van-empty
       v-else-if="!isLoading && !task"
       image="error"
       description="Tugas tidak ditemukan"
@@ -45,181 +49,189 @@
     </van-empty>
 
     <!-- Task Detail Content -->
-    <div v-else-if="task" class="detail-content">
+    <div v-else-if="task" class="detail-view__content">
+      <!-- Progress Steps -->
+      <div class="detail-view__card">
+        <van-steps :active="activeStep" active-color="#5A4372">
+          <van-step>Assign</van-step>
+          <van-step>Jalan</van-step>
+          <van-step>Sampai</van-step>
+          <van-step>Selesai</van-step>
+        </van-steps>
+      </div>
+
       <!-- Status Card -->
-      <van-card class="status-card">
-        <template #title>
-          <div class="status-header">
-            <span>Status Pengiriman</span>
-            <van-tag 
-              :type="getStatusType(task.status)" 
-              size="large"
-            >
-              {{ getStatusText(task.status) }}
-            </van-tag>
-          </div>
-        </template>
-        
-        <div class="route-info">
-          <van-icon name="location" />
+      <div class="detail-view__card">
+        <div class="detail-view__card-title">Status</div>
+        <div class="detail-view__status-row">
+          <van-tag
+            :type="getStatusType(task.status)"
+            size="large"
+            class="detail-view__status-tag"
+          >
+            {{ getStatusText(task.status) }}
+          </van-tag>
+          <van-tag
+            :type="getTaskTypeTagType(task)"
+            size="medium"
+          >
+            {{ getTaskTypeText(task) }}
+          </van-tag>
+        </div>
+        <div class="detail-view__meta-row">
+          <van-icon name="location" color="var(--h-primary)" />
           <span>Urutan Rute: {{ task.route_order }}</span>
         </div>
-      </van-card>
+      </div>
 
-      <!-- School Information -->
-      <van-cell-group title="Informasi Sekolah" class="info-group">
-        <van-cell 
-          title="Nama Sekolah" 
-          :value="task.school?.name || 'Tidak tersedia'" 
-          icon="shop-o"
-        />
-        <van-cell 
-          title="Alamat" 
-          :value="task.school?.address || 'Tidak tersedia'" 
-          icon="location-o"
-          is-link
-          @click="showFullAddress"
-        />
-        <van-cell 
-          title="Kontak Person" 
-          :value="task.school?.contact_person || 'Tidak tersedia'" 
-          icon="contact"
-        />
-        <van-cell 
-          title="Nomor Telepon" 
-          :value="task.school?.phone_number || 'Tidak tersedia'" 
-          icon="phone-o"
-          is-link
-          @click="callSchool"
-        />
-        <van-cell 
-          title="Jumlah Siswa" 
-          :value="task.school?.student_count?.toString() || 'Tidak tersedia'" 
-          icon="friends-o"
-        />
-      </van-cell-group>
+      <!-- School Info Card -->
+      <div class="detail-view__card">
+        <div class="detail-view__card-title">Info Sekolah</div>
+        <div class="detail-view__info-row">
+          <van-icon name="shop-o" color="var(--h-primary)" />
+          <div class="detail-view__info-text">
+            <span class="detail-view__info-label">Nama Sekolah</span>
+            <span class="detail-view__info-value">{{ task.school?.name || 'Tidak tersedia' }}</span>
+          </div>
+        </div>
+        <div class="detail-view__info-row">
+          <van-icon name="location-o" color="var(--h-primary)" />
+          <div class="detail-view__info-text">
+            <span class="detail-view__info-label">Alamat</span>
+            <span class="detail-view__info-value detail-view__info-value--link" @click="showFullAddress">
+              {{ task.school?.address || 'Tidak tersedia' }}
+            </span>
+          </div>
+        </div>
+        <div class="detail-view__info-row">
+          <van-icon name="contact" color="var(--h-primary)" />
+          <div class="detail-view__info-text">
+            <span class="detail-view__info-label">Kontak Person</span>
+            <span class="detail-view__info-value">{{ task.school?.contact_person || 'Tidak tersedia' }}</span>
+          </div>
+        </div>
+        <div class="detail-view__info-row">
+          <van-icon name="phone-o" color="var(--h-primary)" />
+          <div class="detail-view__info-text">
+            <span class="detail-view__info-label">Nomor Telepon</span>
+            <span class="detail-view__info-value detail-view__info-value--link" @click="callSchool">
+              {{ task.school?.phone_number || 'Tidak tersedia' }}
+            </span>
+          </div>
+        </div>
+        <div class="detail-view__info-row">
+          <van-icon name="friends-o" color="var(--h-primary)" />
+          <div class="detail-view__info-text">
+            <span class="detail-view__info-label">Jumlah Siswa</span>
+            <span class="detail-view__info-value">{{ task.school?.student_count?.toString() || 'Tidak tersedia' }}</span>
+          </div>
+        </div>
 
-      <!-- GPS Coordinates -->
-      <van-cell-group title="Koordinat GPS" class="info-group">
-        <van-cell 
-          title="Latitude" 
-          :value="task.school?.latitude?.toFixed(6) || 'Tidak tersedia'" 
-          icon="aim"
-        />
-        <van-cell 
-          title="Longitude" 
-          :value="task.school?.longitude?.toFixed(6) || 'Tidak tersedia'" 
-          icon="aim"
-        />
-        <van-cell 
-          title="Akurasi GPS" 
-          :value="getGPSAccuracy()"
-          icon="location-o"
-        />
-      </van-cell-group>
-
-      <!-- Delivery Information -->
-      <van-cell-group title="Informasi Pengiriman" class="info-group">
-        <van-cell 
-          title="Jumlah Porsi" 
-          :value="task.portions?.toString() || '0'" 
-          icon="shopping-cart-o"
-        />
-        <van-cell 
-          title="Tanggal Pengiriman" 
-          :value="formatDate(task.task_date)" 
-          icon="calendar-o"
-        />
-      </van-cell-group>
-
-      <!-- Menu Items -->
-      <van-cell-group 
-        title="Menu yang Dikirim" 
-        class="info-group"
-        v-if="task.menu_items && task.menu_items.length > 0"
-      >
-        <van-cell 
-          v-for="item in task.menu_items" 
-          :key="item.id"
-          :title="item.recipe?.name || 'Menu tidak diketahui'"
-          :value="`${item.portions} porsi`"
-          icon="shop-o"
-        />
-      </van-cell-group>
-
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <!-- GPS Navigation Button -->
-        <van-button 
-          type="primary" 
-          size="large"
-          block 
-          @click="openGPSNavigation"
-          icon="guide-o"
+        <!-- Google Maps Navigation Button -->
+        <button
+          class="detail-view__maps-btn"
           :disabled="!hasValidGPS"
-          class="nav-button"
+          @click="openGPSNavigation"
         >
-          <van-icon name="guide-o" />
-          Buka Navigasi GPS
+          <van-icon name="guide-o" size="20" />
+          <span>Buka di Google Maps</span>
+          <van-icon name="arrow" size="16" />
+        </button>
+      </div>
+
+      <!-- Menu / Portion Info Card -->
+      <div class="detail-view__card">
+        <div class="detail-view__card-title">Info Menu & Porsi</div>
+        <div class="detail-view__info-row">
+          <van-icon name="shopping-cart-o" color="var(--h-primary)" />
+          <div class="detail-view__info-text">
+            <span class="detail-view__info-label">Jumlah Porsi</span>
+            <span class="detail-view__info-value">{{ task.portions?.toString() || '0' }} porsi</span>
+          </div>
+        </div>
+        <div class="detail-view__info-row">
+          <van-icon name="calendar-o" color="var(--h-primary)" />
+          <div class="detail-view__info-text">
+            <span class="detail-view__info-label">Tanggal Pengiriman</span>
+            <span class="detail-view__info-value">{{ formatDate(task.task_date) }}</span>
+          </div>
+        </div>
+        <template v-if="task.menu_items && task.menu_items.length > 0">
+          <div class="detail-view__divider" />
+          <div
+            v-for="item in task.menu_items"
+            :key="item.id"
+            class="detail-view__info-row"
+          >
+            <van-icon name="shop-o" color="var(--h-success)" />
+            <div class="detail-view__info-text">
+              <span class="detail-view__info-label">{{ item.recipe?.name || 'Menu tidak diketahui' }}</span>
+              <span class="detail-view__info-value">{{ item.portions }} porsi</span>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Action Card -->
+      <div class="detail-view__card">
+        <div class="detail-view__card-title">Aksi</div>
+
+        <van-button
+          v-if="task.status === 'pending'"
+          type="success"
+          size="large"
+          block
+          icon="play-circle-o"
+          :loading="isUpdatingStatus"
+          class="detail-view__action-btn"
+          @click="startDelivery"
+        >
+          Mulai Pengiriman
         </van-button>
 
-        <!-- Status Update Buttons -->
-        <div class="status-buttons">
-          <van-button 
-            v-if="task.status === 'pending'"
-            type="success" 
-            size="large"
-            block 
-            @click="startDelivery"
-            icon="play-circle-o"
-            :loading="isUpdatingStatus"
-          >
-            Mulai Pengiriman
-          </van-button>
+        <van-button
+          v-if="task.status === 'in_progress'"
+          type="success"
+          size="large"
+          block
+          icon="location-o"
+          :loading="isUpdatingStatus"
+          class="detail-view__action-btn"
+          @click="arrivedAtSchool"
+        >
+          Sudah Sampai Sekolah
+        </van-button>
 
-          <van-button 
-            v-if="task.status === 'in_progress'"
-            type="warning" 
-            size="large"
-            block 
-            @click="openePODForm"
-            icon="edit"
-            :loading="isUpdatingStatus"
-            class="epod-button"
-          >
-            Buat Bukti Pengiriman (e-POD)
-          </van-button>
+        <van-button
+          v-if="task.status === 'arrived'"
+          type="warning"
+          size="large"
+          block
+          icon="edit"
+          :loading="isUpdatingStatus"
+          class="detail-view__action-btn detail-view__action-btn--epod"
+          @click="openePODForm"
+        >
+          Buat Bukti Pengiriman (e-POD)
+        </van-button>
 
-          <van-button 
-            v-if="task.status === 'in_progress'"
-            type="default" 
-            size="large"
-            block 
-            @click="completeDelivery"
-            icon="checked"
-            :loading="isUpdatingStatus"
-            class="complete-button"
-          >
-            Selesaikan Tanpa e-POD
-          </van-button>
-
-          <van-button 
-            v-if="task.status === 'completed'"
-            type="default" 
-            size="large"
-            block 
-            disabled
-            icon="success"
-          >
-            Pengiriman Selesai
-          </van-button>
-        </div>
+        <van-button
+          v-if="task.status === 'completed'"
+          type="default"
+          size="large"
+          block
+          disabled
+          icon="success"
+          class="detail-view__action-btn"
+        >
+          Pengiriman Selesai
+        </van-button>
       </div>
     </div>
 
     <!-- Full Address Dialog -->
-    <van-dialog 
-      v-model:show="showAddressDialog" 
+    <van-dialog
+      v-model:show="showAddressDialog"
       title="Alamat Lengkap"
       :message="task?.school?.address"
       show-cancel-button
@@ -236,6 +248,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDeliveryTasksStore } from '@/stores/deliveryTasks'
 import SyncStatusIndicator from '@/components/SyncStatusIndicator.vue'
+import SkeletonCard from '@/components/mobile/SkeletonCard.vue'
 import { showToast, showConfirmDialog, showSuccessToast } from 'vant'
 
 const route = useRoute()
@@ -251,9 +264,22 @@ const isOnline = ref(navigator.onLine)
 const showAddressDialog = ref(false)
 const task = ref(null)
 
-// Computed properties
+// Computed: progress step based on status
+const activeStep = computed(() => {
+  if (!task.value) return 0
+  const statusMap = {
+    'pending': 0,
+    'in_progress': 1,
+    'arrived': 2,
+    'received': 3,
+    'completed': 3,
+    'cancelled': 0
+  }
+  return statusMap[task.value.status] ?? 0
+})
+
 const hasValidGPS = computed(() => {
-  return task.value?.school?.latitude && 
+  return task.value?.school?.latitude &&
          task.value?.school?.longitude &&
          Math.abs(task.value.school.latitude) <= 90 &&
          Math.abs(task.value.school.longitude) <= 180
@@ -270,15 +296,13 @@ const loadTask = async () => {
 
   isLoading.value = true
   try {
-    // First try to get from store
     let foundTask = deliveryTasksStore.getTaskById(parseInt(taskId))
-    
+
     if (!foundTask) {
-      // If not in store, fetch today's tasks first
       await deliveryTasksStore.fetchTodayTasks(authStore.user.id)
       foundTask = deliveryTasksStore.getTaskById(parseInt(taskId))
     }
-    
+
     if (foundTask) {
       task.value = foundTask
     } else {
@@ -295,13 +319,13 @@ const loadTask = async () => {
 
 const refreshTask = async () => {
   if (!authStore.user?.id) return
-  
+
   isRefreshing.value = true
   try {
     await deliveryTasksStore.fetchTodayTasks(authStore.user.id, true)
     const taskId = route.params.id
     const updatedTask = deliveryTasksStore.getTaskById(parseInt(taskId))
-    
+
     if (updatedTask) {
       task.value = updatedTask
       showToast('Data berhasil diperbarui')
@@ -314,13 +338,21 @@ const refreshTask = async () => {
   }
 }
 
-const goBack = () => {
+const goBack = async () => {
+  // Refresh tasks before going back to ensure list shows updated status
+  if (authStore.user?.id) {
+    try {
+      await deliveryTasksStore.fetchTodayTasks(authStore.user.id, true)
+    } catch (error) {
+      console.error('Error refreshing tasks before navigation:', error)
+    }
+  }
   router.push('/tasks')
 }
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Tidak tersedia'
-  
+
   try {
     const date = new Date(dateString)
     return date.toLocaleDateString('id-ID', {
@@ -338,6 +370,8 @@ const getStatusType = (status) => {
   const statusTypes = {
     'pending': 'warning',
     'in_progress': 'primary',
+    'arrived': 'success',
+    'received': 'success',
     'completed': 'success',
     'cancelled': 'danger'
   }
@@ -348,15 +382,28 @@ const getStatusText = (status) => {
   const statusTexts = {
     'pending': 'Menunggu',
     'in_progress': 'Dalam Perjalanan',
-    'completed': 'Selesai',
+    'arrived': 'Sudah Sampai',
+    'received': 'Sudah Diterima',
+    'completed': 'Sudah Diterima',
     'cancelled': 'Dibatalkan'
   }
   return statusTexts[status] || status
 }
 
-const getGPSAccuracy = () => {
-  if (!hasValidGPS.value) return 'GPS tidak tersedia'
-  return 'Koordinat valid'
+const getTaskTypeText = (task) => {
+  const stage = task?.current_stage || 1
+  if (stage >= 5 && stage <= 8) {
+    return '📦 Pengambilan Ompreng'
+  }
+  return '🍱 Pengiriman Makanan'
+}
+
+const getTaskTypeTagType = (task) => {
+  const stage = task?.current_stage || 1
+  if (stage >= 5 && stage <= 8) {
+    return 'warning'
+  }
+  return 'success'
 }
 
 const showFullAddress = () => {
@@ -392,41 +439,30 @@ const openGPSNavigation = () => {
     showToast('Koordinat GPS tidak tersedia atau tidak valid')
     return
   }
-  
+
   const { latitude, longitude } = task.value.school
   const schoolName = task.value.school.name || 'Sekolah Tujuan'
-  
-  // Create Google Maps navigation URL
+
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&destination_place_id=${encodeURIComponent(schoolName)}`
-  
-  // Try to open in Google Maps app first, fallback to web
   const androidMapsUrl = `google.navigation:q=${latitude},${longitude}`
   const iosMapsUrl = `maps://maps.google.com/maps?daddr=${latitude},${longitude}&amp;ll=`
-  
-  // Detect platform and open appropriate navigation
+
   const userAgent = navigator.userAgent.toLowerCase()
-  
+
   if (userAgent.includes('android')) {
-    // Try Android Google Maps app first
     window.location.href = androidMapsUrl
-    
-    // Fallback to web after a short delay
     setTimeout(() => {
       window.open(mapsUrl, '_blank')
     }, 1000)
   } else if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
-    // Try iOS Maps app first
     window.location.href = iosMapsUrl
-    
-    // Fallback to web after a short delay
     setTimeout(() => {
       window.open(mapsUrl, '_blank')
     }, 1000)
   } else {
-    // Desktop or other platforms - open web version
     window.open(mapsUrl, '_blank')
   }
-  
+
   showToast('Membuka navigasi GPS...')
 }
 
@@ -438,18 +474,38 @@ const startDelivery = async () => {
       confirmButtonText: 'Ya, Mulai',
       cancelButtonText: 'Batal'
     })
-    
+
     if (confirmed) {
       isUpdatingStatus.value = true
       await deliveryTasksStore.updateTaskStatus(task.value.id, 'in_progress')
-      
-      // Update local task status
       task.value.status = 'in_progress'
-      
       showSuccessToast('Status pengiriman diperbarui')
     }
   } catch (error) {
     console.error('Error starting delivery:', error)
+    showToast('Gagal memperbarui status')
+  } finally {
+    isUpdatingStatus.value = false
+  }
+}
+
+const arrivedAtSchool = async () => {
+  try {
+    const confirmed = await showConfirmDialog({
+      title: 'Sudah Sampai Sekolah',
+      message: `Apakah Anda sudah sampai di ${task.value.school?.name}?`,
+      confirmButtonText: 'Ya, Sudah Sampai',
+      cancelButtonText: 'Belum'
+    })
+
+    if (confirmed) {
+      isUpdatingStatus.value = true
+      await deliveryTasksStore.updateTaskStatus(task.value.id, 'arrived')
+      task.value.status = 'arrived'
+      showSuccessToast('Status diperbarui: Sudah Sampai')
+    }
+  } catch (error) {
+    console.error('Error updating arrival status:', error)
     showToast('Gagal memperbarui status')
   } finally {
     isUpdatingStatus.value = false
@@ -464,14 +520,11 @@ const completeDelivery = async () => {
       confirmButtonText: 'Ya, Selesai',
       cancelButtonText: 'Belum'
     })
-    
+
     if (confirmed) {
       isUpdatingStatus.value = true
       await deliveryTasksStore.updateTaskStatus(task.value.id, 'completed')
-      
-      // Update local task status
       task.value.status = 'completed'
-      
       showSuccessToast('Pengiriman berhasil diselesaikan')
     }
   } catch (error) {
@@ -501,8 +554,6 @@ const handleOffline = () => {
 // Lifecycle
 onMounted(() => {
   loadTask()
-  
-  // Listen for network status changes
   window.addEventListener('online', handleOnline)
   window.addEventListener('offline', handleOffline)
 })
@@ -514,141 +565,180 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.delivery-task-detail-container {
+.detail-view {
   min-height: 100vh;
-  background-color: #f7f8fa;
-  padding-top: 46px; /* Nav bar height */
-  padding-bottom: 16px;
+  background: var(--h-bg-primary);
+  padding-top: 46px;
 }
 
-.detail-content {
-  padding: 16px;
-}
-
-.status-card {
-  margin-bottom: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.status-header {
+.detail-view__content {
+  padding: var(--h-spacing-lg);
+  padding-bottom: 80px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
+  flex-direction: column;
+  gap: var(--h-spacing-lg);
 }
 
-.route-info {
-  display: flex;
-  align-items: center;
-  margin-top: 8px;
-  color: #646566;
-  font-size: 14px;
-}
-
-.route-info .van-icon {
-  margin-right: 8px;
-  color: #1989fa;
-}
-
-.info-group {
-  margin-bottom: 16px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.action-buttons {
-  margin-top: 24px;
-  padding: 0 4px;
-}
-
-.nav-button {
-  margin-bottom: 16px;
-  height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(25, 137, 250, 0.3);
-}
-
-.nav-button .van-icon {
-  margin-right: 8px;
-  font-size: 18px;
-}
-
-.status-buttons .van-button {
-  height: 44px;
-  font-size: 15px;
-  font-weight: 500;
-  border-radius: 8px;
-  margin-bottom: 8px;
-}
-
-.epod-button {
-  background: linear-gradient(135deg, #ff976a, #ff6b35);
-  border: none;
-  color: white;
-  box-shadow: 0 2px 8px rgba(255, 151, 106, 0.3);
-}
-
-.complete-button {
-  margin-top: 8px;
-}
-
-.rotating {
-  animation: rotate 1s linear infinite;
-}
-
-.nav-right-actions {
+.detail-view__nav-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.refresh-icon {
-  font-size: 18px;
+.detail-view__refresh--spinning {
+  animation: detail-spin 1s linear infinite;
 }
 
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes detail-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* Responsive adjustments */
+/* Card base */
+.detail-view__card {
+  background: var(--h-bg-card);
+  border-radius: var(--h-radius-lg);
+  box-shadow: var(--h-shadow-card);
+  padding: var(--h-spacing-lg);
+}
+
+.detail-view__card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--h-text-primary);
+  margin-bottom: var(--h-spacing-md);
+}
+
+/* Status card */
+.detail-view__status-row {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--h-spacing-sm);
+}
+
+.detail-view__status-tag {
+  font-weight: 600;
+}
+
+.detail-view__meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-xs);
+  font-size: 13px;
+  color: var(--h-text-secondary);
+}
+
+/* Info rows */
+.detail-view__info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--h-spacing-md);
+  padding: var(--h-spacing-sm) 0;
+}
+
+.detail-view__info-row:not(:last-child) {
+  border-bottom: 1px solid var(--h-border-light);
+}
+
+.detail-view__info-row .van-icon {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.detail-view__info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-view__info-label {
+  font-size: 12px;
+  color: var(--h-text-secondary);
+}
+
+.detail-view__info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--h-text-primary);
+  word-break: break-word;
+}
+
+.detail-view__info-value--link {
+  color: var(--h-primary);
+  cursor: pointer;
+}
+
+.detail-view__divider {
+  height: 1px;
+  background: var(--h-border-color);
+  margin: var(--h-spacing-sm) 0;
+}
+
+/* Google Maps button */
+.detail-view__maps-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-sm);
+  width: 100%;
+  padding: var(--h-spacing-md) var(--h-spacing-lg);
+  margin-top: var(--h-spacing-md);
+  background: var(--h-primary-lighter);
+  border: 1px solid var(--h-primary);
+  border-radius: var(--h-radius-md);
+  color: var(--h-primary);
+  font-family: var(--h-font-family);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--h-transition-base);
+  min-height: 44px;
+}
+
+.detail-view__maps-btn:active {
+  background: var(--h-primary);
+  color: #ffffff;
+}
+
+.detail-view__maps-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.detail-view__maps-btn span {
+  flex: 1;
+  text-align: left;
+}
+
+/* Action buttons */
+.detail-view__action-btn {
+  border-radius: var(--h-radius-md) !important;
+  font-weight: 600;
+  height: 48px;
+}
+
+.detail-view__action-btn:not(:last-child) {
+  margin-bottom: var(--h-spacing-sm);
+}
+
+.detail-view__action-btn--epod {
+  background: linear-gradient(135deg, #ff976a, #ff6b35) !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* Responsive */
 @media (max-width: 375px) {
-  .detail-content {
-    padding: 12px;
+  .detail-view__content {
+    padding: var(--h-spacing-md);
+    padding-bottom: 80px;
   }
-  
-  .status-header {
-    font-size: 14px;
-  }
-  
-  .nav-button {
-    height: 44px;
-    font-size: 15px;
-  }
-  
-  .status-buttons .van-button {
-    height: 40px;
-    font-size: 14px;
-  }
-}
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .delivery-task-detail-container {
-    background-color: #1a1a1a;
-  }
-  
-  .status-card,
-  .info-group {
-    background-color: #2a2a2a;
+  .detail-view__card {
+    padding: var(--h-spacing-md);
   }
 }
 </style>

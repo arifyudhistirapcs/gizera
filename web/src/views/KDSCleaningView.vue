@@ -221,7 +221,9 @@ const loading = ref(false)
 const updatingId = ref(null)
 const isConnected = ref(true)
 const error = ref(null)
-const selectedDate = ref(new Date().toISOString().split('T')[0])
+// Use local date to avoid timezone issues
+const now = new Date()
+const selectedDate = ref(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`)
 let firebaseListener = null
 
 // Filter by status

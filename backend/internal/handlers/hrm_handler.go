@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -296,8 +297,10 @@ func (h *HRMHandler) GetEmployeeStats(c *gin.Context) {
 
 // CheckInRequest represents check-in request
 type CheckInRequest struct {
-	SSID  string `json:"ssid" binding:"required"`
-	BSSID string `json:"bssid" binding:"required"`
+	SSID      string   `json:"ssid"`
+	BSSID     string   `json:"bssid"`
+	Latitude  *float64 `json:"latitude"`
+	Longitude *float64 `json:"longitude"`
 }
 
 // CheckIn records employee check-in
@@ -324,7 +327,74 @@ func (h *HRMHandler) CheckIn(c *gin.Context) {
 		return
 	}
 
-	attendance, err := h.attendanceService.CheckIn(employee.ID, req.SSID, req.BSSID)
+	// Get client IP address
+	clientIP := c.ClientIP()
+	
+	// Log untuk debugging
+	log.Printf("[CHECK-IN] Employee ID: %d, Client IP: %s, SSID: %s, Lat: %v, Lng: %v", 
+		employee.ID, clientIP, req.SSID, req.Latitude, req.Longitude)
+	
+	var ssid, bssid string
+	var validationMethod string
+	var validationDetails map[string]interface{}
+	var isValidated bool
+	
+	// GPS validation only (for testing)
+	if req.Latitude == nil || req.Longitude == nil {
+		log.Printf("[CHECK-IN] GPS coordinates not provided")
+		c.JSON(http.StatusForbidden, gin.H{
+			"success":    false,
+			"error_code": "GPS_REQUIRED",
+			"message":    "Koordinat GPS diperlukan untuk check-in. Pastikan GPS aktif di perangkat Anda.",
+		})
+		return
+	}
+	
+	log.Printf("[CHECK-IN] Trying GPS validation - Lat: %f, Lng: %f", *req.Latitude, *req.Longitude)
+	isValidGPS, gpsConfig, err := h.attendanceService.ValidateGPS(*req.Latitude, *req.Longitude)
+	if err != nil {
+		log.Printf("[CHECK-IN] GPS validation error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    "Terjadi kesalahan saat validasi GPS",
+		})
+		return
+	}
+	
+	if isValidGPS && gpsConfig != nil {
+		log.Printf("[CHECK-IN] GPS validation SUCCESS - Location: %s, Radius: %d meters", 
+			gpsConfig.Name, gpsConfig.Radius)
+		ssid = "GPS-" + gpsConfig.Name
+		bssid = "GPS"
+		validationMethod = "gps_validation"
+		validationDetails = map[string]interface{}{
+			"location_name": gpsConfig.Name,
+			"latitude":      *req.Latitude,
+			"longitude":     *req.Longitude,
+			"radius":        gpsConfig.Radius,
+		}
+		isValidated = true
+	} else {
+		log.Printf("[CHECK-IN] GPS validation FAILED - Not within any authorized location")
+	}
+	
+	// If GPS validation failed, return error
+	if !isValidated {
+		log.Printf("[CHECK-IN] GPS validation FAILED - Employee ID: %d", employee.ID)
+		c.JSON(http.StatusForbidden, gin.H{
+			"success":    false,
+			"error_code": "INVALID_LOCATION",
+			"message":    "Anda tidak berada di area kantor yang terdaftar. Pastikan GPS aktif dan Anda berada dalam radius lokasi kantor.",
+			"details": map[string]interface{}{
+				"latitude":  *req.Latitude,
+				"longitude": *req.Longitude,
+			},
+		})
+		return
+	}
+
+	attendance, err := h.attendanceService.CheckIn(employee.ID, ssid, bssid)
 	if err != nil {
 		if err == services.ErrInvalidWiFi {
 			c.JSON(http.StatusForbidden, gin.H{
@@ -335,6 +405,7 @@ func (h *HRMHandler) CheckIn(c *gin.Context) {
 			return
 		}
 		if err == services.ErrAlreadyCheckedIn {
+			log.Printf("[CHECK-IN] Already checked in - Employee ID: %d", employee.ID)
 			c.JSON(http.StatusConflict, gin.H{
 				"success":    false,
 				"error_code": "ALREADY_CHECKED_IN",
@@ -342,6 +413,7 @@ func (h *HRMHandler) CheckIn(c *gin.Context) {
 			})
 			return
 		}
+		log.Printf("[CHECK-IN] Error creating attendance: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
 			"error_code": "INTERNAL_ERROR",
@@ -351,27 +423,27 @@ func (h *HRMHandler) CheckIn(c *gin.Context) {
 	}
 
 	// Record in audit trail
-	h.auditService.RecordAction(userID.(uint), "check_in", "attendance", strconv.Itoa(int(attendance.ID)), "", "", c.ClientIP())
+	h.auditService.RecordAction(userID.(uint), "check_in", "attendance", strconv.Itoa(int(attendance.ID)), "", "", clientIP)
+
+	log.Printf("[CHECK-IN] SUCCESS - Attendance ID: %d, Employee ID: %d, Method: %s", 
+		attendance.ID, employee.ID, validationMethod)
 
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Check-in berhasil",
-		"data":    attendance,
+		"success":       true,
+		"message":       "Check-in berhasil",
+		"data":          attendance,
+		"validated_by":  map[string]interface{}{
+			"method":  validationMethod,
+			"details": validationDetails,
+		},
 	})
 }
 
 // CheckOut records employee check-out
 func (h *HRMHandler) CheckOut(c *gin.Context) {
-	var req CheckInRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success":    false,
-			"error_code": "VALIDATION_ERROR",
-			"message":    "Data tidak valid",
-		})
-		return
-	}
-
+	// Check-out doesn't require WiFi/IP validation
+	// Employee can check-out from anywhere
+	
 	// Get employee ID from user ID
 	userID, _ := c.Get("user_id")
 	employee, err := h.employeeService.GetEmployeeByUserID(userID.(uint))
@@ -384,16 +456,10 @@ func (h *HRMHandler) CheckOut(c *gin.Context) {
 		return
 	}
 
-	attendance, err := h.attendanceService.CheckOut(employee.ID, req.SSID, req.BSSID)
+	// No WiFi validation needed for check-out
+	// Use empty strings for SSID and BSSID
+	attendance, err := h.attendanceService.CheckOut(employee.ID, "", "")
 	if err != nil {
-		if err == services.ErrInvalidWiFi {
-			c.JSON(http.StatusForbidden, gin.H{
-				"success":    false,
-				"error_code": "INVALID_WIFI",
-				"message":    "Anda harus terhubung ke Wi-Fi kantor untuk absen",
-			})
-			return
-		}
 		if err == services.ErrNotCheckedIn {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success":    false,
@@ -863,23 +929,42 @@ func (h *HRMHandler) GetAttendanceByDateRange(c *gin.Context) {
 	startDateStr := c.Query("start_date")
 	endDateStr := c.Query("end_date")
 
-	if employeeIDStr == "" || startDateStr == "" || endDateStr == "" {
+	if startDateStr == "" || endDateStr == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success":    false,
 			"error_code": "VALIDATION_ERROR",
-			"message":    "Employee ID, tanggal mulai dan tanggal akhir harus diisi",
+			"message":    "Tanggal mulai dan tanggal akhir harus diisi",
 		})
 		return
 	}
 
-	employeeID, err := strconv.ParseUint(employeeIDStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success":    false,
-			"error_code": "INVALID_EMPLOYEE_ID",
-			"message":    "Employee ID tidak valid",
-		})
-		return
+	var empID *uint
+	
+	// If employee_id not provided, use current user's employee_id
+	if employeeIDStr == "" {
+		userID, _ := c.Get("user_id")
+		employee, err := h.employeeService.GetEmployeeByUserID(userID.(uint))
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success":    false,
+				"error_code": "EMPLOYEE_NOT_FOUND",
+				"message":    "Data karyawan tidak ditemukan",
+			})
+			return
+		}
+		empID = &employee.ID
+	} else {
+		employeeID, err := strconv.ParseUint(employeeIDStr, 10, 32)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_EMPLOYEE_ID",
+				"message":    "Employee ID tidak valid",
+			})
+			return
+		}
+		id := uint(employeeID)
+		empID = &id
 	}
 
 	startDate, err := time.Parse("2006-01-02", startDateStr)
@@ -902,8 +987,7 @@ func (h *HRMHandler) GetAttendanceByDateRange(c *gin.Context) {
 		return
 	}
 
-	empID := uint(employeeID)
-	attendances, err := h.attendanceService.GetAttendanceByDateRange(&empID, startDate, endDate)
+	attendances, err := h.attendanceService.GetAttendanceByDateRange(empID, startDate, endDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -916,5 +1000,159 @@ func (h *HRMHandler) GetAttendanceByDateRange(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    attendances,
+	})
+}
+
+
+// GPS Configuration Endpoints
+
+// CreateGPSConfigRequest represents create GPS config request
+type CreateGPSConfigRequest struct {
+	Name        string  `json:"name" binding:"required"`
+	Latitude    float64 `json:"latitude" binding:"required"`
+	Longitude   float64 `json:"longitude" binding:"required"`
+	Radius      int     `json:"radius"`
+	Address     string  `json:"address"`
+	Description string  `json:"description"`
+}
+
+// CreateGPSConfig creates a new GPS configuration
+func (h *HRMHandler) CreateGPSConfig(c *gin.Context) {
+	var req CreateGPSConfigRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "VALIDATION_ERROR",
+			"message":    "Data tidak valid",
+		})
+		return
+	}
+
+	config := &models.GPSConfig{
+		Name:        req.Name,
+		Latitude:    req.Latitude,
+		Longitude:   req.Longitude,
+		Radius:      req.Radius,
+		Address:     req.Address,
+		Description: req.Description,
+		IsActive:    true,
+	}
+
+	if config.Radius <= 0 {
+		config.Radius = 100 // Default 100 meters
+	}
+
+	if err := h.attendanceService.CreateGPSConfig(config); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    err.Error(),
+		})
+		return
+	}
+
+	// Record in audit trail
+	userID, _ := c.Get("user_id")
+	h.auditService.RecordAction(userID.(uint), "create", "gps_config", strconv.Itoa(int(config.ID)), "", "", c.ClientIP())
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "Konfigurasi GPS berhasil dibuat",
+		"data":    config,
+	})
+}
+
+// GetGPSConfigs retrieves all GPS configurations
+func (h *HRMHandler) GetGPSConfigs(c *gin.Context) {
+	activeOnlyStr := c.Query("active_only")
+	activeOnly := activeOnlyStr == "true"
+
+	configs, err := h.attendanceService.GetAllGPSConfigs(activeOnly)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    "Terjadi kesalahan pada server",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    configs,
+	})
+}
+
+// UpdateGPSConfig updates a GPS configuration
+func (h *HRMHandler) UpdateGPSConfig(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_ID",
+			"message":    "ID tidak valid",
+		})
+		return
+	}
+
+	var updates map[string]interface{}
+	if err := c.ShouldBindJSON(&updates); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "VALIDATION_ERROR",
+			"message":    "Data tidak valid",
+		})
+		return
+	}
+
+	config, err := h.attendanceService.UpdateGPSConfig(uint(id), updates)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    err.Error(),
+		})
+		return
+	}
+
+	// Record in audit trail
+	userID, _ := c.Get("user_id")
+	h.auditService.RecordAction(userID.(uint), "update", "gps_config", strconv.Itoa(int(id)), "", "", c.ClientIP())
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Konfigurasi GPS berhasil diperbarui",
+		"data":    config,
+	})
+}
+
+// DeleteGPSConfig deletes a GPS configuration
+func (h *HRMHandler) DeleteGPSConfig(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_ID",
+			"message":    "ID tidak valid",
+		})
+		return
+	}
+
+	if err := h.attendanceService.DeleteGPSConfig(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    err.Error(),
+		})
+		return
+	}
+
+	// Record in audit trail
+	userID, _ := c.Get("user_id")
+	h.auditService.RecordAction(userID.(uint), "delete", "gps_config", strconv.Itoa(int(id)), "", "", c.ClientIP())
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Konfigurasi GPS berhasil dihapus",
 	})
 }

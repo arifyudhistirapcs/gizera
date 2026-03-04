@@ -40,11 +40,17 @@ func AllModels() []interface{} {
 		&ElectronicPOD{},
 		&OmprengTracking{},
 		&OmprengInventory{},
+		&DeliveryRecord{},
+		&StatusTransition{},
+		&OmprengCleaning{},
+		&PickupTask{},
+		&DeliveryReview{},
 		
 		// Human Resources
 		&Employee{},
 		&Attendance{},
 		&WiFiConfig{},
+		&GPSConfig{},
 		
 		// Financial & Asset Management
 		&KitchenAsset{},

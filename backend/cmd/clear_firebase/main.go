@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// Initialize Firebase
-	opt := option.WithCredentialsFile("../../firebase-credentials.json")
+	opt := option.WithCredentialsFile("./firebase-credentials.json")
 	app, err := firebase.NewApp(context.Background(), &firebase.Config{
 		DatabaseURL: os.Getenv("FIREBASE_DATABASE_URL"),
 	}, opt)

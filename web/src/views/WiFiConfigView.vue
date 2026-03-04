@@ -88,8 +88,8 @@
             <template v-if="column.key === 'ssid'">
               <a-typography-text copyable>{{ record.ssid }}</a-typography-text>
             </template>
-            <template v-else-if="column.key === 'bssid'">
-              <a-typography-text copyable code>{{ record.bssid }}</a-typography-text>
+            <template v-else-if="column.key === 'ip_range'">
+              <a-typography-text copyable code>{{ record.ip_range || '-' }}</a-typography-text>
             </template>
             <template v-else-if="column.key === 'is_active'">
               <a-tag :color="record.is_active ? 'green' : 'red'">
@@ -157,15 +157,28 @@
           </div>
         </a-form-item>
 
-        <a-form-item label="BSSID (MAC Address)" name="bssid">
+        <a-form-item label="IP Range (CIDR Notation)" name="ip_range">
           <a-input 
-            v-model:value="formData.bssid" 
-            placeholder="Masukkan BSSID (MAC Address)"
-            :maxlength="17"
-            @input="formatBSSID"
+            v-model:value="formData.ip_range" 
+            placeholder="Masukkan IP Range dalam format CIDR"
+            :maxlength="18"
           />
           <div style="font-size: 12px; color: #666; margin-top: 4px;">
-            Format: XX:XX:XX:XX:XX:XX (contoh: 00:1A:2B:3C:4D:5E)
+            Format: 192.168.1.0/24 (untuk jaringan 192.168.1.0 - 192.168.1.255)
+          </div>
+        </a-form-item>
+
+        <a-form-item label="IP Spesifik (Opsional)" name="allowed_ips">
+          <a-textarea 
+            v-model:value="formData.allowed_ips" 
+            placeholder="Masukkan IP address spesifik yang diizinkan (satu per baris)"
+            :rows="3"
+          />
+          <div style="font-size: 12px; color: #666; margin-top: 4px;">
+            Contoh:<br/>
+            192.168.1.100<br/>
+            192.168.1.101<br/>
+            Kosongkan jika menggunakan IP Range saja
           </div>
         </a-form-item>
 
@@ -194,7 +207,7 @@
 
       <a-alert
         message="Informasi Penting"
-        description="BSSID adalah alamat MAC unik dari access point Wi-Fi. Pastikan BSSID yang dimasukkan benar untuk menghindari masalah validasi absensi."
+        description="Sistem akan memvalidasi check-in berdasarkan IP address karyawan. Pastikan IP Range yang dimasukkan sesuai dengan jaringan kantor Anda."
         type="info"
         show-icon
         style="margin-top: 16px"
@@ -227,7 +240,8 @@ const pagination = reactive({
 
 const formData = reactive({
   ssid: '',
-  bssid: '',
+  ip_range: '',
+  allowed_ips: '',
   location: '',
   is_active: true
 })
@@ -237,11 +251,11 @@ const rules = {
     { required: true, message: 'SSID wajib diisi' },
     { min: 1, max: 100, message: 'SSID harus antara 1-100 karakter' }
   ],
-  bssid: [
-    { required: true, message: 'BSSID wajib diisi' },
+  ip_range: [
+    { required: true, message: 'IP Range wajib diisi' },
     { 
-      pattern: /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/, 
-      message: 'Format BSSID tidak valid (contoh: 00:1A:2B:3C:4D:5E)' 
+      pattern: /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/, 
+      message: 'Format IP Range tidak valid (contoh: 192.168.1.0/24)' 
     }
   ],
   location: [
@@ -259,9 +273,9 @@ const columns = [
     width: 200
   },
   {
-    title: 'BSSID',
-    key: 'bssid',
-    dataIndex: 'bssid',
+    title: 'IP Range',
+    key: 'ip_range',
+    dataIndex: 'ip_range',
     width: 180
   },
   {
@@ -358,9 +372,16 @@ const showCreateModal = () => {
 
 const editWiFiConfig = (config) => {
   editingConfig.value = config
+  
+  // Convert allowed_ips array to string (one per line)
+  const allowedIpsStr = Array.isArray(config.allowed_ips) 
+    ? config.allowed_ips.join('\n') 
+    : ''
+  
   Object.assign(formData, {
     ssid: config.ssid,
-    bssid: config.bssid,
+    ip_range: config.ip_range || '',
+    allowed_ips: allowedIpsStr,
     location: config.location,
     is_active: config.is_active
   })
@@ -372,11 +393,26 @@ const handleSubmit = async () => {
     await formRef.value.validate()
     submitting.value = true
 
+    // Convert allowed_ips string to array
+    const allowedIpsArray = formData.allowed_ips
+      ? formData.allowed_ips.split('\n').map(ip => ip.trim()).filter(ip => ip)
+      : []
+
+    const submitData = {
+      ssid: formData.ssid,
+      ip_range: formData.ip_range,
+      allowed_ips: allowedIpsArray,
+      location: formData.location,
+      is_active: formData.is_active,
+      // Keep bssid for backward compatibility, use dummy value
+      bssid: '00:00:00:00:00:00'
+    }
+
     if (editingConfig.value) {
-      await wifiConfigService.updateWiFiConfig(editingConfig.value.id, formData)
+      await wifiConfigService.updateWiFiConfig(editingConfig.value.id, submitData)
       message.success('Konfigurasi Wi-Fi berhasil diperbarui')
     } else {
-      await wifiConfigService.createWiFiConfig(formData)
+      await wifiConfigService.createWiFiConfig(submitData)
       message.success('Konfigurasi Wi-Fi berhasil ditambahkan')
     }
 
@@ -427,25 +463,12 @@ const handleCancel = () => {
 const resetForm = () => {
   Object.assign(formData, {
     ssid: '',
-    bssid: '',
+    ip_range: '',
+    allowed_ips: '',
     location: '',
     is_active: true
   })
   formRef.value?.resetFields()
-}
-
-const formatBSSID = (e) => {
-  let value = e.target.value.replace(/[^0-9A-Fa-f]/g, '')
-  
-  // Add colons every 2 characters
-  if (value.length > 0) {
-    value = value.match(/.{1,2}/g).join(':')
-    if (value.length > 17) {
-      value = value.substring(0, 17)
-    }
-  }
-  
-  formData.bssid = value.toUpperCase()
 }
 
 const formatDateTime = (date) => {

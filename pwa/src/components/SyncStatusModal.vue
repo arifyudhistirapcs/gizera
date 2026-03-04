@@ -281,7 +281,7 @@ const retryItem = async (item) => {
     
     // Trigger sync
     if (isOnline.value) {
-      syncService.syncAllOfflineData()
+      syncService.syncPendingData()
     }
     
     showSuccessToast('Item akan dicoba lagi')
@@ -317,7 +317,7 @@ const forceSyncAll = async () => {
   isForceSyncing.value = true
   
   try {
-    await syncService.syncAllOfflineData()
+    await syncService.syncPendingData()
     showSuccessToast('Sinkronisasi dipaksa dimulai')
   } catch (error) {
     console.error('Error forcing sync:', error)

@@ -1,7 +1,7 @@
 <template>
   <div class="delivery-tasks-container">
     <!-- Navigation Bar -->
-    <van-nav-bar title="Tugas Pengiriman Hari Ini" fixed>
+    <van-nav-bar title="Tugas Pengiriman dan Pengambilan" fixed>
       <template #right>
         <van-icon 
           name="refresh" 
@@ -11,30 +11,78 @@
       </template>
     </van-nav-bar>
 
+    <!-- Access Denied -->
+    <van-empty 
+      v-if="!hasAccess"
+      image="error"
+      description="Anda tidak memiliki akses ke halaman ini"
+    >
+      <van-button type="primary" @click="goToProfile">Kembali ke Profil</van-button>
+    </van-empty>
+
     <!-- Offline Indicator -->
     <van-notice-bar 
-      v-if="!isOnline" 
+      v-else-if="!isOnline" 
       type="warning" 
       text="Mode offline - Data mungkin tidak terbaru"
       left-icon="warning-o"
     />
 
-    <!-- Loading State -->
-    <van-loading v-if="isLoading" type="spinner" vertical>
-      Memuat tugas pengiriman...
-    </van-loading>
+    <div v-else class="delivery-tasks-content">
+      <!-- Tab Selection -->
+      <div class="tab-selection">
+        <button
+          :class="['tab-button', { 'tab-button--active': activeTab === 'delivery' }]"
+          @click="activeTab = 'delivery'"
+        >
+          Pengiriman
+        </button>
+        <button
+          :class="['tab-button', { 'tab-button--active': activeTab === 'pickup' }]"
+          @click="activeTab = 'pickup'"
+        >
+          Pengambilan
+        </button>
+      </div>
 
-    <!-- Empty State -->
-    <van-empty 
-      v-else-if="!isLoading && tasks.length === 0"
-      image="search"
-      description="Tidak ada tugas pengiriman hari ini"
-    />
+      <!-- Date Filter -->
+      <div class="date-filter">
+        <van-field
+          v-model="selectedDateFormatted"
+          label="Tanggal"
+          placeholder="Pilih tanggal"
+          readonly
+          right-icon="calendar-o"
+          @click="showDatePicker = true"
+        />
+      </div>
 
-    <!-- Tasks List -->
-    <div v-else class="tasks-list">
+      <!-- Date Picker Popup -->
+      <van-popup v-model:show="showDatePicker" position="bottom">
+        <van-date-picker
+          v-model="selectedDate"
+          :max-date="today"
+          @confirm="onDateConfirm"
+          @cancel="showDatePicker = false"
+        />
+      </van-popup>
+
+      <!-- Loading State -->
+      <van-loading v-if="isLoading" type="spinner" vertical>
+        Memuat tugas...
+      </van-loading>
+
+      <!-- Empty State -->
+      <van-empty 
+        v-else-if="!isLoading && filteredTasks.length === 0"
+        image="search"
+        :description="`Tidak ada tugas ${activeTab === 'delivery' ? 'pengiriman' : 'pengambilan'} untuk tanggal yang dipilih`"
+      />
+
+      <!-- Tasks List -->
+      <div v-else class="tasks-list">
       <van-card
-        v-for="task in sortedTasks"
+        v-for="task in sortedFilteredTasks"
         :key="task.id"
         :title="task.school?.name || 'Sekolah tidak diketahui'"
         :desc="formatAddress(task.school?.address)"
@@ -43,10 +91,17 @@
       >
         <template #tags>
           <van-tag 
-            :type="getStatusType(task.status)" 
+            :type="task.task_type === 'pickup' ? 'warning' : 'success'" 
+            size="medium"
+            class="task-type-tag"
+          >
+            {{ getTaskTypeText(task) }}
+          </van-tag>
+          <van-tag 
+            :type="getStatusType(task.status, task)" 
             size="medium"
           >
-            {{ getStatusText(task.status) }}
+            {{ getStatusText(task.status, task) }}
           </van-tag>
           <van-tag 
             type="primary" 
@@ -76,7 +131,10 @@
             
             <div class="info-row">
               <van-icon name="friends-o" />
-              <span class="info-text">{{ task.portions }} porsi</span>
+              <span class="info-text" v-if="task.task_type === 'pickup'">
+                {{ task.ompreng_count || 0 }} wadah ompreng
+              </span>
+              <span class="info-text" v-else>{{ task.portions }} porsi</span>
             </div>
 
             <div class="info-row" v-if="task.menu_items && task.menu_items.length > 0">
@@ -89,10 +147,11 @@
         </template>
       </van-card>
     </div>
+    </div>
 
     <!-- Bottom Navigation -->
     <van-tabbar v-model="active" route fixed>
-      <van-tabbar-item to="/tasks" icon="orders-o">Tugas</van-tabbar-item>
+      <van-tabbar-item v-if="hasAccess" to="/tasks" icon="orders-o">Tugas</van-tabbar-item>
       <van-tabbar-item to="/attendance" icon="clock-o">Absensi</van-tabbar-item>
       <van-tabbar-item to="/profile" icon="user-o">Profil</van-tabbar-item>
     </van-tabbar>
@@ -116,20 +175,68 @@ const active = ref(0)
 const isLoading = ref(false)
 const isRefreshing = ref(false)
 const isOnline = ref(navigator.onLine)
+const activeTab = ref('delivery')
+const selectedDate = ref(new Date())
+const showDatePicker = ref(false)
+const today = new Date()
 
 // Computed properties
 const tasks = computed(() => deliveryTasksStore.tasks)
+
+// Filter tasks by active tab
+const filteredTasks = computed(() => {
+  return tasks.value.filter(task => task.task_type === activeTab.value)
+})
+
+// Sort filtered tasks by route_order
+const sortedFilteredTasks = computed(() => {
+  return [...filteredTasks.value].sort((a, b) => a.route_order - b.route_order)
+})
+
 const sortedTasks = computed(() => {
   return [...tasks.value].sort((a, b) => a.route_order - b.route_order)
 })
 
+// Format selected date for display
+const selectedDateFormatted = computed(() => {
+  return selectedDate.value.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+})
+
+// Check if user has access (driver or asisten_lapangan only)
+const hasAccess = computed(() => {
+  const allowedRoles = ['driver', 'asisten_lapangan']
+  const userRole = authStore.user?.role?.toLowerCase()
+  return allowedRoles.includes(userRole)
+})
+
 // Methods
+const goToProfile = () => {
+  router.push('/profile')
+}
+
+const onDateConfirm = () => {
+  showDatePicker.value = false
+  // TODO: Fetch tasks for selected date
+  // For now, we only show today's tasks from store
+  showToast('Filter tanggal akan diterapkan')
+}
+
 const loadTasks = async () => {
-  if (!authStore.user?.id) return
+  if (!authStore.user?.id || !hasAccess.value) {
+    console.log('[DeliveryTasksView] Cannot load tasks - user:', authStore.user?.id, 'hasAccess:', hasAccess.value)
+    return
+  }
   
+  console.log('[DeliveryTasksView] Loading tasks for user:', authStore.user?.id, authStore.user?.full_name, authStore.user?.role)
   isLoading.value = true
   try {
     await deliveryTasksStore.fetchTodayTasks(authStore.user.id)
+    console.log('[DeliveryTasksView] Tasks loaded:', tasks.value.length)
   } catch (error) {
     console.error('Error loading tasks:', error)
     showToast('Gagal memuat tugas pengiriman')
@@ -154,7 +261,12 @@ const refreshTasks = async () => {
 }
 
 const showTaskDetail = (task) => {
-  router.push(`/tasks/${task.id}`)
+  if (task.task_type === 'pickup') {
+    // For pickup tasks, navigate to pickup task detail
+    router.push(`/pickup-tasks/${task.pickup_task_id}?record=${task.delivery_record_id}`)
+  } else {
+    router.push(`/tasks/${task.id}`)
+  }
 }
 
 const formatAddress = (address) => {
@@ -162,24 +274,62 @@ const formatAddress = (address) => {
   return address.length > 50 ? address.substring(0, 50) + '...' : address
 }
 
-const getStatusType = (status) => {
+const getStatusType = (status, task) => {
+  // For pickup tasks, use stage-based status
+  if (task?.task_type === 'pickup') {
+    const stage = task.current_stage
+    if (stage >= 13) return 'success'
+    if (stage >= 10) return 'primary'
+    return 'warning'
+  }
+  
   const statusTypes = {
     'pending': 'warning',
     'in_progress': 'primary',
+    'arrived': 'success',
+    'received': 'success',
     'completed': 'success',
     'cancelled': 'danger'
   }
   return statusTypes[status] || 'default'
 }
 
-const getStatusText = (status) => {
+const getStatusText = (status, task) => {
+  // For pickup tasks, show stage-based status
+  if (task?.task_type === 'pickup') {
+    const stage = task.current_stage
+    const stageTexts = {
+      10: 'Menuju Lokasi',
+      11: 'Tiba di Lokasi',
+      12: 'Kembali ke SPPG',
+      13: 'Tiba di SPPG'
+    }
+    return stageTexts[stage] || `Stage ${stage}`
+  }
+  
   const statusTexts = {
     'pending': 'Menunggu',
     'in_progress': 'Dalam Perjalanan',
-    'completed': 'Selesai',
+    'arrived': 'Sudah Sampai',
+    'received': 'Sudah Diterima',
+    'completed': 'Sudah Diterima',
     'cancelled': 'Dibatalkan'
   }
   return statusTexts[status] || status
+}
+
+const getTaskTypeText = (task) => {
+  // Tentukan jenis tugas berdasarkan task_type atau current_stage
+  if (task.task_type === 'pickup') {
+    return '📦 Pengambilan Ompreng'
+  }
+  // Stage 1-4, 9: Pengiriman Makanan (siap dikirim → sudah diterima)
+  // Stage 5-8: Pengambilan Ompreng (driver menuju lokasi pengambilan → driver tiba di SPPG)
+  const stage = task.current_stage || 1
+  if (stage >= 5 && stage <= 8) {
+    return '📦 Pengambilan Ompreng'
+  }
+  return '🍱 Pengiriman Makanan'
 }
 
 const openMaps = (school) => {
@@ -223,19 +373,82 @@ onUnmounted(() => {
 <style scoped>
 .delivery-tasks-container {
   min-height: 100vh;
-  background-color: #f7f8fa;
-  padding-top: 46px; /* Nav bar height */
-  padding-bottom: 50px; /* Tab bar height */
+  background-color: #F8FDEA;
+  padding-top: 46px;
+  padding-bottom: 50px;
+}
+
+.delivery-tasks-content {
+  padding: 16px;
+}
+
+/* Tab Selection */
+.tab-selection {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  font-family: var(--van-base-font, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+  color: #74788C;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tab-button--active {
+  background: #5A4372;
+  color: #FFFFFF;
+  box-shadow: 0px 4px 12px rgba(90, 67, 114, 0.3);
+}
+
+/* Date Filter */
+.date-filter {
+  margin-bottom: 16px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .tasks-list {
-  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .task-card {
-  margin-bottom: 12px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  border-radius: 16px !important;
+  box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12) !important;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.task-card:active {
+  transform: scale(0.98);
+}
+
+.task-type-tag {
+  margin-right: 6px;
+}
+
+.task-type-tag[type="success"] {
+  background-color: #e8f5e9 !important;
+  color: #2e7d32 !important;
+}
+
+.task-type-tag[type="warning"] {
+  background-color: #fff3e0 !important;
+  color: #e65100 !important;
 }
 
 .route-tag {
@@ -243,25 +456,28 @@ onUnmounted(() => {
 }
 
 .task-info {
-  padding: 8px 0;
+  padding: 12px 0;
 }
 
 .info-row {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   font-size: 14px;
-  color: #646566;
+  color: #74788C;
 }
 
 .info-row .van-icon {
   margin-right: 8px;
-  color: #969799;
+  color: #5A4372;
+  font-size: 18px;
 }
 
 .info-text {
   flex: 1;
   margin-right: 8px;
+  color: #322837;
+  font-weight: 500;
 }
 
 .rotating {
@@ -284,7 +500,11 @@ onUnmounted(() => {
   }
   
   .task-card {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .tasks-list {
+    padding: 12px;
   }
 }
 </style>

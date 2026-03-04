@@ -1,5 +1,5 @@
 <template>
-  <div class="epod-form-container">
+  <div class="epod-form">
     <!-- Navigation Bar -->
     <van-nav-bar 
       title="Bukti Pengiriman Digital" 
@@ -41,7 +41,7 @@
     />
 
     <!-- Loading State -->
-    <van-loading v-if="isLoading" type="spinner" vertical>
+    <van-loading v-if="isLoading" type="spinner" vertical class="epod-form__loading">
       Memuat data pengiriman...
     </van-loading>
 
@@ -57,112 +57,93 @@
     </van-empty>
 
     <!-- e-POD Form Content -->
-    <div v-else-if="deliveryTask" class="form-content">
-      <!-- Delivery Task Summary -->
-      <van-card class="task-summary">
-        <template #title>
-          <div class="task-header">
-            <span>{{ deliveryTask.school?.name }}</span>
-            <van-tag type="primary" size="large">
-              {{ deliveryTask.portions }} Porsi
-            </van-tag>
-          </div>
-        </template>
-        
-        <div class="task-info">
-          <div class="info-item">
-            <van-icon name="location-o" />
+    <div v-else-if="deliveryTask" class="epod-form__content">
+      <!-- Progress Steps Card -->
+      <div class="epod-form__card">
+        <van-steps :active="formProgress" active-color="#5A4372">
+          <van-step>Lokasi</van-step>
+          <van-step>Foto</van-step>
+          <van-step>Penerima</van-step>
+          <van-step>Kirim</van-step>
+        </van-steps>
+      </div>
+
+      <!-- Delivery Task Summary Card -->
+      <div class="epod-form__card">
+        <div class="epod-form__card-title">Ringkasan Tugas</div>
+        <div class="epod-form__task-header">
+          <span class="epod-form__school-name">{{ deliveryTask.school?.name }}</span>
+          <van-tag type="primary" size="large">
+            {{ deliveryTask.portions }} Porsi
+          </van-tag>
+        </div>
+        <div class="epod-form__task-info">
+          <div class="epod-form__info-row">
+            <van-icon name="location-o" color="var(--h-primary)" />
             <span>{{ deliveryTask.school?.address }}</span>
           </div>
-          <div class="info-item">
-            <van-icon name="contact" />
+          <div class="epod-form__info-row">
+            <van-icon name="contact" color="var(--h-primary)" />
             <span>{{ deliveryTask.school?.contact_person }}</span>
           </div>
         </div>
-      </van-card>
+      </div>
 
-      <!-- GPS Location Section -->
-      <van-cell-group title="Lokasi GPS" class="form-section">
-        <van-cell 
-          title="Status GPS" 
-          :value="gpsStatus"
-          :icon="gpsIcon"
-          :class="gpsStatusClass"
-        />
-        <van-cell 
-          v-if="currentLocation.latitude"
-          title="Latitude" 
-          :value="currentLocation.latitude.toFixed(6)"
-          icon="aim"
-        />
-        <van-cell 
-          v-if="currentLocation.longitude"
-          title="Longitude" 
-          :value="currentLocation.longitude.toFixed(6)"
-          icon="aim"
-        />
-        <van-cell 
-          v-if="currentLocation.accuracy"
-          title="Akurasi" 
-          :value="`±${currentLocation.accuracy.toFixed(0)}m`"
-          icon="location-o"
-          :class="getAccuracyClass()"
-        />
-        
+      <!-- GPS Location Card -->
+      <div class="epod-form__card">
+        <div class="epod-form__card-title">
+          <van-icon name="aim" color="var(--h-primary)" />
+          Lokasi GPS
+        </div>
+        <div class="epod-form__gps-status" :class="gpsStatusClass">
+          <van-icon :name="gpsIcon" />
+          <span>{{ gpsStatus }}</span>
+        </div>
+        <div v-if="currentLocation.latitude" class="epod-form__gps-details">
+          <div class="epod-form__gps-item">
+            <span class="epod-form__gps-label">Latitude</span>
+            <span class="epod-form__gps-value">{{ currentLocation.latitude.toFixed(6) }}</span>
+          </div>
+          <div class="epod-form__gps-item">
+            <span class="epod-form__gps-label">Longitude</span>
+            <span class="epod-form__gps-value">{{ currentLocation.longitude.toFixed(6) }}</span>
+          </div>
+          <div v-if="currentLocation.accuracy" class="epod-form__gps-item">
+            <span class="epod-form__gps-label">Akurasi</span>
+            <span class="epod-form__gps-value" :class="getAccuracyClass()">
+              ±{{ currentLocation.accuracy.toFixed(0) }}m
+            </span>
+          </div>
+        </div>
         <van-button 
           v-if="!isCapturingGPS && (!currentLocation.latitude || currentLocation.accuracy > 50)"
           type="primary" 
           size="small"
+          block
           @click="captureGPS"
           :loading="isCapturingGPS"
-          class="gps-button"
+          class="epod-form__gps-btn"
         >
           <van-icon name="aim" />
           {{ currentLocation.latitude ? 'Perbarui GPS' : 'Ambil Lokasi GPS' }}
         </van-button>
-      </van-cell-group>
+      </div>
 
-      <!-- Ompreng Tracking Section -->
-      <van-cell-group title="Pelacakan Ompreng" class="form-section">
-        <van-field
-          v-model="formData.omprengDropOff"
-          type="number"
-          label="Ompreng Diantar"
-          placeholder="Masukkan jumlah ompreng yang diantar"
-          :rules="[{ required: true, message: 'Jumlah ompreng diantar wajib diisi' }]"
-          :error="errors.omprengDropOff"
-          :error-message="errors.omprengDropOff"
-        >
-          <template #left-icon>
-            <van-icon name="shopping-cart-o" />
-          </template>
-        </van-field>
-        
-        <van-field
-          v-model="formData.omprengPickUp"
-          type="number"
-          label="Ompreng Diambil"
-          placeholder="Masukkan jumlah ompreng yang diambil"
-          :rules="[{ required: true, message: 'Jumlah ompreng diambil wajib diisi' }]"
-          :error="errors.omprengPickUp"
-          :error-message="errors.omprengPickUp"
-        >
-          <template #left-icon>
-            <van-icon name="shopping-cart-o" />
-          </template>
-        </van-field>
-      </van-cell-group>
-
-      <!-- Photo Section -->
-      <van-cell-group title="Foto Bukti Pengiriman" class="form-section">
+      <!-- Photo Evidence Card -->
+      <div class="epod-form__card">
+        <div class="epod-form__card-title">
+          <van-icon name="photograph" color="var(--h-primary)" />
+          Foto Bukti Pengiriman
+        </div>
         <van-cell 
           title="Foto Serah Terima" 
           is-link
           @click="takePhoto"
           :value="getPhotoStatus()"
           :icon="formData.photo ? 'success' : 'photograph'"
+          class="epod-form__cell"
         />
-        
+
         <!-- Camera Selection -->
         <van-cell 
           v-if="availableCameras.length > 1"
@@ -171,20 +152,20 @@
           @click="showCameraSelection = true"
           :value="selectedCamera?.label || 'Pilih kamera'"
           icon="video-o"
+          class="epod-form__cell"
         />
-        
-        <div v-if="formData.photo" class="photo-preview">
+
+        <div v-if="formData.photo" class="epod-form__photo-preview">
           <img :src="formData.photo" alt="Foto bukti pengiriman" />
-          <div class="photo-info">
-            <span class="photo-size">{{ getPhotoSize() }}</span>
-            <span class="photo-quality">{{ photoQuality }}% kualitas</span>
+          <div class="epod-form__photo-info">
+            <span>{{ getPhotoSize() }}</span>
+            <span>{{ photoQuality }}% kualitas</span>
           </div>
-          <div class="photo-actions">
+          <div class="epod-form__photo-actions">
             <van-button 
               type="primary" 
               size="small" 
               @click="retakePhoto"
-              class="retake-photo-btn"
             >
               <van-icon name="photograph" />
               Ambil Ulang
@@ -193,59 +174,66 @@
               type="danger" 
               size="small" 
               @click="removePhoto"
-              class="remove-photo-btn"
             >
               <van-icon name="delete-o" />
               Hapus Foto
             </van-button>
           </div>
         </div>
-      </van-cell-group>
+      </div>
 
-      <!-- Digital Signature Section -->
-      <van-cell-group title="Tanda Tangan Digital" class="form-section">
+      <!-- Signature & Receiver Name Card -->
+      <div class="epod-form__card">
+        <div class="epod-form__card-title">
+          <van-icon name="edit" color="var(--h-primary)" />
+          Tanda Tangan & Penerima
+        </div>
+
+        <!-- Receiver Name -->
         <van-field
           v-model="formData.recipientName"
           label="Nama Penerima"
           placeholder="Masukkan nama penerima"
           :rules="[{ required: true, message: 'Nama penerima wajib diisi' }]"
-          :error="errors.recipientName"
+          :error="!!errors.recipientName"
           :error-message="errors.recipientName"
+          class="epod-form__field"
         >
           <template #left-icon>
             <van-icon name="contact" />
           </template>
         </van-field>
-        
+
+        <!-- Signature -->
         <van-cell 
           title="Tanda Tangan" 
           is-link
           @click="openSignaturePad"
           :value="getSignatureStatus()"
           :icon="formData.signature ? 'success' : 'edit'"
+          class="epod-form__cell"
         />
-        
-        <div v-if="formData.signature" class="signature-preview">
-          <div class="signature-image-container">
+
+        <div v-if="formData.signature" class="epod-form__signature-preview">
+          <div class="epod-form__signature-img-wrap">
             <img :src="formData.signature" alt="Tanda tangan digital" />
-            <div class="signature-overlay">
+            <div class="epod-form__signature-check">
               <van-icon name="success" size="20" />
             </div>
           </div>
-          <div class="signature-info">
-            <div class="signature-quality-badge" :class="getQualityClass()">
+          <div class="epod-form__signature-meta">
+            <div class="epod-form__quality-badge" :class="getQualityClass()">
               {{ getQualityText() }}
             </div>
-            <span class="signature-timestamp">
+            <span class="epod-form__signature-time">
               {{ new Date().toLocaleString('id-ID') }}
             </span>
           </div>
-          <div class="signature-actions-inline">
+          <div class="epod-form__signature-actions">
             <van-button 
               type="primary" 
               size="small" 
               @click="openSignaturePad"
-              class="re-sign-btn"
             >
               <van-icon name="edit" />
               Tanda Tangan Ulang
@@ -254,31 +242,36 @@
               type="danger" 
               size="small" 
               @click="removeSignature"
-              class="remove-signature-btn"
             >
               <van-icon name="delete-o" />
               Hapus
             </van-button>
           </div>
         </div>
-      </van-cell-group>
+      </div>
 
-      <!-- Submit Button -->
-      <div class="submit-section">
+      <!-- Submit Section -->
+      <div class="epod-form__submit-section">
+        <!-- Submission Progress -->
+        <div v-if="isSubmitting" class="epod-form__submit-progress">
+          <van-loading type="spinner" size="20" />
+          <span>Mengirim bukti pengiriman...</span>
+        </div>
+
         <van-button 
           type="success" 
           size="large"
           block 
           @click="submitePOD"
           :loading="isSubmitting"
-          :disabled="!canSubmit"
-          class="submit-button"
+          :disabled="!canSubmit || isSubmitting"
+          class="epod-form__submit-btn"
         >
           <van-icon name="success" />
           Kirim Bukti Pengiriman
         </van-button>
-        
-        <div v-if="!canSubmit" class="validation-info">
+
+        <div v-if="!canSubmit && !isSubmitting" class="epod-form__validation-hint">
           <van-icon name="info-o" />
           <span>Lengkapi semua data yang diperlukan</span>
         </div>
@@ -464,11 +457,11 @@
         </div>
         
         <div class="signature-preview-info">
-          <div class="info-item">
+          <div class="sig-info-item">
             <span>Kualitas:</span>
             <span :class="getQualityClass()">{{ getQualityText() }}</span>
           </div>
-          <div class="info-item">
+          <div class="sig-info-item">
             <span>Goresan:</span>
             <span>{{ signatureStrokes.length }} goresan</span>
           </div>
@@ -506,8 +499,8 @@
         <h4>Langkah-langkah:</h4>
         <ol>
           <li>Pastikan GPS aktif dan akurat (≤50m)</li>
-          <li>Isi jumlah ompreng yang diantar dan diambil</li>
           <li>Ambil foto bukti serah terima</li>
+          <li>Masukkan nama penerima</li>
           <li>Minta tanda tangan penerima</li>
           <li>Kirim bukti pengiriman</li>
         </ol>
@@ -566,8 +559,6 @@ const currentLocation = ref({
 
 // Form data
 const formData = ref({
-  omprengDropOff: '',
-  omprengPickUp: '',
   photo: null,
   signature: null,
   recipientName: ''
@@ -575,8 +566,6 @@ const formData = ref({
 
 // Form validation
 const errors = ref({
-  omprengDropOff: '',
-  omprengPickUp: '',
   recipientName: ''
 })
 
@@ -623,6 +612,15 @@ const signatureQuality = ref(0)
 const showSignaturePreview = ref(false)
 const previewSignature = ref(null)
 
+// Computed: form progress for van-steps
+const formProgress = computed(() => {
+  let step = 0
+  if (currentLocation.value.latitude && currentLocation.value.longitude) step = 1
+  if (step >= 1 && formData.value.photo) step = 2
+  if (step >= 2 && formData.value.recipientName.trim() && formData.value.signature) step = 3
+  return step
+})
+
 // Computed properties
 const gpsStatus = computed(() => {
   if (isCapturingGPS.value) return 'Mengambil lokasi...'
@@ -640,22 +638,36 @@ const gpsIcon = computed(() => {
 
 const gpsStatusClass = computed(() => {
   if (!currentLocation.value.latitude || currentLocation.value.accuracy > 50) {
-    return 'gps-warning'
+    return 'epod-form__gps-status--warning'
   }
-  return 'gps-success'
+  return 'epod-form__gps-status--success'
 })
 
 const canSubmit = computed(() => {
-  return (
-    currentLocation.value.latitude &&
-    currentLocation.value.longitude &&
-    currentLocation.value.accuracy <= 50 &&
-    formData.value.omprengDropOff &&
-    formData.value.omprengPickUp &&
-    formData.value.photo &&
-    formData.value.signature &&
-    formData.value.recipientName.trim()
-  )
+  const lat = currentLocation.value.latitude
+  const lng = currentLocation.value.longitude
+  const acc = currentLocation.value.accuracy
+  const photo = formData.value.photo
+  const sig = formData.value.signature
+  const name = formData.value.recipientName
+  
+  const hasGPS = !!(lat && lng)
+  const hasAccuracy = !acc || acc <= 200
+  const hasPhoto = !!photo
+  const hasSignature = !!sig
+  const hasRecipient = !!(name && name.trim())
+  
+  const result = hasGPS && hasAccuracy && hasPhoto && hasSignature && hasRecipient
+  
+  console.log('[ePOD] canSubmit:', result, {
+    hasGPS, lat, lng,
+    hasAccuracy, acc,
+    hasPhoto,
+    hasSignature,
+    hasRecipient, name
+  })
+  
+  return result
 })
 
 const getQualityClass = () => {
@@ -1241,8 +1253,10 @@ const compressCurrentSignature = () => {
 }
 
 const confirmSignature = async () => {
+  console.log('[ePOD] confirmSignature called, previewSignature:', !!previewSignature.value)
   if (previewSignature.value) {
     formData.value.signature = previewSignature.value
+    console.log('[ePOD] Signature saved to formData:', !!formData.value.signature)
     
     // Store signature offline
     await storeSignatureOffline(previewSignature.value)
@@ -1323,22 +1337,10 @@ const closeSignaturePad = () => {
 
 const validateForm = () => {
   errors.value = {
-    omprengDropOff: '',
-    omprengPickUp: '',
     recipientName: ''
   }
   
   let isValid = true
-  
-  if (!formData.value.omprengDropOff || formData.value.omprengDropOff < 0) {
-    errors.value.omprengDropOff = 'Jumlah ompreng diantar harus diisi dan tidak boleh negatif'
-    isValid = false
-  }
-  
-  if (!formData.value.omprengPickUp || formData.value.omprengPickUp < 0) {
-    errors.value.omprengPickUp = 'Jumlah ompreng diambil harus diisi dan tidak boleh negatif'
-    isValid = false
-  }
   
   if (!formData.value.recipientName.trim()) {
     errors.value.recipientName = 'Nama penerima wajib diisi'
@@ -1357,7 +1359,7 @@ const validateForm = () => {
     isValid = false
   }
   
-  if (currentLocation.value.accuracy > 50) {
+  if (currentLocation.value.accuracy > 200) {
     showToast('Akurasi GPS terlalu rendah. Silakan ambil ulang lokasi GPS')
     isValid = false
   }
@@ -1400,8 +1402,8 @@ const submitePOD = async () => {
         longitude: currentLocation.value.longitude,
         accuracy: currentLocation.value.accuracy,
         recipient_name: formData.value.recipientName.trim(),
-        ompreng_drop_off: parseInt(formData.value.omprengDropOff),
-        ompreng_pick_up: parseInt(formData.value.omprengPickUp),
+        ompreng_drop_off: 0,
+        ompreng_pick_up: 0,
         photo_url: formData.value.photo,
         signature_url: formData.value.signature,
         completed_at: new Date().toISOString(),
@@ -1574,113 +1576,300 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.epod-form-container {
+.epod-form {
   min-height: 100vh;
-  background-color: #f7f8fa;
-  padding-top: 46px; /* Nav bar height */
-  padding-bottom: 16px;
+  background-color: var(--h-bg-primary);
+  padding-top: 46px;
+  padding-bottom: var(--h-spacing-lg);
 }
 
-.form-content {
-  padding: 16px;
+.epod-form__loading {
+  padding-top: 120px;
 }
 
-.task-summary {
-  margin-bottom: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.epod-form__content {
+  padding: var(--h-spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-lg);
 }
 
-.task-header {
+/* Card base - matching DeliveryTaskDetailView pattern */
+.epod-form__card {
+  background: var(--h-bg-card);
+  border-radius: var(--h-radius-lg);
+  box-shadow: var(--h-shadow-card);
+  padding: var(--h-spacing-lg);
+}
+
+.epod-form__card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--h-text-primary);
+  margin-bottom: var(--h-spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-sm);
+}
+
+/* Task Summary */
+.epod-form__task-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: var(--h-spacing-md);
+}
+
+.epod-form__school-name {
   font-weight: 600;
+  font-size: 15px;
+  color: var(--h-text-primary);
 }
 
-.task-info {
-  margin-top: 12px;
+.epod-form__task-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-sm);
 }
 
-.info-item {
+.epod-form__info-row {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
-  color: #646566;
+  gap: var(--h-spacing-sm);
+  color: var(--h-text-secondary);
   font-size: 14px;
 }
 
-.info-item .van-icon {
-  margin-right: 8px;
-  color: #1989fa;
+/* GPS Section */
+.epod-form__gps-status {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-sm);
+  padding: var(--h-spacing-md);
+  border-radius: var(--h-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: var(--h-spacing-md);
 }
 
-.form-section {
-  margin-bottom: 16px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.epod-form__gps-status--warning {
+  background: rgba(255, 181, 71, 0.1);
+  color: var(--h-warning);
 }
 
-.gps-warning {
-  color: #ff976a;
+.epod-form__gps-status--success {
+  background: rgba(5, 205, 153, 0.1);
+  color: var(--h-success);
 }
 
-.gps-success {
-  color: #07c160;
+.epod-form__gps-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-sm);
+  margin-bottom: var(--h-spacing-md);
 }
 
-.accuracy-good {
-  color: #07c160;
+.epod-form__gps-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--h-spacing-xs) 0;
+  border-bottom: 1px solid var(--h-border-light);
+  font-size: 13px;
 }
 
-.accuracy-fair {
-  color: #ff976a;
+.epod-form__gps-item:last-child {
+  border-bottom: none;
 }
 
-.accuracy-poor {
-  color: #ee0a24;
+.epod-form__gps-label {
+  color: var(--h-text-secondary);
 }
 
-.gps-button {
-  margin: 12px 16px;
-  border-radius: 6px;
+.epod-form__gps-value {
+  color: var(--h-text-primary);
+  font-weight: 500;
 }
 
-.photo-preview,
-.signature-preview {
-  padding: 16px;
+.epod-form__gps-btn {
+  margin-top: var(--h-spacing-sm);
+}
+
+.accuracy-good { color: var(--h-success); }
+.accuracy-fair { color: var(--h-warning); }
+.accuracy-poor { color: var(--h-error); }
+
+/* Photo Section */
+.epod-form__cell {
+  margin: 0 calc(-1 * var(--h-spacing-lg));
+  padding-left: var(--h-spacing-lg);
+  padding-right: var(--h-spacing-lg);
+}
+
+.epod-form__photo-preview {
+  padding-top: var(--h-spacing-md);
   text-align: center;
 }
 
-.photo-preview img,
-.signature-preview img {
+.epod-form__photo-preview img {
   max-width: 100%;
   max-height: 200px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--h-radius-sm);
+  box-shadow: var(--h-shadow-sm);
 }
 
-.photo-info {
+.epod-form__photo-info {
   display: flex;
   justify-content: space-between;
-  margin: 8px 0;
+  margin: var(--h-spacing-sm) 0;
   font-size: 12px;
-  color: #969799;
+  color: var(--h-text-light);
 }
 
-.photo-actions {
+.epod-form__photo-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--h-spacing-sm);
   justify-content: center;
-  margin-top: 12px;
+  margin-top: var(--h-spacing-md);
 }
 
-.retake-photo-btn,
-.remove-photo-btn,
-.remove-signature-btn {
-  border-radius: 6px;
+/* Signature Section */
+.epod-form__field {
+  margin: 0 calc(-1 * var(--h-spacing-lg));
+  padding-left: var(--h-spacing-lg);
+  padding-right: var(--h-spacing-lg);
 }
+
+.epod-form__signature-preview {
+  padding-top: var(--h-spacing-md);
+  text-align: center;
+}
+
+.epod-form__signature-img-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: var(--h-spacing-md);
+}
+
+.epod-form__signature-img-wrap img {
+  max-width: 100%;
+  max-height: 120px;
+  border-radius: var(--h-radius-sm);
+  box-shadow: var(--h-shadow-sm);
+  background-color: #fff;
+}
+
+.epod-form__signature-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background-color: var(--h-success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--h-shadow-sm);
+}
+
+.epod-form__signature-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--h-spacing-md);
+  font-size: 12px;
+}
+
+.epod-form__quality-badge {
+  padding: 4px 8px;
+  border-radius: var(--h-radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.epod-form__quality-badge.quality-excellent {
+  background-color: rgba(5, 205, 153, 0.1);
+  color: var(--h-success);
+}
+
+.epod-form__quality-badge.quality-good {
+  background-color: rgba(25, 137, 250, 0.1);
+  color: #1989fa;
+}
+
+.epod-form__quality-badge.quality-fair {
+  background-color: rgba(255, 181, 71, 0.1);
+  color: var(--h-warning);
+}
+
+.epod-form__quality-badge.quality-poor {
+  background-color: rgba(238, 93, 80, 0.1);
+  color: var(--h-error);
+}
+
+.epod-form__signature-time {
+  color: var(--h-text-light);
+}
+
+.epod-form__signature-actions {
+  display: flex;
+  gap: var(--h-spacing-sm);
+  justify-content: center;
+}
+
+/* Submit Section */
+.epod-form__submit-section {
+  padding: 0 var(--h-spacing-xs);
+}
+
+.epod-form__submit-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--h-spacing-sm);
+  padding: var(--h-spacing-md);
+  margin-bottom: var(--h-spacing-md);
+  background: var(--h-primary-lighter);
+  border-radius: var(--h-radius-md);
+  color: var(--h-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.epod-form__submit-btn {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: var(--h-radius-md);
+  box-shadow: 0 2px 8px rgba(5, 205, 153, 0.3);
+}
+
+.epod-form__submit-btn .van-icon {
+  margin-right: var(--h-spacing-sm);
+  font-size: 18px;
+}
+
+.epod-form__validation-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--h-spacing-md);
+  color: var(--h-text-light);
+  font-size: 14px;
+}
+
+.epod-form__validation-hint .van-icon {
+  margin-right: 6px;
+}
+
+/* Quality classes (used in dialogs) */
+.quality-excellent { color: var(--h-success); font-weight: 600; }
+.quality-good { color: #1989fa; font-weight: 600; }
+.quality-fair { color: var(--h-warning); font-weight: 600; }
+.quality-poor { color: var(--h-error); font-weight: 600; }
 
 /* Camera Dialog Styles */
 .camera-dialog {
@@ -1695,7 +1884,7 @@ onUnmounted(() => {
   width: 100%;
   height: 70vh;
   background-color: #000;
-  border-radius: 8px;
+  border-radius: var(--h-radius-sm);
   overflow: hidden;
 }
 
@@ -1728,7 +1917,7 @@ onUnmounted(() => {
   width: 80%;
   height: 60%;
   border: 2px solid rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
+  border-radius: var(--h-radius-sm);
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
 }
 
@@ -1755,7 +1944,7 @@ onUnmounted(() => {
 .capture-btn {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #1989fa, #1c7cd6);
+  background: linear-gradient(135deg, var(--h-primary), var(--h-accent));
 }
 
 .camera-info {
@@ -1766,82 +1955,52 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.6);
   color: white;
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: var(--h-radius-xl);
   font-size: 14px;
   backdrop-filter: blur(4px);
 }
 
-.submit-section {
-  margin-top: 24px;
-  padding: 0 4px;
-}
-
-.submit-button {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
-}
-
-.submit-button .van-icon {
-  margin-right: 8px;
-  font-size: 18px;
-}
-
-.validation-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 12px;
-  color: #969799;
-  font-size: 14px;
-}
-
-.validation-info .van-icon {
-  margin-right: 6px;
-}
-
+/* Signature Dialog Styles */
 .signature-dialog {
   width: 90%;
   max-width: 400px;
 }
 
 .signature-pad-container {
-  padding: 16px;
+  padding: var(--h-spacing-lg);
 }
 
 .signature-instructions {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
-  color: #646566;
+  margin-bottom: var(--h-spacing-lg);
+  color: var(--h-text-secondary);
   font-size: 14px;
 }
 
 .signature-instructions .van-icon {
-  margin-right: 8px;
-  color: #1989fa;
+  margin-right: var(--h-spacing-sm);
+  color: var(--h-primary);
 }
 
 .signature-canvas-wrapper {
   position: relative;
-  margin-bottom: 16px;
+  margin-bottom: var(--h-spacing-lg);
 }
 
 .signature-canvas {
   width: 100%;
   height: 200px;
-  border: 2px solid #dcdee0;
-  border-radius: 8px;
+  border: 2px solid var(--h-border-color);
+  border-radius: var(--h-radius-sm);
   background-color: #fff;
   touch-action: none;
   cursor: crosshair;
 }
 
 .signature-canvas:active {
-  border-color: #1989fa;
+  border-color: var(--h-primary);
 }
 
 .signature-placeholder {
@@ -1852,206 +2011,116 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #c8c9cc;
+  color: var(--h-text-light);
   pointer-events: none;
   font-size: 14px;
 }
 
 .signature-placeholder .van-icon {
-  margin-bottom: 8px;
+  margin-bottom: var(--h-spacing-sm);
 }
 
 .signature-quality {
-  margin-bottom: 16px;
-  padding: 12px;
-  background-color: #f7f8fa;
-  border-radius: 6px;
+  margin-bottom: var(--h-spacing-lg);
+  padding: var(--h-spacing-md);
+  background-color: var(--h-bg-light);
+  border-radius: var(--h-radius-sm);
 }
 
 .quality-label {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--h-spacing-sm);
   font-size: 14px;
 }
-
-.quality-excellent { color: #07c160; font-weight: 600; }
-.quality-good { color: #1989fa; font-weight: 600; }
-.quality-fair { color: #ff976a; font-weight: 600; }
-.quality-poor { color: #ee0a24; font-weight: 600; }
 
 .signature-actions {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--h-spacing-sm);
 }
 
 .signature-actions .van-button {
   flex: 1;
-  border-radius: 6px;
 }
 
+/* Signature Preview Dialog */
 .signature-preview-dialog {
   width: 85%;
   max-width: 350px;
 }
 
 .signature-preview-container {
-  padding: 16px;
+  padding: var(--h-spacing-lg);
 }
 
 .preview-instructions {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
-  color: #07c160;
+  margin-bottom: var(--h-spacing-lg);
+  color: var(--h-success);
   font-size: 14px;
   font-weight: 500;
 }
 
 .preview-instructions .van-icon {
-  margin-right: 8px;
+  margin-right: var(--h-spacing-sm);
 }
 
 .signature-preview-image {
   text-align: center;
-  margin-bottom: 16px;
-  padding: 16px;
-  background-color: #f7f8fa;
-  border-radius: 8px;
+  margin-bottom: var(--h-spacing-lg);
+  padding: var(--h-spacing-lg);
+  background-color: var(--h-bg-light);
+  border-radius: var(--h-radius-sm);
 }
 
 .signature-preview-image img {
   max-width: 100%;
   height: auto;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--h-shadow-sm);
 }
 
 .signature-preview-info {
-  margin-bottom: 20px;
+  margin-bottom: var(--h-spacing-xl);
 }
 
-.signature-preview-info .info-item {
+.sig-info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #ebedf0;
+  padding: var(--h-spacing-sm) 0;
+  border-bottom: 1px solid var(--h-border-light);
   font-size: 14px;
 }
 
-.signature-preview-info .info-item:last-child {
+.sig-info-item:last-child {
   border-bottom: none;
 }
 
 .signature-preview-actions {
   display: flex;
-  gap: 12px;
+  gap: var(--h-spacing-md);
 }
 
 .signature-preview-actions .van-button {
   flex: 1;
   height: 44px;
-  border-radius: 6px;
   font-weight: 500;
 }
 
-.signature-preview {
-  padding: 16px;
-  text-align: center;
-}
-
-.signature-image-container {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 12px;
-}
-
-.signature-image-container img {
-  max-width: 100%;
-  max-height: 120px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-}
-
-.signature-overlay {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  background-color: #07c160;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.signature-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  font-size: 12px;
-}
-
-.signature-quality-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.signature-quality-badge.quality-excellent {
-  background-color: rgba(7, 193, 96, 0.1);
-  color: #07c160;
-}
-
-.signature-quality-badge.quality-good {
-  background-color: rgba(25, 137, 250, 0.1);
-  color: #1989fa;
-}
-
-.signature-quality-badge.quality-fair {
-  background-color: rgba(255, 151, 106, 0.1);
-  color: #ff976a;
-}
-
-.signature-quality-badge.quality-poor {
-  background-color: rgba(238, 10, 36, 0.1);
-  color: #ee0a24;
-}
-
-.signature-timestamp {
-  color: #969799;
-}
-
-.signature-actions-inline {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-
-.re-sign-btn,
-.remove-signature-btn {
-  border-radius: 6px;
-}
-
+/* Help Dialog */
 .help-content {
-  padding: 16px;
+  padding: var(--h-spacing-lg);
   text-align: left;
 }
 
 .help-content h4 {
-  margin: 16px 0 8px 0;
-  color: #323233;
+  margin: var(--h-spacing-lg) 0 var(--h-spacing-sm) 0;
+  color: var(--h-text-primary);
   font-size: 16px;
 }
 
@@ -2062,66 +2131,67 @@ onUnmounted(() => {
 }
 
 .help-content li {
-  margin-bottom: 8px;
+  margin-bottom: var(--h-spacing-sm);
   line-height: 1.5;
-  color: #646566;
+  color: var(--h-text-secondary);
 }
 
 /* Responsive adjustments */
 @media (max-width: 375px) {
-  .form-content {
-    padding: 12px;
+  .epod-form__content {
+    padding: var(--h-spacing-md);
+    gap: var(--h-spacing-md);
   }
-  
-  .task-header {
-    font-size: 14px;
+
+  .epod-form__card {
+    padding: var(--h-spacing-md);
   }
-  
-  .submit-button {
+
+  .epod-form__submit-btn {
     height: 44px;
     font-size: 15px;
   }
-  
+
   .camera-control-btn {
     width: 50px;
     height: 50px;
   }
-  
+
   .capture-btn {
     width: 70px;
     height: 70px;
   }
-  
-  .photo-actions {
+
+  .epod-form__photo-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--h-spacing-sm);
   }
-  
+
   .signature-dialog {
     width: 95%;
   }
-  
+
   .signature-canvas {
     height: 160px;
   }
-  
+
   .signature-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--h-spacing-sm);
   }
-  
+
   .signature-actions .van-button {
     width: 100%;
   }
-  
+
   .signature-preview-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--h-spacing-sm);
   }
-  
-  .signature-actions-inline {
+
+  .epod-form__signature-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--h-spacing-sm);
   }
 }
 
@@ -2131,18 +2201,18 @@ onUnmounted(() => {
     width: 95%;
     height: 90vh;
   }
-  
+
   .signature-canvas {
     height: 120px;
   }
-  
+
   .signature-pad-container {
-    padding: 12px;
+    padding: var(--h-spacing-md);
   }
-  
+
   .signature-quality {
-    margin-bottom: 12px;
-    padding: 8px;
+    margin-bottom: var(--h-spacing-md);
+    padding: var(--h-spacing-sm);
   }
 }
 
@@ -2151,12 +2221,12 @@ onUnmounted(() => {
   .signature-canvas {
     border-width: 3px;
   }
-  
+
   .signature-actions .van-button {
     height: 44px;
     font-size: 16px;
   }
-  
+
   .signature-preview-actions .van-button {
     height: 48px;
     font-size: 16px;
@@ -2168,35 +2238,10 @@ onUnmounted(() => {
   .camera-container {
     height: 80vh;
   }
-  
+
   .camera-frame {
     width: 60%;
     height: 80%;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .epod-form-container {
-    background-color: #1a1a1a;
-  }
-  
-  .task-summary,
-  .form-section {
-    background-color: #2a2a2a;
-  }
-  
-  .signature-canvas {
-    background-color: #2a2a2a;
-    border-color: #4a4a4a;
-  }
-  
-  .camera-container {
-    background-color: #000;
-  }
-  
-  .photo-info {
-    color: #969799;
   }
 }
 </style>

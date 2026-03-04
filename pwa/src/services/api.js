@@ -5,7 +5,8 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1',
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true'
   }
 })
 
@@ -38,11 +39,26 @@ api.interceptors.response.use(
   }
 )
 
+// Auth API methods
+export const authAPI = {
+  // Login
+  login: (credentials) => 
+    api.post('/auth/login', credentials),
+  
+  // Logout
+  logout: () => 
+    api.post('/auth/logout'),
+  
+  // Get current user profile
+  getProfile: () => 
+    api.get('/auth/profile')
+}
+
 // Attendance API methods
 export const attendanceAPI = {
-  // Get current day attendance
-  getCurrentAttendance: (employeeId) => 
-    api.get(`/attendance/today/${employeeId}`),
+  // Get current day attendance (uses current user from JWT)
+  getCurrentAttendance: () => 
+    api.get('/attendance/today'),
   
   // Check-in
   checkIn: (data) => 
@@ -52,9 +68,21 @@ export const attendanceAPI = {
   checkOut: (data) => 
     api.post('/attendance/check-out', data),
   
-  // Get attendance history
-  getHistory: (employeeId, days = 30) => 
-    api.get(`/attendance/history/${employeeId}?days=${days}`),
+  // Get attendance history by date range
+  getHistory: (days = 7) => {
+    const endDate = new Date()
+    const startDate = new Date()
+    startDate.setDate(startDate.getDate() - days)
+    
+    const formatDate = (date) => date.toISOString().split('T')[0]
+    
+    return api.get('/attendance/by-date-range', {
+      params: {
+        start_date: formatDate(startDate),
+        end_date: formatDate(endDate)
+      }
+    })
+  },
   
   // Validate Wi-Fi only (for testing)
   validateWiFi: (data) => 
@@ -65,7 +93,7 @@ export const attendanceAPI = {
 export const wifiAPI = {
   // Get authorized Wi-Fi networks
   getAuthorizedNetworks: () => 
-    api.get('/wifi-config'),
+    api.get('/wifi-config?active_only=true'),
   
   // Add authorized network (admin only)
   addAuthorizedNetwork: (data) => 

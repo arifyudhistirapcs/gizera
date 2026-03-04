@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { authAPI } from '@/services/api'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('token') || null)
 
   const isAuthenticated = computed(() => !!token.value)
+  const schoolId = computed(() => user.value?.schoolId ?? null)
 
   function setAuth(userData, authToken) {
     user.value = userData
@@ -19,6 +21,32 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+  }
+
+  async function login(credentials) {
+    try {
+      const response = await authAPI.login(credentials)
+      if (response.data.success) {
+        setAuth(response.data.data.user, response.data.data.token)
+        return { success: true, data: response.data.data }
+      }
+      return { success: false, message: response.data.message }
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Login gagal' 
+      }
+    }
+  }
+
+  async function logout() {
+    try {
+      await authAPI.logout()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      clearAuth()
+    }
   }
 
   // Initialize user from localStorage on store creation
@@ -36,7 +64,10 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     token,
     isAuthenticated,
+    schoolId,
     setAuth,
-    clearAuth
+    clearAuth,
+    login,
+    logout
   }
 })

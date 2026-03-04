@@ -30,23 +30,26 @@ class AttendanceService {
   async loadAuthorizedNetworks() {
     try {
       const response = await wifiAPI.getAuthorizedNetworks()
-      this.authorizedNetworks = response.data.networks || []
+      
+      // Backend returns { success: true, data: [...] }
+      if (response.data.success && response.data.data) {
+        this.authorizedNetworks = response.data.data.map(config => ({
+          ssid: config.ssid,
+          bssid: config.bssid,
+          location: config.location || 'Kantor',
+          is_active: config.is_active
+        }))
+      } else {
+        // Fallback to empty array if no data
+        this.authorizedNetworks = []
+      }
+      
+      console.log('Loaded authorized networks:', this.authorizedNetworks)
       return this.authorizedNetworks
     } catch (error) {
       console.error('Failed to load authorized networks:', error)
-      // Fallback to default networks if API fails
-      this.authorizedNetworks = [
-        {
-          ssid: 'SPPG-Office',
-          bssid: '00:00:00:00:00:00',
-          location: 'Kantor Pusat',
-          gps_boundaries: {
-            center_lat: -6.2088,
-            center_lng: 106.8456,
-            radius_meters: 100
-          }
-        }
-      ]
+      // Fallback to empty array
+      this.authorizedNetworks = []
       return this.authorizedNetworks
     }
   }
@@ -56,9 +59,12 @@ class AttendanceService {
    */
   async getCurrentAttendance() {
     try {
-      const authStore = useAuthStore()
-      const response = await attendanceAPI.getCurrentAttendance(authStore.user.id)
-      this.currentAttendance = response.data.attendance
+      const response = await attendanceAPI.getCurrentAttendance()
+      if (response.data.success && response.data.data) {
+        this.currentAttendance = response.data.data
+      } else {
+        this.currentAttendance = null
+      }
       return this.currentAttendance
     } catch (error) {
       console.error('Failed to get current attendance:', error)
@@ -143,9 +149,7 @@ class AttendanceService {
    */
   async checkOut() {
     try {
-      const authStore = useAuthStore()
-      
-      if (!this.currentAttendance || this.currentAttendance.check_out_time) {
+      if (!this.currentAttendance || this.currentAttendance.check_out || this.currentAttendance.check_out_time) {
         return {
           success: false,
           error: 'Invalid State',
@@ -153,21 +157,26 @@ class AttendanceService {
         }
       }
 
-      const checkOutData = {
-        employee_id: authStore.user.id,
-        attendance_id: this.currentAttendance.id,
-        check_out_time: new Date().toISOString()
-      }
-
-      const response = await attendanceAPI.checkOut(checkOutData)
+      // Check-out doesn't require WiFi/IP validation
+      // Employee can check-out from anywhere
+      // Send empty request body
+      const response = await attendanceAPI.checkOut({})
       
-      this.currentAttendance = response.data.attendance
+      if (response.data.success) {
+        this.currentAttendance = response.data.data
+        
+        return {
+          success: true,
+          message: 'Check-out berhasil!',
+          attendance: this.currentAttendance,
+          workHours: this.currentAttendance.work_hours
+        }
+      }
       
       return {
-        success: true,
-        message: 'Check-out berhasil!',
-        attendance: this.currentAttendance,
-        workHours: response.data.work_hours
+        success: false,
+        error: 'Check-out Failed',
+        message: response.data.message || 'Gagal melakukan check-out'
       }
 
     } catch (error) {
@@ -186,11 +195,13 @@ class AttendanceService {
    * @param {number} days - Number of days to fetch
    * @returns {Promise<Array>}
    */
-  async getAttendanceHistory(days = 30) {
+  async getAttendanceHistory(days = 7) {
     try {
-      const authStore = useAuthStore()
-      const response = await attendanceAPI.getHistory(authStore.user.id, days)
-      return response.data.attendance_history || []
+      const response = await attendanceAPI.getHistory(days)
+      if (response.data.success && response.data.data) {
+        return response.data.data
+      }
+      return []
     } catch (error) {
       console.error('Failed to get attendance history:', error)
       return []
@@ -254,8 +265,11 @@ class AttendanceService {
    * @returns {boolean}
    */
   canCheckIn() {
+    // Can check in if:
+    // 1. No current attendance, OR
+    // 2. Already checked out (check_out exists)
     return !this.currentAttendance || 
-           (this.currentAttendance && this.currentAttendance.check_out_time)
+           (this.currentAttendance && (this.currentAttendance.check_out || this.currentAttendance.check_out_time))
   }
 
   /**
@@ -263,9 +277,13 @@ class AttendanceService {
    * @returns {boolean}
    */
   canCheckOut() {
+    // Can check out if:
+    // 1. Has current attendance, AND
+    // 2. Has checked in (check_in exists), AND
+    // 3. Has NOT checked out yet (check_out is null)
     return this.currentAttendance && 
-           this.currentAttendance.check_in_time && 
-           !this.currentAttendance.check_out_time
+           (this.currentAttendance.check_in || this.currentAttendance.check_in_time) && 
+           !(this.currentAttendance.check_out || this.currentAttendance.check_out_time)
   }
 }
 

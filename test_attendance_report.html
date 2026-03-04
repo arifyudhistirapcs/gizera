@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Attendance Report API</title>
+</head>
+<body>
+    <h1>Test Attendance Report API</h1>
+    <button onclick="testAPI()">Test API Call</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testAPI() {
+            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJyb2xlIjoia2VwYWxhX3NwcGciLCJleHAiOjE3NzI2OTIwNzksImlhdCI6MTc3MjYwNTY3OX0.ALlfxpVRlq4V2ODwQcrzJnHx2RLQaFGJaAv48HOSWtI';
+            
+            const url = 'http://localhost:8080/api/v1/attendance/report?start_date=2026-03-01&end_date=2026-03-31';
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -90,14 +90,16 @@ func (s *EPODService) CreateEPOD(epod *models.ElectronicPOD) error {
 			return err
 		}
 
-		// Record ompreng tracking
-		if err := s.omprengService.RecordOmprengMovement(
-			task.SchoolID,
-			epod.OmprengDropOff,
-			epod.OmprengPickUp,
-			0, // Will be calculated by the service
-		); err != nil {
-			return err
+		// Record ompreng tracking only if there's actual ompreng movement
+		if epod.OmprengDropOff > 0 || epod.OmprengPickUp > 0 {
+			if err := s.omprengService.RecordOmprengMovement(
+				task.SchoolID,
+				epod.OmprengDropOff,
+				epod.OmprengPickUp,
+				task.DriverID, // Use driver ID as recorder
+			); err != nil {
+				return err
+			}
 		}
 
 		return nil
@@ -129,6 +131,52 @@ func (s *EPODService) GetEPODByDeliveryTaskID(deliveryTaskID uint) (*models.Elec
 		Preload("DeliveryTask.Driver").
 		Preload("DeliveryTask.School").
 		Where("delivery_task_id = ?", deliveryTaskID).
+		First(&epod).Error
+	
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrEPODNotFound
+		}
+		return nil, err
+	}
+
+	return &epod, nil
+}
+
+// GetEPODByDeliveryRecordID retrieves an e-POD by delivery record ID
+// It finds the matching ePOD by looking up the delivery task that matches
+// the delivery record's school, driver, and date
+func (s *EPODService) GetEPODByDeliveryRecordID(deliveryRecordID uint) (*models.ElectronicPOD, error) {
+	// First, get the delivery record
+	var deliveryRecord models.DeliveryRecord
+	if err := s.db.First(&deliveryRecord, deliveryRecordID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrEPODNotFound
+		}
+		return nil, err
+	}
+
+	// Find matching delivery task by school_id, driver_id, and date
+	var deliveryTask models.DeliveryTask
+	err := s.db.Where("school_id = ? AND driver_id = ? AND DATE(task_date) = DATE(?)",
+		deliveryRecord.SchoolID,
+		deliveryRecord.DriverID,
+		deliveryRecord.DeliveryDate,
+	).First(&deliveryTask).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrEPODNotFound
+		}
+		return nil, err
+	}
+
+	// Now get the ePOD for this delivery task
+	var epod models.ElectronicPOD
+	err = s.db.Preload("DeliveryTask").
+		Preload("DeliveryTask.Driver").
+		Preload("DeliveryTask.School").
+		Where("delivery_task_id = ?", deliveryTask.ID).
 		First(&epod).Error
 	
 	if err != nil {

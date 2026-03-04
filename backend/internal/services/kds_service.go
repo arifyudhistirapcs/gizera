@@ -412,7 +412,7 @@ func (s *KDSService) UpdateRecipeStatus(ctx context.Context, recipeID uint, stat
 				// Check if delivery record already exists for this school
 				var existingRecord models.DeliveryRecord
 				err := s.db.WithContext(ctx).
-					Where("menu_item_id = ? AND school_id = ? AND delivery_date = DATE(?)", 
+					Where("menu_item_id = ? AND school_id = ? AND DATE(delivery_date) = DATE(?)", 
 						menuItem.ID, schoolID, menuItem.Date).
 					First(&existingRecord).Error
 				
@@ -480,7 +480,7 @@ func (s *KDSService) UpdateRecipeStatus(ctx context.Context, recipeID uint, stat
 				fmt.Printf("DEBUG: Looking for delivery record for school_id=%d, menu_item_id=%d\n", alloc.SchoolID, menuItem.ID)
 				var deliveryRecord models.DeliveryRecord
 				err := s.db.WithContext(ctx).
-					Where("menu_item_id = ? AND school_id = ? AND delivery_date = DATE(?)", 
+					Where("menu_item_id = ? AND school_id = ? AND DATE(delivery_date) = DATE(?)", 
 						menuItem.ID, alloc.SchoolID, menuItem.Date).
 					First(&deliveryRecord).Error
 				

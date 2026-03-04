@@ -311,13 +311,13 @@ const router = createRouter({
           }
         },
         {
-          path: 'wifi-config',
-          name: 'wifi-config',
-          component: () => import('@/views/WiFiConfigView.vue'),
+          path: 'attendance-config',
+          name: 'attendance-config',
+          component: () => import('@/views/AttendanceConfigView.vue'),
           meta: {
             requiresAuth: true,
             roles: ['kepala_sppg', 'akuntan'],
-            title: 'Konfigurasi Wi-Fi'
+            title: 'Konfigurasi Absensi'
           }
         },
         {
@@ -388,6 +388,16 @@ const router = createRouter({
             requiresAuth: true,
             roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan'],
             title: 'Detail Aktivitas Pelacakan'
+          }
+        },
+        {
+          path: 'reviews',
+          name: 'reviews',
+          component: () => import('@/views/ReviewListView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan'],
+            title: 'Ulasan & Rating'
           }
         }
       ]

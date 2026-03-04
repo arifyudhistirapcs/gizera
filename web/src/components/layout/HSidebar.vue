@@ -121,7 +121,6 @@ import {
   EnvironmentOutlined,
   UserOutlined,
   ClockCircleOutlined,
-  WifiOutlined,
   BankOutlined,
   LineChartOutlined,
   AuditOutlined,
@@ -131,7 +130,8 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   FireOutlined,
-  ClearOutlined
+  ClearOutlined,
+  StarOutlined
 } from '@ant-design/icons-vue'
 
 /**
@@ -194,6 +194,13 @@ const menuItems = [
     icon: MonitorOutlined,
     route: '/monitoring-activity',
     roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan', 'ahli_gizi', 'pengadaan', 'chef', 'packing', 'driver', 'asisten_lapangan']
+  },
+  {
+    key: 'reviews',
+    label: 'Ulasan & Rating',
+    icon: StarOutlined,
+    route: '/reviews',
+    roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan']
   },
   {
     key: 'display',
@@ -332,10 +339,10 @@ const menuItems = [
         roles: ['kepala_sppg', 'akuntan']
       },
       {
-        key: 'wifi-config',
-        label: 'Konfigurasi Wi-Fi',
-        icon: WifiOutlined,
-        route: '/wifi-config',
+        key: 'attendance-config',
+        label: 'Konfigurasi Absensi',
+        icon: ControlOutlined,
+        route: '/attendance-config',
         roles: ['kepala_sppg', 'akuntan']
       }
     ]

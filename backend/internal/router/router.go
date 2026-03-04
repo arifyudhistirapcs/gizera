@@ -308,9 +308,22 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 			// e-POD routes
 			epod := protected.Group("/epod")
 			{
+				epod.GET("", logisticsHandler.GetEPODByDeliveryTask)
 				epod.POST("", logisticsHandler.CreateEPOD)
 				epod.POST("/:id/upload-photo", logisticsHandler.UploadEPODPhoto)
 				epod.POST("/:id/upload-signature", logisticsHandler.UploadEPODSignature)
+			}
+
+			// Delivery Review routes
+			reviewHandler := handlers.NewReviewHandler(db)
+			reviews := protected.Group("/reviews")
+			{
+				reviews.GET("", reviewHandler.GetAllReviews)
+				reviews.POST("", reviewHandler.CreateReview)
+				reviews.GET("/check", reviewHandler.CheckReviewExists)
+				reviews.GET("/summary", reviewHandler.GetReviewSummary)
+				reviews.GET("/by-delivery", reviewHandler.GetReviewByDeliveryRecord)
+				reviews.GET("/:id", reviewHandler.GetReview)
 			}
 
 			// Ompreng Tracking routes
@@ -358,6 +371,15 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 				wifiConfig.POST("", hrmHandler.CreateWiFiConfig)
 				wifiConfig.PUT("/:id", hrmHandler.UpdateWiFiConfig)
 				wifiConfig.DELETE("/:id", hrmHandler.DeleteWiFiConfig)
+			}
+
+			// GPS Configuration routes
+			gpsConfig := protected.Group("/gps-config")
+			{
+				gpsConfig.GET("", hrmHandler.GetGPSConfigs)
+				gpsConfig.POST("", hrmHandler.CreateGPSConfig)
+				gpsConfig.PUT("/:id", hrmHandler.UpdateGPSConfig)
+				gpsConfig.DELETE("/:id", hrmHandler.DeleteGPSConfig)
 			}
 
 			// System Configuration routes (admin only with IP whitelist)

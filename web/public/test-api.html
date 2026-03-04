@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Attendance Report API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #40a9ff;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Attendance Report API</h1>
+    
+    <div>
+        <h3>Step 1: Login</h3>
+        <button onclick="testLogin()">Login as TEST001</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div>
+        <h3>Step 2: Get Attendance Report</h3>
+        <button onclick="testGetReport()">Get Report (March 2026)</button>
+        <div id="report-result"></div>
+    </div>
+
+    <div>
+        <h3>Step 3: Get Detailed Attendance</h3>
+        <button onclick="testGetDetails()">Get Details</button>
+        <div id="details-result"></div>
+    </div>
+
+    <script>
+        let token = null;
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        identifier: 'TEST001',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    token = data.token;
+                    resultDiv.innerHTML = `
+                        <p class="success">✓ Login successful!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">✗ Login failed</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">✗ Error: ${error.message}</p>
+                `;
+            }
+        }
+
+        async function testGetReport() {
+            const resultDiv = document.getElementById('report-result');
+            
+            if (!token) {
+                resultDiv.innerHTML = '<p class="error">Please login first!</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const url = 'http://localhost:8080/api/v1/attendance/report?start_date=2026-03-01&end_date=2026-03-31';
+                console.log('Fetching:', url);
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✓ Report loaded successfully!</p>
+                        <p>Found ${data.data.length} record(s)</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">✗ Failed to load report</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">✗ Error: ${error.message}</p>
+                `;
+                console.error('Error:', error);
+            }
+        }
+
+        async function testGetDetails() {
+            const resultDiv = document.getElementById('details-result');
+            
+            if (!token) {
+                resultDiv.innerHTML = '<p class="error">Please login first!</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const url = 'http://localhost:8080/api/v1/attendance/by-date-range?start_date=2026-03-01&end_date=2026-03-31';
+                console.log('Fetching:', url);
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✓ Details loaded successfully!</p>
+                        <p>Found ${data.data.length} record(s)</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">✗ Failed to load details</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">✗ Error: ${error.message}</p>
+                `;
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -8,12 +8,20 @@
       >
         <template #dot>
           <check-circle-outlined v-if="isCompleted(stage.status)" style="font-size: 16px" />
-          <loading-outlined v-else-if="isInProgress(stage.status)" style="font-size: 16px" />
+          <sync-outlined v-else-if="isInProgress(stage.status)" style="font-size: 16px" />
           <clock-circle-outlined v-else style="font-size: 16px" />
         </template>
         
         <div class="timeline-content">
-          <div class="stage-title">{{ stage.title }}</div>
+          <div class="stage-header">
+            <span class="stage-title">{{ stage.title }}</span>
+            <a-tooltip v-if="stage.status === 'sudah_diterima_pihak_sekolah' && isCompletedOrInProgress(stage.status)" title="Lihat e-POD">
+              <eye-outlined 
+                class="epod-icon" 
+                @click="$emit('viewEpod')"
+              />
+            </a-tooltip>
+          </div>
           <div class="stage-description">{{ stage.description }}</div>
           <div v-if="getStageTimestamp(stage.status)" class="stage-timestamp">
             {{ formatTimestamp(getStageTimestamp(stage.status)) }}
@@ -28,8 +36,9 @@
 import { computed } from 'vue'
 import {
   CheckCircleOutlined,
-  LoadingOutlined,
-  ClockCircleOutlined
+  SyncOutlined,
+  ClockCircleOutlined,
+  EyeOutlined
 } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import 'dayjs/locale/id'
@@ -50,6 +59,8 @@ const props = defineProps({
     default: () => []
   }
 })
+
+defineEmits(['viewEpod'])
 
 // Define all 16 lifecycle stages
 const stages = [
@@ -148,6 +159,11 @@ const isInProgress = (status) => {
   return status === props.currentStatus
 }
 
+// Check if a stage is completed or in progress
+const isCompletedOrInProgress = (status) => {
+  return isCompleted(status) || isInProgress(status)
+}
+
 // Get stage color based on status
 const getStageColor = (status) => {
   if (isCompleted(status)) {
@@ -182,17 +198,34 @@ const formatTimestamp = (timestamp) => {
   padding-bottom: 16px;
 }
 
+.stage-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .stage-title {
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 4px;
   color: rgba(0, 0, 0, 0.85);
+}
+
+.epod-icon {
+  font-size: 16px;
+  color: #5A4372;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.epod-icon:hover {
+  color: #7B5A9A;
 }
 
 .stage-description {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.65);
   margin-bottom: 4px;
+  margin-top: 4px;
 }
 
 .stage-timestamp {

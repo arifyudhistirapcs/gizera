@@ -477,8 +477,10 @@ func (h *PickupTaskHandler) UpdateDeliveryRecordStage(c *gin.Context) {
 
 	// Parse request body
 	var req struct {
-		Stage  int    `json:"stage" binding:"required"`
-		Status string `json:"status" binding:"required"`
+		Stage                   int    `json:"stage" binding:"required"`
+		Status                  string `json:"status" binding:"required"`
+		OmprengReceived         *int   `json:"ompreng_received"`
+		OmprengDifferenceReason string `json:"ompreng_difference_reason"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{
@@ -504,7 +506,7 @@ func (h *PickupTaskHandler) UpdateDeliveryRecordStage(c *gin.Context) {
 	}
 
 	// Call service to update delivery record stage
-	deliveryRecord, err := h.service.UpdateDeliveryRecordStage(pickupTaskID, deliveryRecordID, req.Stage, req.Status, userID.(uint))
+	deliveryRecord, err := h.service.UpdateDeliveryRecordStage(pickupTaskID, deliveryRecordID, req.Stage, req.Status, userID.(uint), req.OmprengReceived, req.OmprengDifferenceReason)
 	if err != nil {
 		// Determine appropriate status code based on error
 		statusCode := 500

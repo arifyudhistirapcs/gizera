@@ -108,6 +108,8 @@ type DeliveryRecord struct {
 	CurrentStatus string    `gorm:"size:50;not null;index" json:"current_status"`
 	CurrentStage  int       `gorm:"not null;default:1;index" json:"current_stage"` // Stage number 1-16
 	OmprengCount  int       `gorm:"not null" json:"ompreng_count"`
+	OmprengReceived         *int   `json:"ompreng_received"`                          // Actual ompreng received during pickup
+	OmprengDifferenceReason string `gorm:"size:500" json:"ompreng_difference_reason"` // Reason if ompreng count differs
 	PickupTaskID  *uint     `gorm:"index" json:"pickup_task_id"`                   // Nullable - assigned when pickup task created
 	RouteOrder    int       `gorm:"default:0" json:"route_order"`                  // Order in pickup route (0 if not in pickup task)
 	CreatedAt     time.Time `json:"created_at"`
@@ -167,4 +169,53 @@ type DailySummary struct {
 	StatusCounts        map[string]int `json:"status_counts"`
 	OmprengInCleaning   int            `json:"ompreng_in_cleaning"`
 	OmprengCleaned      int            `json:"ompreng_cleaned"`
+}
+
+// DeliveryReview represents a review/rating from school for delivery service
+type DeliveryReview struct {
+	ID               uint           `gorm:"primaryKey" json:"id"`
+	DeliveryRecordID uint           `gorm:"uniqueIndex;not null" json:"delivery_record_id"`
+	SchoolID         uint           `gorm:"index;not null" json:"school_id"`
+	ReviewerName     string         `gorm:"size:100" json:"reviewer_name"`
+	ReviewerRole     string         `gorm:"size:50" json:"reviewer_role"` // e.g., "Guru", "Kepala Sekolah", "Staff"
+	
+	// Menu Ratings (1-5)
+	RatingFoodTaste       int `gorm:"not null" json:"rating_food_taste"`        // Rasa Makanan
+	RatingFoodCleanliness int `gorm:"not null" json:"rating_food_cleanliness"`  // Kebersihan & Kerapian Penyajian
+	RatingMenuAccuracy    int `gorm:"not null" json:"rating_menu_accuracy"`     // Kesesuaian Menu dengan Jadwal
+	RatingPortionSize     int `gorm:"not null" json:"rating_portion_size"`      // Porsi Makanan
+	RatingMenuVariety     int `gorm:"not null" json:"rating_menu_variety"`      // Variasi Menu
+	
+	// Driver/Service Ratings (1-5)
+	RatingDeliveryTime    int `gorm:"not null" json:"rating_delivery_time"`     // Ketepatan Waktu Pengantaran
+	RatingDriverAttitude  int `gorm:"not null" json:"rating_driver_attitude"`   // Sikap & Keramahan Driver/Kader
+	RatingFoodCondition   int `gorm:"not null" json:"rating_food_condition"`    // Kondisi Makanan Saat Diterima
+	RatingDriverTidiness  int `gorm:"not null" json:"rating_driver_tidiness"`   // Kerapihan & Kebersihan Pengantar
+	RatingServiceConsistency int `gorm:"not null" json:"rating_service_consistency"` // Konsistensi Layanan
+	
+	// Computed averages
+	AverageMenuRating    float64 `gorm:"not null" json:"average_menu_rating"`
+	AverageServiceRating float64 `gorm:"not null" json:"average_service_rating"`
+	OverallRating        float64 `gorm:"not null" json:"overall_rating"`
+	
+	// Additional feedback
+	Comments  string `gorm:"type:text" json:"comments"`
+	PhotoURL  string `gorm:"size:500" json:"photo_url"` // Optional photo attachment
+	
+	CreatedAt      time.Time      `gorm:"index" json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	DeliveryRecord DeliveryRecord `gorm:"foreignKey:DeliveryRecordID" json:"delivery_record,omitempty"`
+	School         School         `gorm:"foreignKey:SchoolID" json:"school,omitempty"`
+}
+
+// CalculateAverages calculates the average ratings
+func (r *DeliveryReview) CalculateAverages() {
+	// Menu average (5 ratings)
+	r.AverageMenuRating = float64(r.RatingFoodTaste+r.RatingFoodCleanliness+r.RatingMenuAccuracy+r.RatingPortionSize+r.RatingMenuVariety) / 5.0
+	
+	// Service average (5 ratings)
+	r.AverageServiceRating = float64(r.RatingDeliveryTime+r.RatingDriverAttitude+r.RatingFoodCondition+r.RatingDriverTidiness+r.RatingServiceConsistency) / 5.0
+	
+	// Overall average (all 10 ratings)
+	r.OverallRating = (r.AverageMenuRating + r.AverageServiceRating) / 2.0
 }

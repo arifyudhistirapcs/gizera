@@ -1,690 +1,250 @@
-# UI Redesign - Horizon UI Template
-
-## 📋 Overview
-
-Merombak UI/UX aplikasi ERP SPPG mengikuti design template Horizon UI dengan tetap mempertahankan:
-- ✅ Semua business logic yang sudah ada
-- ✅ Semua fitur dan functionality existing
-- ✅ User experience flow yang sudah familiar
-
-## 🎯 Goals
-
-1. **Visual Modernization**: Adopsi design language Horizon UI yang modern dan clean
-2. **Consistency**: Unified design system across all pages
-3. **User Experience**: Improve usability dengan better spacing, typography, dan visual hierarchy
-4. **Dark Mode**: Implement theme toggle (light/dark)
-5. **Performance**: Maintain atau improve performance saat ini
-
-## 🎨 Design Specifications (Based on Screenshots)
-
-### Color Palette
-
-**Primary Colors** (Based on provided palette):
-```css
-/* Primary Purple - Main brand color */
---primary: #5A4372;
---primary-hover: #4a3562;
---primary-active: #3a2752;
---primary-light: #6a5382;
-
-/* Accent Purple - For highlights */
---accent-purple: #3D2B53;
---accent-purple-light: #4d3b63;
-```
-
-**Neutral Colors**:
-```css
-/* Light Mode */
---bg-primary: #F8FDEA;        /* Cream/Off-white background */
---bg-secondary: #FFFFFF;       /* Pure white */
---bg-card: #FFFFFF;            /* Card background */
---bg-light: #ACA9B0;           /* Light gray */
-
---text-primary: #322837;       /* Dark purple-gray for text */
---text-secondary: #74788C;     /* Medium gray for secondary text */
---text-light: #ACA9B0;         /* Light gray for hints */
-
---border-color: #E9EDF7;       /* Light border */
-
-/* Dark Mode */
---bg-primary-dark: #322837;    /* Dark purple-gray */
---bg-secondary-dark: #3D2B53;  /* Dark purple */
---bg-card-dark: #3D2B53;       /* Card background dark */
-
---text-primary-dark: #F8FDEA;  /* Cream text on dark */
---text-secondary-dark: #ACA9B0;/* Light gray text */
---border-color-dark: #5A4372;  /* Purple border */
-```
-
-**Accent Colors**:
-```css
---success: #05CD99;            /* Keep green for success */
---warning: #FFB547;            /* Keep orange for warning */
---error: #EE5D50;              /* Keep red for error */
---info: #5A4372;               /* Use primary purple for info */
-```
-
-**Color Reference** (from image):
-```css
---cream: #F8FDEA;              /* Top - Background */
---light-gray: #ACA9B0;         /* Second - Light elements */
---medium-gray: #74788C;        /* Third - Medium elements */
---dark-gray: #322837;          /* Fourth - Dark text/bg */
---purple: #5A4372;             /* Fifth - Primary purple */
---dark-purple: #3D2B53;        /* Sixth - Accent purple */
-```
-
-### Typography
-
-**Font Family**:
-```css
---font-primary: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-/* Fallback: Keep Montserrat if DM Sans not available */
-```
-
-**Font Sizes**:
-```css
---text-xs: 12px;
---text-sm: 14px;
---text-base: 16px;
---text-lg: 18px;
---text-xl: 20px;
---text-2xl: 24px;
---text-3xl: 30px;
---text-4xl: 36px;
-```
-
-**Font Weights**:
-```css
---font-normal: 400;
---font-medium: 500;
---font-semibold: 600;
---font-bold: 700;
-```
-
-### Spacing System
-
-```css
---spacing-1: 4px;
---spacing-2: 8px;
---spacing-3: 12px;
---spacing-4: 16px;
---spacing-5: 20px;
---spacing-6: 24px;
---spacing-8: 32px;
---spacing-10: 40px;
---spacing-12: 48px;
-```
-
-### Border Radius
-
-```css
---radius-sm: 8px;
---radius-md: 12px;
---radius-lg: 16px;
---radius-xl: 20px;
---radius-full: 9999px;
-```
-
-### Shadows
-
-```css
---shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.05);
---shadow-md: 0px 4px 6px rgba(0, 0, 0, 0.07);
---shadow-lg: 0px 10px 15px rgba(0, 0, 0, 0.1);
---shadow-xl: 0px 20px 25px rgba(0, 0, 0, 0.15);
---shadow-card: 0px 18px 40px rgba(112, 144, 176, 0.12);
-```
-
-## 📐 Layout Structure
-
-### Sidebar (Based on Screenshot 1)
-
-**Specifications**:
-- Width: 280px (expanded), 80px (collapsed)
-- Background: White (light mode), #111C44 (dark mode)
-- Logo area: 64px height
-- Menu items: 44px height each
-- Icon size: 20px
-- Font size: 14px (medium weight)
-- Active state: Purple/Red background with white text
-- Hover state: Light background (#F4F7FE)
-
-**Menu Structure**:
-```
-- Dashboard (home icon)
-- NFT Marketplace (cart icon)
-- Tables (table icon)
-- Kanban (kanban icon)
-- Profile (user icon)
-- Sign In (lock icon)
-```
-
-**ERP SPPG Adaptation**:
-```
-- Dashboard
-- Monitoring Aktivitas
-- Display (KDS)
-  - Dapur
-  - Pengemasan
-  - Kebersihan
-- Menu & Komponen
-  - Perencanaan Menu
-  - Manajemen Menu
-  - Manajemen Komponen
-- Supply Chain
-  - Supplier
-  - Purchase Order
-  - Penerimaan Barang
-  - Manajemen Bahan Baku
-- Logistik
-  - Data Sekolah
-  - Tugas Pengiriman & Pengambilan
-- SDM
-  - Data Karyawan
-  - Laporan Absensi
-  - Konfigurasi Wi-Fi
-  - Absensi
-- Keuangan
-  - Aset Dapur
-  - Arus Kas
-  - Laporan Keuangan
-- Sistem
-  - Audit Trail
-  - Konfigurasi
-```
-
-### Top Header (Based on Screenshot 1)
-
-**Specifications**:
-- Height: 72px
-- Background: White (light mode), #111C44 (dark mode)
-- Padding: 0 24px
-- Elements (left to right):
-  1. Breadcrumb (Pages / Dashboard)
-  2. Page Title (bold, 24px)
-  3. Search bar (center-right, 320px width)
-  4. Notification icon with badge
-  5. Dark mode toggle
-  6. Info icon
-  7. User avatar with dropdown
-
-**Search Bar**:
-- Width: 320px
-- Height: 40px
-- Border radius: 12px
-- Background: #F4F7FE (light), #1B254B (dark)
-- Icon: Search icon (left)
-- Placeholder: "Search"
-
-### Content Area
-
-**Specifications**:
-- Background: #F4F7FE (light mode), #0B1437 (dark mode)
-- Padding: 24px
-- Max width: 100%
-- Gap between cards: 20px
-
-## 🎴 Component Specifications
-
-### 1. Stat Card (Mini Statistics)
-
-**Based on Screenshot 1 - Top Row Cards**:
-
-**Dimensions**:
-- Height: 100px
-- Border radius: 16px
-- Background: White
-- Shadow: 0px 18px 40px rgba(112, 144, 176, 0.12)
-- Padding: 20px
-
-**Layout**:
-```
-[Icon]  Label
-        Value
-        Change indicator
-```
-
-**Elements**:
-- Icon: 56x56px, gradient background (purple gradient), rounded 12px
-- Label: 14px, color #74788C, font-weight 500
-- Value: 24px, color #322837, font-weight 700
-- Change: 12px, green/red with arrow icon
-
-**Example**:
-```
-[📊] Earnings
-     $350.4
-     +23% since last month
-```
-
-### 2. Chart Card (Weekly Revenue)
-
-**Based on Screenshot 1 - Center Card**:
-
-**Dimensions**:
-- Height: 320px
-- Border radius: 16px
-- Background: White
-- Shadow: card shadow
-- Padding: 24px
-
-**Header**:
-- Title: 18px, bold
-- Subtitle: 14px, light
-- Action button: "This month" dropdown
-
-**Chart Area**:
-- ECharts integration
-- Smooth line charts
-- Gradient fills
-- Grid lines: subtle
-- Colors: Purple/Blue (adapt to Red/Orange)
-
-### 3. Data Table (Check Table, Complex Table)
-
-**Based on Screenshot 1 & 3**:
-
-**Specifications**:
-- Border radius: 16px
-- Background: White
-- Shadow: card shadow
-- Padding: 24px
-
-**Header**:
-- Title: 18px, bold, color #322837
-- Actions: Three dots menu (right)
-
-**Table**:
-- Row height: 56px
-- Header background: Transparent
-- Header text: 12px, uppercase, color #74788C, font-weight 700
-- Cell text: 14px, color #322837
-- Border: None (use spacing)
-- Hover: Background #F8FDEA
-
-**Columns**:
-- Checkbox: 24px
-- Name: Left aligned
-- Progress: Progress bar (colored)
-- Quantity: Right aligned
-- Date: Right aligned
-
-**Status Badges**:
-- Approved: Green dot + text
-- Disable: Red dot + text
-- Error: Yellow dot + text
-- Border radius: 8px
-- Padding: 4px 12px
-
-### 4. Kanban Card
-
-**Based on Screenshot 4**:
-
-**Dimensions**:
-- Width: 100% (column width)
-- Min height: 120px
-- Border radius: 16px
-- Background: White
-- Shadow: 0px 4px 6px rgba(0, 0, 0, 0.07)
-- Padding: 20px
-
-**Elements**:
-- Title: 16px, bold, color #322837
-- Description: 14px, color #74788C, line-height 1.6
-- Image: Full width, border-radius 12px (if present)
-- Avatars: 32px, overlapping (-8px margin)
-- Status badge: Right aligned, colored
-
-**Status Colors**:
-- Backlog: Gray
-- In Progress: Orange
-- Done: Green
-- Urgent: Red
-
-### 5. Profile Card
-
-**Based on Screenshot 5**:
-
-**Banner**:
-- Height: 200px
-- Gradient background: Purple/Blue (adapt to Red)
-- Border radius: 16px 16px 0 0
-
-**Avatar**:
-- Size: 80px
-- Border: 4px white
-- Position: Centered, overlapping banner
-
-**Stats Row**:
-- 3 columns
-- Value: 24px, bold
-- Label: 14px, light
-
-**Content Cards**:
-- Background: White
-- Border radius: 16px
-- Shadow: card shadow
-- Padding: 24px
-
-### 6. Login Page
-
-**Based on Screenshot 6**:
-
-**Layout**: Split screen (50/50)
-
-**Left Side**:
-- Background: White
-- Max width: 480px
-- Centered content
-- Padding: 48px
-
-**Elements**:
-- Back link: Top left
-- Title: 36px, bold, "Sign In"
-- Subtitle: 14px, light
-- Google button: Full width, white, border, icon + text
-- Divider: "or"
-- Input fields: 48px height, border-radius 12px
-- Checkbox: "Keep me logged in"
-- Forgot password: Right aligned, purple link
-- Submit button: Full width, purple, 48px height
-- Register link: Bottom, centered
-
-**Right Side**:
-- Gradient background: Purple gradient (#5A4372 to #3D2B53)
-- Logo: Centered, large
-- Brand name: "ERP SPPG"
-- CTA button: Outlined, white text
-- Footer links: Bottom
-
-## 📱 Responsive Design Requirements
-
-### Breakpoints
-
-```css
---breakpoint-xs: 375px;   /* Small Mobile (iPhone SE) */
---breakpoint-sm: 640px;   /* Mobile */
---breakpoint-md: 768px;   /* Tablet */
---breakpoint-lg: 1024px;  /* Desktop */
---breakpoint-xl: 1280px;  /* Large Desktop */
---breakpoint-2xl: 1536px; /* Extra Large */
-```
-
-### Mobile-First Behavior
-
-**Mobile (< 768px)**:
-- Sidebar: Hidden by default, slide-in drawer dari kiri
-- Hamburger menu: Top left corner (44x44px touch target)
-- Header: Simplified, stack elements vertically if needed
-- Search: Collapsible atau full-width modal
-- Stats cards: Stack vertically (1 column)
-- Charts: Full width, reduced height (240px)
-- Tables: Horizontal scroll atau card view
-- Forms: Full width inputs, larger touch targets (min 44px)
-- Buttons: Full width on mobile
-- Bottom navigation: Optional untuk quick access
-
-**Tablet (768px - 1024px)**:
-- Sidebar: Collapsed by default (icon only)
-- Stats cards: 2 columns
-- Charts: 2 columns
-- Tables: Full table view dengan horizontal scroll
-- Forms: 2 column layout where appropriate
-
-**Desktop (> 1024px)**:
-- Sidebar: Expanded by default
-- Stats cards: 4 columns
-- Charts: Flexible grid
-- Tables: Full table view
-- Forms: Multi-column layouts
-
-### Mobile-Specific Features
-
-**Touch Optimization**:
-- Minimum touch target: 44x44px (Apple HIG standard)
-- Spacing between interactive elements: min 8px
-- Swipe gestures: Drawer open/close, card actions
-- Pull-to-refresh: On list pages
-- Long-press: Context menus
-
-**Mobile Navigation**:
-- Bottom tab bar (optional): Quick access to main sections
-- Floating action button (FAB): Primary actions
-- Back button: Browser back atau custom back
-- Breadcrumb: Hidden on mobile, show page title only
-
-**Mobile Components**:
-- Drawer menu: Slide-in sidebar
-- Action sheets: Bottom sheet untuk actions
-- Modal: Full screen on mobile
-- Toast notifications: Bottom positioned
-- Loading states: Skeleton screens
-
-**Performance**:
-- Lazy load images
-- Virtual scrolling untuk long lists
-- Debounced search
-- Optimized bundle size
-- Service worker caching
-
-### Responsive Component Specifications
-
-#### Mobile Sidebar (Drawer)
-```
-Width: 280px
-Position: Fixed, left: -280px (hidden)
-Transition: transform 0.3s ease
-Overlay: rgba(0,0,0,0.5)
-Z-index: 1000
-```
-
-#### Mobile Header
-```
-Height: 56px (reduced from 72px)
-Elements:
-- Hamburger (left): 44x44px
-- Page title: 16px, truncate if long
-- Actions (right): Max 2-3 icons
-```
-
-#### Mobile Stats Cards
-```
-Width: 100%
-Height: 100px
-Margin: 12px 0
-Stack vertically
-```
-
-#### Mobile Tables
-```
-Option 1: Horizontal scroll
-- Min width: 100%
-- Scroll indicator
-- Sticky first column (optional)
-
-Option 2: Card view
-- Each row = card
-- Stack fields vertically
-- Actions at bottom
-```
-
-#### Mobile Forms
-```
-Input height: 48px (larger for touch)
-Label: Above input (not floating)
-Spacing: 16px between fields
-Buttons: Full width, 48px height
-Sticky footer: For form actions
-```
-
-### Mobile Testing Requirements
-
-**Devices to Test**:
-- iPhone SE (375x667) - Smallest modern iPhone
-- iPhone 12/13/14 (390x844) - Standard iPhone
-- iPhone 14 Pro Max (430x932) - Large iPhone
-- Samsung Galaxy S21 (360x800) - Standard Android
-- iPad Mini (768x1024) - Small tablet
-- iPad Pro (1024x1366) - Large tablet
-
-**Orientations**:
-- Portrait (primary)
-- Landscape (secondary)
-
-**Browsers**:
-- Safari iOS (primary)
-- Chrome Android (primary)
-- Chrome iOS
-- Firefox Android
-
-**Test Scenarios**:
-- [ ] Navigation works smoothly
-- [ ] All buttons are tappable (44x44px min)
-- [ ] Forms are easy to fill
-- [ ] Tables are readable
-- [ ] Charts are interactive
-- [ ] No horizontal scroll (except tables)
-- [ ] Text is readable (min 14px)
-- [ ] Images load properly
-- [ ] Performance is good (< 3s load)
-- [ ] Offline mode works (PWA)
-
-## 🎭 Animations & Transitions
-
-```css
---transition-fast: 150ms ease-in-out;
---transition-base: 200ms ease-in-out;
---transition-slow: 300ms ease-in-out;
-```
-
-**Hover Effects**:
-- Cards: Lift (translateY(-4px)) + shadow increase
-- Buttons: Background color change + scale(1.02)
-- Menu items: Background color change
-- Links: Color change
-
-**Page Transitions**:
-- Fade in: 200ms
-- Slide in: 300ms (from right)
-
-## 🌓 Dark Mode
-
-**Toggle Button**:
-- Position: Top right header
-- Icon: Sun (light mode), Moon (dark mode)
-- Size: 40px
-- Background: #F4F7FE (light), #1B254B (dark)
-- Border radius: 12px
-
-**Color Switching**:
-- Use CSS variables
-- Smooth transition: 200ms
-- Persist preference: localStorage
-
-## 📊 Chart Specifications
-
-**ECharts Theme** (Custom Purple Palette):
-```javascript
-{
-  color: ['#5A4372', '#3D2B53', '#74788C', '#ACA9B0'],
-  backgroundColor: 'transparent',
-  textStyle: {
-    fontFamily: 'DM Sans, sans-serif',
-    fontSize: 14,
-    color: '#322837'
-  },
-  grid: {
-    left: '3%',
-    right: '4%',
-    bottom: '3%',
-    containLabel: true
-  },
-  // ... more theme config
-}
-```
-
-**Chart Types Needed**:
-1. Line Chart (Weekly Revenue)
-2. Bar Chart (Daily Traffic)
-3. Pie Chart (Your Pie Chart)
-4. Area Chart (Total Spent)
-
-## 🔧 Technical Requirements
-
-### Dependencies to Add
-
-```json
-{
-  "dependencies": {
-    "@vueuse/core": "^10.7.0",  // For dark mode, etc
-    "chart.js": "^4.4.0",        // Alternative to ECharts (lighter)
-    "vue-chartjs": "^5.3.0"      // Vue wrapper for Chart.js
-  }
-}
-```
-
-### File Structure
-
-```
-web/src/
-├── components/
-│   ├── horizon/              # New Horizon UI components
-│   │   ├── HStatCard.vue
-│   │   ├── HChartCard.vue
-│   │   ├── HDataTable.vue
-│   │   ├── HKanbanCard.vue
-│   │   ├── HProfileCard.vue
-│   │   └── index.js
-│   ├── layout/
-│   │   ├── HSidebar.vue
-│   │   ├── HHeader.vue
-│   │   ├── HBreadcrumb.vue
-│   │   └── ThemeToggle.vue
-│   └── ... (existing components)
-├── layouts/
-│   └── HorizonLayout.vue     # New layout
-├── styles/
-│   ├── horizon-theme.css     # New theme file
-│   ├── horizon-dark.css      # Dark mode styles
-│   └── theme.css             # Keep for backward compatibility
-└── composables/
-    ├── useDarkMode.js
-    └── useHorizonTheme.js
-```
-
-## 🎯 Success Criteria
-
-1. ✅ Visual design matches Horizon UI screenshots
-2. ✅ All existing features work without regression
-3. ✅ Dark mode fully functional
-4. ✅ **Mobile responsive - comfortable on phones (375px+)**
-5. ✅ **Touch-friendly - min 44x44px touch targets**
-6. ✅ **Tablet optimized - works well on iPad**
-7. ✅ Performance: No degradation (Lighthouse score > 90)
-8. ✅ Accessibility: WCAG 2.1 AA compliant
-9. ✅ Browser support: Chrome, Firefox, Safari, Edge (latest 2 versions)
-10. ✅ **Mobile browsers: Safari iOS, Chrome Android**
-
-## 📝 Notes
-
-- Prioritize dashboard pages first (high visibility)
-- Maintain existing routing structure
-- Keep all API integrations unchanged
-- Gradual rollout: Feature flag for new UI
-- User feedback loop after each phase
-
-## 🚫 Out of Scope
-
-- Backend changes
-- API modifications
-- Business logic changes
-- New features (unless UI-related)
-- Database schema changes
-
----
-
-**Status**: Requirements Defined
-**Next Step**: Design Phase
-**Owner**: Frontend Team
-**Timeline**: 10 weeks (as per analysis document)
+# Requirements Document
+
+## Introduction
+
+Dokumen ini mendefinisikan kebutuhan untuk rombak total UI aplikasi PWA ERP SPPG dan penambahan modul-modul baru (view only). Redesign mengacu pada style referensi HR Attendee app yang modern dan clean, dengan tetap mempertahankan color palette purple (#5A4372) yang sudah ada, seluruh business logic, dan flow yang sudah berjalan. Saat ini PWA memiliki 2 modul: Absensi (semua karyawan) dan Tugas (driver & asisten lapangan). Akan ditambahkan 3 modul baru: Dashboard, Monitoring Aktivitas, dan Perencanaan Menu, serta fitur pendukung view-only pada modul yang sudah ada.
+
+## Glossary
+
+- **PWA**: Progressive Web Application ERP SPPG yang dibangun dengan Vue 3, Vant UI, dan Pinia
+- **Attendance_Module**: Modul absensi yang menangani check-in/check-out karyawan dengan validasi Wi-Fi/GPS
+- **Task_Module**: Modul tugas pengiriman dan pengambilan untuk driver dan asisten lapangan
+- **Dashboard_Module**: Modul baru untuk menampilkan ringkasan data operasional (view only)
+- **Activity_Monitoring_Module**: Modul baru untuk menampilkan monitoring aktivitas (view only)
+- **Menu_Planning_Module**: Modul baru untuk menampilkan perencanaan menu dan approval menu mingguan
+- **Bottom_Navigation**: Komponen navigasi utama di bagian bawah layar mengikuti style HR Attendee app
+- **Card_Component**: Komponen kartu dengan rounded corners, shadow, dan layout modern
+- **Kepala_SPPG**: Role kepala SPPG/yayasan yang memiliki akses ke modul Dashboard, Monitoring Aktivitas, dan Perencanaan Menu
+- **Ahli_Gizi**: Role ahli gizi yang memiliki akses ke modul Perencanaan Menu (view only)
+- **Driver**: Role driver yang memiliki akses ke modul Tugas
+- **Asisten_Lapangan**: Role asisten lapangan yang memiliki akses ke modul Tugas
+- **Karyawan**: Semua role karyawan yang memiliki akses ke modul Absensi
+- **Color_Palette**: Skema warna yang sudah ada: primary #5A4372, accent #3D2B53, bg #F8FDEA, text #322837
+- **Swipe_Action**: Gesture geser horizontal untuk melakukan aksi (check-in/check-out) mengikuti referensi HR Attendee
+- **Summary_Card**: Kartu ringkasan dengan ikon, label, dan nilai numerik
+- **Date_Selector**: Komponen pemilih tanggal di bagian atas halaman
+- **Activity_Log**: Daftar log aktivitas dengan timestamp dan status
+- **Approval_Action**: Aksi approve/reject pada menu mingguan oleh Kepala_SPPG
+- **Skeleton_Loading**: Placeholder animasi saat data sedang dimuat
+- **Pull_To_Refresh**: Gesture tarik ke bawah untuk memperbarui data
+- **Sekolah**: Role sekolah yang memiliki akun login sendiri, terhubung ke satu sekolah spesifik di database, dan memiliki akses ke modul Monitoring Sekolah (view only)
+- **School_Monitoring_Module**: Modul baru khusus role Sekolah untuk melihat menu hari ini dan status/progres pengiriman ke sekolah mereka (view only)
+
+## Requirements
+
+### Requirement 1: Redesign Halaman Login
+
+**User Story:** Sebagai karyawan, saya ingin halaman login yang modern dan clean mengikuti style HR Attendee app, sehingga pengalaman pertama menggunakan aplikasi terasa profesional.
+
+#### Acceptance Criteria
+
+1. THE PWA SHALL menampilkan halaman login dengan layout single-column centered yang memiliki background gradient menggunakan Color_Palette primary (#5A4372) dan accent (#3D2B53)
+2. THE PWA SHALL menampilkan logo aplikasi, judul "ERP SPPG", dan subtitle di bagian atas halaman login
+3. THE PWA SHALL menampilkan form login dengan field NIK/Email dan Password di dalam Card_Component dengan border-radius 16px dan shadow
+4. THE PWA SHALL menampilkan tombol login full-width dengan tinggi minimal 48px, border-radius 12px, dan warna primary #5A4372
+5. WHEN karyawan menekan tombol login dengan kredensial valid, THE PWA SHALL mengautentikasi dan mengarahkan karyawan ke halaman utama sesuai role
+6. IF karyawan memasukkan kredensial tidak valid, THEN THE PWA SHALL menampilkan pesan error yang deskriptif tanpa mereset field NIK/Email
+7. WHILE proses login berlangsung, THE PWA SHALL menampilkan loading indicator pada tombol login dan menonaktifkan interaksi form
+
+### Requirement 2: Redesign Layout Utama dan Bottom Navigation
+
+**User Story:** Sebagai karyawan, saya ingin navigasi yang mudah diakses dengan bottom navigation bar mengikuti style HR Attendee app, sehingga saya dapat berpindah antar modul dengan cepat.
+
+#### Acceptance Criteria
+
+1. THE PWA SHALL menampilkan Bottom_Navigation dengan tinggi 56px, background putih, shadow atas, dan ikon berukuran 22px di setiap halaman setelah login
+2. THE PWA SHALL menampilkan item Bottom_Navigation sesuai role karyawan yang sedang login
+3. WHEN karyawan dengan role Driver atau Asisten_Lapangan login, THE PWA SHALL menampilkan item Bottom_Navigation: Tugas, Absensi, dan Profil
+4. WHEN karyawan dengan role Kepala_SPPG login, THE PWA SHALL menampilkan item Bottom_Navigation: Dashboard, Monitoring, Menu, Absensi, dan Profil
+5. WHEN karyawan dengan role Ahli_Gizi login, THE PWA SHALL menampilkan item Bottom_Navigation: Menu, Absensi, dan Profil
+6. WHEN karyawan dengan role Sekolah login, THE PWA SHALL menampilkan item Bottom_Navigation: Monitoring dan Profil
+7. WHEN karyawan dengan role selain yang disebutkan login, THE PWA SHALL menampilkan item Bottom_Navigation: Absensi dan Profil
+8. THE PWA SHALL menandai item Bottom_Navigation yang aktif dengan warna primary #5A4372 dan ikon filled
+9. WHEN karyawan menekan item Bottom_Navigation, THE PWA SHALL menavigasi ke halaman terkait dengan transisi halus dalam waktu kurang dari 300ms
+
+### Requirement 3: Redesign Modul Absensi
+
+**User Story:** Sebagai karyawan, saya ingin tampilan absensi yang modern dengan card-based layout, date selector, dan swipe action mengikuti style HR Attendee app, sehingga proses check-in/check-out lebih intuitif.
+
+#### Acceptance Criteria
+
+1. THE Attendance_Module SHALL menampilkan header dengan nama karyawan, tanggal hari ini, dan Date_Selector untuk melihat riwayat absensi
+2. THE Attendance_Module SHALL menampilkan status absensi hari ini dalam Card_Component dengan layout dua kolom: kartu Check-In (hijau) dan kartu Check-Out (merah) yang menampilkan waktu masing-masing
+3. THE Attendance_Module SHALL menampilkan Summary_Card untuk total hari kerja, jam kerja, dan status kehadiran bulan berjalan
+4. THE Attendance_Module SHALL menampilkan Swipe_Action untuk melakukan check-in (geser ke kanan) dan check-out (geser ke kiri) sebagai alternatif tombol
+5. WHEN karyawan melakukan swipe check-in, THE Attendance_Module SHALL menjalankan proses validasi Wi-Fi/GPS dan check-in yang sama dengan flow check-in tombol yang sudah ada
+6. WHEN karyawan melakukan swipe check-out, THE Attendance_Module SHALL menjalankan proses konfirmasi dan check-out yang sama dengan flow check-out tombol yang sudah ada
+7. THE Attendance_Module SHALL menampilkan Activity_Log berupa daftar riwayat absensi 7 hari terakhir dengan format kartu yang menampilkan tanggal, waktu masuk, waktu keluar, dan durasi kerja
+8. WHILE data absensi sedang dimuat, THE Attendance_Module SHALL menampilkan Skeleton_Loading pada setiap Card_Component
+9. THE Attendance_Module SHALL mendukung Pull_To_Refresh untuk memperbarui data absensi
+10. THE Attendance_Module SHALL mempertahankan seluruh business logic check-in/check-out yang sudah ada termasuk validasi Wi-Fi, GPS, dan offline support
+
+### Requirement 4: Redesign Modul Tugas
+
+**User Story:** Sebagai driver atau asisten lapangan, saya ingin tampilan daftar tugas yang modern dengan card-based layout, tab selection untuk memisahkan pengiriman dan pengambilan, dan informasi yang lebih terstruktur, sehingga saya dapat mengelola tugas pengiriman dan pengambilan dengan lebih efisien.
+
+#### Acceptance Criteria
+
+1. THE Task_Module SHALL menampilkan header dengan judul halaman, jumlah tugas hari ini, dan tombol refresh
+2. THE Task_Module SHALL menampilkan Summary_Card di bagian atas yang menunjukkan jumlah tugas berdasarkan status: Menunggu, Dalam Perjalanan, dan Selesai
+3. THE Task_Module SHALL menampilkan daftar tugas dalam Card_Component dengan layout yang menampilkan nama sekolah, alamat, jenis tugas (pengiriman/pengambilan), status, dan urutan rute
+4. THE Task_Module SHALL menampilkan tag jenis tugas dengan warna berbeda: hijau untuk pengiriman makanan dan oranye untuk pengambilan ompreng
+5. WHEN driver menekan kartu tugas pengiriman, THE Task_Module SHALL menavigasi ke halaman detail tugas pengiriman
+6. WHEN driver menekan kartu tugas pengambilan, THE Task_Module SHALL menavigasi ke halaman detail tugas pengambilan
+7. THE Task_Module SHALL mendukung Pull_To_Refresh untuk memperbarui daftar tugas
+8. WHILE daftar tugas sedang dimuat, THE Task_Module SHALL menampilkan Skeleton_Loading
+9. THE Task_Module SHALL mempertahankan seluruh business logic tugas yang sudah ada termasuk offline caching, sync, dan e-POD submission
+10. THE Task_Module SHALL menampilkan tab selection dengan dua tab: "Pengiriman" dan "Pengambilan" di bagian atas daftar tugas, dengan style pill-shaped (border-radius 20px) mengikuti referensi HR Attendee app
+11. THE Task_Module SHALL menampilkan tab aktif dengan background Color_Palette primary (#5A4372) dan teks putih, serta tab tidak aktif dengan background transparan dan teks Color_Palette text-secondary (#74788C)
+12. WHEN driver memilih tab "Pengiriman", THE Task_Module SHALL memfilter daftar tugas untuk hanya menampilkan tugas pengiriman makanan
+13. WHEN driver memilih tab "Pengambilan", THE Task_Module SHALL memfilter daftar tugas untuk hanya menampilkan tugas pengambilan ompreng
+14. WHEN driver berpindah tab, THE Task_Module SHALL memperbarui Summary_Card agar menampilkan jumlah status (Menunggu, Dalam Perjalanan, Selesai) hanya dari tugas yang sesuai dengan tab aktif
+
+### Requirement 5: Redesign Halaman Detail Tugas dan e-POD
+
+**User Story:** Sebagai driver, saya ingin halaman detail tugas dan form e-POD yang lebih rapi dan mudah digunakan, sehingga proses pengiriman dan dokumentasi lebih lancar.
+
+#### Acceptance Criteria
+
+1. THE Task_Module SHALL menampilkan halaman detail tugas dengan Card_Component terpisah untuk: informasi status, informasi sekolah, informasi menu/porsi, dan aksi
+2. THE Task_Module SHALL menampilkan progress indicator visual yang menunjukkan tahapan tugas saat ini
+3. THE Task_Module SHALL menampilkan tombol navigasi Google Maps dengan style Card_Component
+4. THE Task_Module SHALL menampilkan form e-POD dengan layout Card_Component yang memisahkan setiap bagian: lokasi GPS, foto bukti, tanda tangan, dan nama penerima
+5. WHILE form e-POD sedang disubmit, THE Task_Module SHALL menampilkan progress indicator dan menonaktifkan tombol submit
+6. THE Task_Module SHALL mempertahankan seluruh business logic detail tugas dan e-POD yang sudah ada termasuk upload foto, tanda tangan digital, dan offline sync
+
+### Requirement 6: Redesign Halaman Profil
+
+**User Story:** Sebagai karyawan, saya ingin halaman profil yang modern dengan tab-based layout mengikuti style HR Attendee app, sehingga informasi akun saya tertata rapi.
+
+#### Acceptance Criteria
+
+1. THE PWA SHALL menampilkan halaman profil dengan banner gradient Color_Palette di bagian atas dan avatar karyawan yang overlapping
+2. THE PWA SHALL menampilkan nama lengkap dan NIK karyawan di bawah avatar
+3. THE PWA SHALL menampilkan informasi akun dalam Card_Component dengan tab Personal (NIK, nama, email, role) dan tab Pengaturan (versi aplikasi, mode offline)
+4. THE PWA SHALL menampilkan tombol logout full-width dengan konfirmasi dialog
+5. THE PWA SHALL mempertahankan seluruh business logic profil dan logout yang sudah ada
+
+### Requirement 7: Modul Dashboard (View Only)
+
+**User Story:** Sebagai Kepala SPPG/Yayasan, saya ingin melihat ringkasan data operasional dalam dashboard yang minimalis di PWA, sehingga saya dapat memantau kinerja operasional dari perangkat mobile.
+
+#### Acceptance Criteria
+
+1. THE Dashboard_Module SHALL hanya dapat diakses oleh karyawan dengan role Kepala_SPPG
+2. THE Dashboard_Module SHALL menampilkan Summary_Card untuk metrik utama: total karyawan hadir hari ini, total tugas pengiriman hari ini, total tugas selesai, dan total sekolah yang dilayani
+3. THE Dashboard_Module SHALL menampilkan grafik ringkasan kehadiran 7 hari terakhir dalam Card_Component
+4. THE Dashboard_Module SHALL menampilkan daftar tugas pengiriman terbaru dengan status dalam Card_Component
+5. THE Dashboard_Module SHALL mengambil data dari API backend yang sudah ada tanpa modifikasi endpoint
+6. WHILE data dashboard sedang dimuat, THE Dashboard_Module SHALL menampilkan Skeleton_Loading pada setiap Card_Component
+7. THE Dashboard_Module SHALL mendukung Pull_To_Refresh untuk memperbarui seluruh data dashboard
+8. IF pengambilan data dashboard gagal, THEN THE Dashboard_Module SHALL menampilkan pesan error dan tombol retry
+9. THE Dashboard_Module SHALL bersifat read-only tanpa aksi modifikasi data
+
+### Requirement 8: Modul Monitoring Aktivitas (View Only)
+
+**User Story:** Sebagai Kepala SPPG/Yayasan, saya ingin melihat monitoring aktivitas operasional dalam tampilan minimalis di PWA, sehingga saya dapat memantau aktivitas harian dari perangkat mobile.
+
+#### Acceptance Criteria
+
+1. THE Activity_Monitoring_Module SHALL hanya dapat diakses oleh karyawan dengan role Kepala_SPPG
+2. THE Activity_Monitoring_Module SHALL menampilkan Date_Selector untuk memfilter aktivitas berdasarkan tanggal
+3. THE Activity_Monitoring_Module SHALL menampilkan daftar aktivitas dalam Card_Component dengan informasi: nama karyawan, jenis aktivitas, waktu, dan status
+4. THE Activity_Monitoring_Module SHALL menampilkan filter berdasarkan jenis aktivitas (absensi, pengiriman, pengambilan) menggunakan tab atau chip selector
+5. THE Activity_Monitoring_Module SHALL mengambil data dari API backend yang sudah ada tanpa modifikasi endpoint
+6. WHILE data monitoring sedang dimuat, THE Activity_Monitoring_Module SHALL menampilkan Skeleton_Loading
+7. THE Activity_Monitoring_Module SHALL mendukung Pull_To_Refresh untuk memperbarui data monitoring
+8. IF pengambilan data monitoring gagal, THEN THE Activity_Monitoring_Module SHALL menampilkan pesan error dan tombol retry
+9. THE Activity_Monitoring_Module SHALL bersifat read-only tanpa aksi modifikasi data
+10. THE Activity_Monitoring_Module SHALL mendukung infinite scroll untuk memuat data aktivitas yang lebih banyak
+
+### Requirement 9: Modul Perencanaan Menu (View Only + Approval)
+
+**User Story:** Sebagai Kepala SPPG/Yayasan atau Ahli Gizi, saya ingin melihat perencanaan menu dalam tampilan minimalis di PWA, dan sebagai Kepala SPPG saya ingin dapat melakukan approval menu mingguan, sehingga proses perencanaan menu dapat dipantau dan disetujui dari perangkat mobile.
+
+#### Acceptance Criteria
+
+1. THE Menu_Planning_Module SHALL dapat diakses oleh karyawan dengan role Kepala_SPPG dan Ahli_Gizi
+2. THE Menu_Planning_Module SHALL menampilkan daftar rencana menu mingguan dalam Card_Component dengan informasi: periode minggu, status approval, dan jumlah menu
+3. THE Menu_Planning_Module SHALL menampilkan detail menu harian dalam Card_Component yang menampilkan nama menu, komponen menu, dan jumlah porsi per hari
+4. THE Menu_Planning_Module SHALL menampilkan filter berdasarkan minggu menggunakan Date_Selector
+5. WHEN karyawan dengan role Kepala_SPPG melihat menu mingguan yang belum diapprove, THE Menu_Planning_Module SHALL menampilkan tombol Approve dan Reject
+6. WHEN Kepala_SPPG menekan tombol Approve pada menu mingguan, THE Menu_Planning_Module SHALL mengirim request approval ke API backend dan memperbarui status menu menjadi approved
+7. WHEN Kepala_SPPG menekan tombol Reject pada menu mingguan, THE Menu_Planning_Module SHALL menampilkan dialog input alasan penolakan dan mengirim request rejection ke API backend
+8. WHILE karyawan dengan role Ahli_Gizi mengakses Menu_Planning_Module, THE Menu_Planning_Module SHALL menampilkan data menu dalam mode read-only tanpa tombol approval
+9. THE Menu_Planning_Module SHALL mengambil data dari API backend yang sudah ada tanpa modifikasi endpoint
+10. WHILE data menu sedang dimuat, THE Menu_Planning_Module SHALL menampilkan Skeleton_Loading
+11. THE Menu_Planning_Module SHALL mendukung Pull_To_Refresh untuk memperbarui data menu
+12. IF pengambilan data menu gagal, THEN THE Menu_Planning_Module SHALL menampilkan pesan error dan tombol retry
+13. IF proses approval atau rejection gagal, THEN THE Menu_Planning_Module SHALL menampilkan pesan error dan mempertahankan status menu sebelumnya
+
+### Requirement 10: Design System dan Komponen UI
+
+**User Story:** Sebagai developer, saya ingin design system yang konsisten mengikuti style HR Attendee app dengan color palette yang sudah ada, sehingga seluruh halaman PWA memiliki tampilan yang seragam dan modern.
+
+#### Acceptance Criteria
+
+1. THE PWA SHALL menggunakan CSS variables untuk seluruh Color_Palette: primary #5A4372, accent #3D2B53, background #F8FDEA, text-primary #322837, text-secondary #74788C, success #05CD99, warning #FFB547, error #EE5D50
+2. THE PWA SHALL menggunakan font family 'DM Sans' sebagai font utama dengan fallback ke system fonts
+3. THE PWA SHALL menggunakan border-radius 16px untuk Card_Component, 12px untuk tombol, dan 8px untuk elemen kecil
+4. THE PWA SHALL menggunakan shadow card (0px 18px 40px rgba(112, 144, 176, 0.12)) untuk seluruh Card_Component
+5. THE PWA SHALL menggunakan minimum touch target 44x44px untuk seluruh elemen interaktif
+6. THE PWA SHALL menampilkan Skeleton_Loading sebagai placeholder saat data sedang dimuat pada setiap halaman
+7. THE PWA SHALL menggunakan transisi halus (200ms ease-in-out) untuk perubahan state pada komponen interaktif
+8. THE PWA SHALL memastikan kontras warna teks terhadap background memenuhi rasio minimal 4.5:1 untuk teks normal
+
+### Requirement 11: Fitur Pendukung View Only pada Modul Absensi
+
+**User Story:** Sebagai karyawan, saya ingin melihat statistik kehadiran dan ringkasan absensi bulanan di modul absensi, sehingga saya dapat memantau rekap kehadiran saya sendiri.
+
+#### Acceptance Criteria
+
+1. THE Attendance_Module SHALL menampilkan Summary_Card statistik kehadiran bulan berjalan: total hari hadir, total hari tidak hadir, total terlambat, dan rata-rata jam kerja
+2. THE Attendance_Module SHALL menampilkan kalender mini yang menandai hari hadir (hijau), tidak hadir (merah), dan terlambat (kuning) pada bulan berjalan
+3. WHEN karyawan memilih tanggal pada kalender mini, THE Attendance_Module SHALL menampilkan detail absensi pada tanggal tersebut
+4. THE Attendance_Module SHALL mengambil data statistik dari API backend yang sudah ada
+
+### Requirement 12: Fitur Pendukung View Only pada Modul Tugas
+
+**User Story:** Sebagai driver atau asisten lapangan, saya ingin melihat ringkasan performa tugas dan riwayat tugas sebelumnya, sehingga saya dapat memantau kinerja pengiriman saya.
+
+#### Acceptance Criteria
+
+1. THE Task_Module SHALL menampilkan Summary_Card performa tugas: total tugas hari ini, tugas selesai, tugas pending, dan persentase penyelesaian
+2. THE Task_Module SHALL menampilkan tab Riwayat yang menampilkan daftar tugas 7 hari terakhir dalam Card_Component
+3. WHEN driver memilih tanggal pada tab Riwayat, THE Task_Module SHALL menampilkan daftar tugas pada tanggal tersebut
+4. THE Task_Module SHALL mengambil data riwayat dari API backend yang sudah ada
+
+### Requirement 13: Routing dan Akses Kontrol Modul Baru
+
+**User Story:** Sebagai developer, saya ingin routing dan akses kontrol yang tepat untuk modul-modul baru, sehingga setiap role hanya dapat mengakses modul yang sesuai.
+
+#### Acceptance Criteria
+
+1. THE PWA SHALL mendaftarkan route /dashboard untuk Dashboard_Module dengan akses terbatas pada role Kepala_SPPG
+2. THE PWA SHALL mendaftarkan route /monitoring untuk Activity_Monitoring_Module dengan akses terbatas pada role Kepala_SPPG
+3. THE PWA SHALL mendaftarkan route /menu-planning untuk Menu_Planning_Module dengan akses terbatas pada role Kepala_SPPG dan Ahli_Gizi
+4. THE PWA SHALL mendaftarkan route /school-monitoring untuk School_Monitoring_Module dengan akses terbatas pada role Sekolah
+5. WHEN karyawan dengan role tidak sesuai mengakses route modul baru, THE PWA SHALL mengarahkan karyawan ke halaman default sesuai role
+6. WHEN karyawan dengan role Kepala_SPPG login, THE PWA SHALL mengarahkan ke halaman /dashboard sebagai halaman default
+7. WHEN karyawan dengan role Ahli_Gizi login, THE PWA SHALL mengarahkan ke halaman /menu-planning sebagai halaman default
+8. WHEN pengguna dengan role Sekolah login, THE PWA SHALL mengarahkan ke halaman /school-monitoring sebagai halaman default
+9. THE PWA SHALL mempertahankan seluruh routing dan akses kontrol yang sudah ada untuk modul Absensi dan Tugas
+
+
+### Requirement 14: Modul Monitoring Sekolah (View Only)
+
+**User Story:** Sebagai pihak sekolah, saya ingin memantau menu yang dikirim hari ini dan status/progres pengiriman ke sekolah saya melalui PWA, sehingga saya mengetahui apa yang akan diterima dan kapan pengiriman tiba.
+
+#### Acceptance Criteria
+
+1. THE School_Monitoring_Module SHALL hanya dapat diakses oleh pengguna dengan role Sekolah
+2. THE School_Monitoring_Module SHALL menampilkan data hanya untuk sekolah yang terhubung dengan akun Sekolah yang sedang login (berdasarkan schoolId)
+3. THE School_Monitoring_Module SHALL menampilkan informasi menu hari ini untuk sekolah tersebut dalam Card_Component, meliputi: nama menu, komponen menu, dan jumlah porsi
+4. THE School_Monitoring_Module SHALL menampilkan status pengiriman terkini ke sekolah tersebut dalam Card_Component, meliputi: status (menunggu/dalam perjalanan/sampai/selesai), nama driver, dan estimasi waktu jika tersedia
+5. THE School_Monitoring_Module SHALL menampilkan status pengambilan ompreng jika ada tugas pengambilan terjadwal untuk sekolah tersebut
+6. THE School_Monitoring_Module SHALL bersifat read-only tanpa aksi modifikasi data apapun
+7. THE School_Monitoring_Module SHALL mengambil data dari API backend yang sudah ada tanpa modifikasi endpoint
+8. WHILE data monitoring sekolah sedang dimuat, THE School_Monitoring_Module SHALL menampilkan Skeleton_Loading pada setiap Card_Component
+9. THE School_Monitoring_Module SHALL mendukung Pull_To_Refresh untuk memperbarui seluruh data monitoring sekolah
+10. IF pengambilan data monitoring sekolah gagal, THEN THE School_Monitoring_Module SHALL menampilkan pesan error dan tombol retry

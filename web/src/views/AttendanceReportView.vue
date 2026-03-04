@@ -130,12 +130,12 @@
           @change="handleTableChange"
           row-key="employee_id"
           :scroll="{ x: 800 }"
+          :expandedRowKeys="expandedRowKeys"
+          @expand="onExpand"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'full_name'">
-              <a-button type="link" @click="viewDetailedReport(record)" style="padding: 0;">
-                {{ record.full_name }}
-              </a-button>
+              <span style="font-weight: 500;">{{ record.full_name }}</span>
             </template>
             <template v-else-if="column.key === 'total_hours'">
               {{ formatHours(record.total_hours) }}
@@ -151,6 +151,60 @@
               />
             </template>
           </template>
+
+          <!-- Expandable Row Content -->
+          <template #expandedRowRender="{ record }">
+            <div style="padding: 16px; background: #fafafa;">
+              <a-spin :spinning="expandedRowLoading[record.employee_id]">
+                <div v-if="expandedRowData[record.employee_id] && expandedRowData[record.employee_id].length > 0">
+                  <h4 style="margin-bottom: 12px; color: #5A4372;">
+                    <ClockCircleOutlined /> Detail Kehadiran - {{ record.full_name }}
+                  </h4>
+                  <a-table
+                    :columns="detailColumns"
+                    :data-source="expandedRowData[record.employee_id]"
+                    :pagination="false"
+                    size="small"
+                    :scroll="{ x: 600 }"
+                  >
+                    <template #bodyCell="{ column, record: detailRecord }">
+                      <template v-if="column.key === 'date'">
+                        {{ formatDate(detailRecord.date) }}
+                      </template>
+                      <template v-else-if="column.key === 'check_in'">
+                        <a-tag color="green">
+                          <LoginOutlined /> {{ formatTime(detailRecord.check_in) }}
+                        </a-tag>
+                      </template>
+                      <template v-else-if="column.key === 'check_out'">
+                        <a-tag v-if="detailRecord.check_out" color="red">
+                          <LogoutOutlined /> {{ formatTime(detailRecord.check_out) }}
+                        </a-tag>
+                        <a-tag v-else color="orange">
+                          Belum Check Out
+                        </a-tag>
+                      </template>
+                      <template v-else-if="column.key === 'work_hours'">
+                        <span style="font-weight: 500;">
+                          {{ formatHours(detailRecord.work_hours) }}
+                        </span>
+                      </template>
+                      <template v-else-if="column.key === 'status'">
+                        <a-tag :color="getStatusColor(detailRecord)">
+                          {{ getStatusText(detailRecord) }}
+                        </a-tag>
+                      </template>
+                    </template>
+                  </a-table>
+                </div>
+                <a-empty 
+                  v-else-if="!expandedRowLoading[record.employee_id]"
+                  description="Tidak ada data detail"
+                  :image="Empty.PRESENTED_IMAGE_SIMPLE"
+                />
+              </a-spin>
+            </div>
+          </template>
         </a-table>
 
         <!-- Empty State -->
@@ -162,70 +216,34 @@
         </a-empty>
       </a-space>
     </a-card>
-
-    <!-- Detailed Report Modal -->
-    <a-modal
-      v-model:open="detailModalVisible"
-      :title="`Detail Absensi - ${selectedEmployee?.full_name}`"
-      width="900px"
-      :footer="null"
-    >
-      <a-spin :spinning="loadingDetail">
-        <a-table
-          :columns="detailColumns"
-          :data-source="detailData"
-          :pagination="false"
-          size="small"
-          :scroll="{ y: 400 }"
-        >
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'date'">
-              {{ formatDate(record.date) }}
-            </template>
-            <template v-else-if="column.key === 'check_in'">
-              {{ formatTime(record.check_in) }}
-            </template>
-            <template v-else-if="column.key === 'check_out'">
-              {{ record.check_out ? formatTime(record.check_out) : '-' }}
-            </template>
-            <template v-else-if="column.key === 'work_hours'">
-              {{ formatHours(record.work_hours) }}
-            </template>
-            <template v-else-if="column.key === 'status'">
-              <a-tag :color="getStatusColor(record)">
-                {{ getStatusText(record) }}
-              </a-tag>
-            </template>
-          </template>
-        </a-table>
-      </a-spin>
-    </a-modal>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Empty } from 'ant-design-vue'
 import { 
   FileExcelOutlined, 
   FilePdfOutlined, 
   SearchOutlined, 
-  ClearOutlined 
+  ClearOutlined,
+  ClockCircleOutlined,
+  LoginOutlined,
+  LogoutOutlined
 } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import attendanceService from '@/services/attendanceService'
 import employeeService from '@/services/employeeService'
 
 const loading = ref(false)
-const loadingDetail = ref(false)
 const exportingExcel = ref(false)
 const exportingPDF = ref(false)
-const detailModalVisible = ref(false)
 const reportData = ref([])
-const detailData = ref([])
 const employees = ref([])
-const selectedEmployee = ref(null)
 const dateRange = ref([])
+const expandedRowKeys = ref([])
+const expandedRowData = ref({})
+const expandedRowLoading = ref({})
 
 const filters = reactive({
   employeeId: undefined
@@ -288,17 +306,17 @@ const detailColumns = [
   {
     title: 'Tanggal',
     key: 'date',
-    width: 100
+    width: 120
   },
   {
     title: 'Check In',
     key: 'check_in',
-    width: 100
+    width: 120
   },
   {
     title: 'Check Out',
     key: 'check_out',
-    width: 100
+    width: 120
   },
   {
     title: 'Jam Kerja',
@@ -309,7 +327,7 @@ const detailColumns = [
   {
     title: 'Status',
     key: 'status',
-    width: 100,
+    width: 120,
     align: 'center'
   }
 ]
@@ -355,12 +373,31 @@ const fetchReport = async () => {
       params.employee_id = filters.employeeId
     }
 
+    console.log('[AttendanceReport] Fetching report with params:', params)
     const response = await attendanceService.getAttendanceReport(params)
-    reportData.value = response.data || []
+    console.log('[AttendanceReport] Response:', response)
+    
+    // Handle response structure
+    if (response && response.success && response.data) {
+      reportData.value = response.data
+    } else if (response && response.data) {
+      reportData.value = response.data
+    } else {
+      reportData.value = []
+    }
+    
     pagination.total = reportData.value.length
+    
+    if (reportData.value.length === 0) {
+      console.warn('[AttendanceReport] No data returned from API')
+    } else {
+      console.log('[AttendanceReport] Loaded', reportData.value.length, 'records')
+    }
   } catch (error) {
     message.error('Gagal memuat laporan absensi')
-    console.error(error)
+    console.error('[AttendanceReport] Error:', error)
+    console.error('[AttendanceReport] Error response:', error.response?.data)
+    reportData.value = []
   } finally {
     loading.value = false
   }
@@ -376,36 +413,66 @@ const handleTableChange = (pag, filters, sorter) => {
   pagination.pageSize = pag.pageSize
 }
 
-const resetFilters = () => {
-  dateRange.value = []
-  filters.employeeId = undefined
-  reportData.value = []
-  pagination.current = 1
+const onExpand = async (expanded, record) => {
+  if (expanded) {
+    // Add to expanded keys
+    if (!expandedRowKeys.value.includes(record.employee_id)) {
+      expandedRowKeys.value.push(record.employee_id)
+    }
+    
+    // Load detail data if not already loaded
+    if (!expandedRowData.value[record.employee_id]) {
+      await loadExpandedRowData(record)
+    }
+  } else {
+    // Remove from expanded keys
+    expandedRowKeys.value = expandedRowKeys.value.filter(key => key !== record.employee_id)
+  }
 }
 
-const viewDetailedReport = async (record) => {
+const loadExpandedRowData = async (record) => {
   if (!dateRange.value || dateRange.value.length !== 2) {
     message.warning('Periode tanggal tidak valid')
     return
   }
 
-  selectedEmployee.value = record
-  detailModalVisible.value = true
-  loadingDetail.value = true
+  expandedRowLoading.value[record.employee_id] = true
 
   try {
+    console.log('[loadExpandedRowData] Loading details for employee:', record.employee_id)
     const response = await attendanceService.getAttendanceByDateRange(
       record.employee_id,
       dateRange.value[0].format('YYYY-MM-DD'),
       dateRange.value[1].format('YYYY-MM-DD')
     )
-    detailData.value = response.data || []
+    
+    console.log('[loadExpandedRowData] Response:', response)
+    
+    if (response && response.success && response.data) {
+      expandedRowData.value[record.employee_id] = response.data
+    } else if (response && response.data) {
+      expandedRowData.value[record.employee_id] = response.data
+    } else {
+      expandedRowData.value[record.employee_id] = []
+    }
+    
+    console.log('[loadExpandedRowData] Loaded', expandedRowData.value[record.employee_id].length, 'records')
   } catch (error) {
     message.error('Gagal memuat detail absensi')
-    console.error(error)
+    console.error('[loadExpandedRowData] Error:', error)
+    expandedRowData.value[record.employee_id] = []
   } finally {
-    loadingDetail.value = false
+    expandedRowLoading.value[record.employee_id] = false
   }
+}
+
+const resetFilters = () => {
+  dateRange.value = []
+  filters.employeeId = undefined
+  reportData.value = []
+  pagination.current = 1
+  expandedRowKeys.value = []
+  expandedRowData.value = {}
 }
 
 const exportToExcel = async () => {
@@ -506,27 +573,40 @@ const formatTime = (time) => {
 }
 
 const calculateAttendanceRate = (totalDays) => {
-  if (!dateRange.value || dateRange.value.length !== 2) return 0
-  
-  const workingDays = getWorkingDays(dateRange.value[0], dateRange.value[1])
-  if (workingDays === 0) return 0
-  
-  return Math.round((totalDays / workingDays) * 100)
+  try {
+    if (!dateRange.value || dateRange.value.length !== 2) return 0
+    if (!dateRange.value[0] || !dateRange.value[1]) return 0
+    
+    const workingDays = getWorkingDays(dateRange.value[0], dateRange.value[1])
+    if (workingDays === 0) return 0
+    
+    return Math.round((totalDays / workingDays) * 100)
+  } catch (error) {
+    console.error('[calculateAttendanceRate] Error:', error)
+    return 0
+  }
 }
 
 const getWorkingDays = (startDate, endDate) => {
-  let count = 0
-  let current = startDate.clone()
-  
-  while (current.isSameOrBefore(endDate)) {
-    // Skip weekends (Saturday = 6, Sunday = 0)
-    if (current.day() !== 0 && current.day() !== 6) {
-      count++
+  try {
+    if (!startDate || !endDate) return 0
+    
+    let count = 0
+    let current = startDate.clone()
+    
+    while (current.isSameOrBefore(endDate)) {
+      // Skip weekends (Saturday = 6, Sunday = 0)
+      if (current.day() !== 0 && current.day() !== 6) {
+        count++
+      }
+      current = current.add(1, 'day')
     }
-    current = current.add(1, 'day')
+    
+    return count
+  } catch (error) {
+    console.error('[getWorkingDays] Error:', error)
+    return 0
   }
-  
-  return count
 }
 
 const getAttendanceStatus = (totalDays) => {
@@ -550,8 +630,8 @@ const getStatusText = (record) => {
   return 'Kurang'
 }
 
-onMounted(() => {
-  fetchEmployees()
+onMounted(async () => {
+  await fetchEmployees()
   
   // Set default date range to current month
   const now = dayjs()
@@ -559,6 +639,10 @@ onMounted(() => {
     now.startOf('month'),
     now.endOf('month')
   ]
+  
+  // Auto-fetch report with default date range
+  console.log('[AttendanceReport] Auto-fetching report on mount')
+  await fetchReport()
 })
 </script>
 
@@ -578,5 +662,47 @@ onMounted(() => {
 
 :deep(.ant-progress-line) {
   margin-right: 8px;
+}
+
+/* Expandable row styling */
+:deep(.ant-table-expanded-row > td) {
+  padding: 0 !important;
+  background: #f5f5f5;
+}
+
+:deep(.ant-table-expanded-row .ant-table) {
+  margin: 0;
+}
+
+:deep(.ant-table-expanded-row .ant-table-thead > tr > th) {
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Fix expand icon alignment */
+:deep(.ant-table-row-expand-icon-cell) {
+  vertical-align: middle !important;
+}
+
+:deep(.ant-table-row-expand-icon) {
+  color: #5A4372;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.ant-table-row-expand-icon:hover) {
+  color: #7B5E9D;
+}
+
+/* Ensure table cells are vertically centered */
+:deep(.ant-table-tbody > tr > td) {
+  vertical-align: middle !important;
+}
+
+/* Detail table styling */
+:deep(.ant-table-small .ant-table-tbody > tr > td) {
+  padding: 8px;
 }
 </style>

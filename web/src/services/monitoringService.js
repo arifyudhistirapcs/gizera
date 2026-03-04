@@ -83,3 +83,22 @@ export const getDailySummary = async (date) => {
     throw error
   }
 }
+
+/**
+ * Get e-POD data by delivery task ID or delivery record ID
+ * @param {number} id - Delivery task ID or delivery record ID
+ * @param {string} type - 'task' or 'record' (default: 'record')
+ * @returns {Promise} API response
+ */
+export const getEPODByDeliveryTask = async (id, type = 'record') => {
+  try {
+    const paramKey = type === 'task' ? 'delivery_task_id' : 'delivery_record_id'
+    const response = await api.get('/epod', {
+      params: { [paramKey]: id }
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error fetching e-POD:', error)
+    throw error
+  }
+}

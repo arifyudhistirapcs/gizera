@@ -458,7 +458,7 @@ func (s *PickupTaskService) CancelPickupTask(id uint, userID uint) error {
 // new stage is exactly current_stage + 1 (no skipping), and stage-status mapping is correct
 // Calls ActivityTrackerService to transition to new stage, updates delivery record current_stage and current_status
 // Checks if all delivery records in pickup task are at stage 13, and if so, automatically updates pickup task status to 'completed'
-func (s *PickupTaskService) UpdateDeliveryRecordStage(pickupTaskID uint, deliveryRecordID uint, stage int, status string, userID uint) (*models.DeliveryRecord, error) {
+func (s *PickupTaskService) UpdateDeliveryRecordStage(pickupTaskID uint, deliveryRecordID uint, stage int, status string, userID uint, omprengReceived *int, omprengDifferenceReason string) (*models.DeliveryRecord, error) {
 	// Define stage-status mapping
 	stageStatusMap := map[int]string{
 		11: "driver_tiba_di_lokasi_pengambilan",
@@ -531,11 +531,21 @@ func (s *PickupTaskService) UpdateDeliveryRecordStage(pickupTaskID uint, deliver
 	}
 
 	// Update delivery record current_stage and current_status
-	if err := tx.Model(&deliveryRecord).Updates(map[string]interface{}{
+	updateData := map[string]interface{}{
 		"current_stage":  stage,
 		"current_status": status,
 		"updated_at":     time.Now(),
-	}).Error; err != nil {
+	}
+
+	// Add ompreng received data if provided (typically at stage 12 transition)
+	if omprengReceived != nil {
+		updateData["ompreng_received"] = *omprengReceived
+		if omprengDifferenceReason != "" {
+			updateData["ompreng_difference_reason"] = omprengDifferenceReason
+		}
+	}
+
+	if err := tx.Model(&deliveryRecord).Updates(updateData).Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("failed to update delivery record: %w", err)
 	}

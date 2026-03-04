@@ -1,0 +1,313 @@
+/**
+ * Horizon UI Mobile Theme
+ * Adapted from Horizon UI for mobile PWA
+ * Primary Color: #5A4372 (Purple)
+ */
+
+/* Google Fonts - DM Sans */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+:root {
+  /* Primary Colors - Purple Theme */
+  --h-primary: #5A4372;
+  --h-primary-hover: #4a3562;
+  --h-primary-active: #3a2752;
+  --h-primary-light: #6a5382;
+  --h-primary-lighter: rgba(90, 67, 114, 0.1);
+  
+  /* Accent Purple */
+  --h-accent: #3D2B53;
+  --h-accent-light: #4d3b63;
+  
+  /* Backgrounds */
+  --h-bg-primary: #F8FDEA;
+  --h-bg-secondary: #FFFFFF;
+  --h-bg-card: #FFFFFF;
+  --h-bg-light: #F4F7FE;
+  
+  /* Text Colors */
+  --h-text-primary: #322837;
+  --h-text-secondary: #74788C;
+  --h-text-light: #ACA9B0;
+  
+  /* Border Colors */
+  --h-border-color: #E9EDF7;
+  --h-border-light: #F4F7FE;
+  
+  /* Semantic Colors */
+  --h-success: #05CD99;
+  --h-warning: #FFB547;
+  --h-error: #EE5D50;
+  --h-info: #5A4372;
+  
+  /* Shadows */
+  --h-shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.05);
+  --h-shadow-md: 0px 4px 6px rgba(0, 0, 0, 0.07);
+  --h-shadow-lg: 0px 10px 15px rgba(0, 0, 0, 0.1);
+  --h-shadow-card: 0px 18px 40px rgba(112, 144, 176, 0.12);
+  
+  /* Border Radius */
+  --h-radius-sm: 8px;
+  --h-radius-md: 12px;
+  --h-radius-lg: 16px;
+  --h-radius-xl: 20px;
+  --h-radius-full: 9999px;
+  
+  /* Spacing */
+  --h-spacing-xs: 4px;
+  --h-spacing-sm: 8px;
+  --h-spacing-md: 12px;
+  --h-spacing-lg: 16px;
+  --h-spacing-xl: 20px;
+  --h-spacing-2xl: 24px;
+  
+  /* Typography */
+  --h-font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Transitions */
+  --h-transition-fast: 150ms ease-in-out;
+  --h-transition-base: 200ms ease-in-out;
+}
+
+/* Global Styles */
+body {
+  font-family: var(--h-font-family);
+  background-color: var(--h-bg-primary);
+  color: var(--h-text-primary);
+}
+
+/* Minimum touch target 44x44px for interactive elements (WCAG 2.5.5) */
+button,
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"],
+.van-button,
+.van-tabbar-item,
+.van-cell,
+.van-checkbox,
+.van-radio,
+.van-switch,
+.van-tag--clickable {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Vant Component Overrides */
+
+/* Button Primary - Purple */
+.van-button--primary {
+  background: var(--h-primary) !important;
+  border-color: var(--h-primary) !important;
+  border-radius: var(--h-radius-md) !important;
+  font-weight: 500;
+}
+
+.van-button--primary:active {
+  background: var(--h-primary-active) !important;
+  border-color: var(--h-primary-active) !important;
+}
+
+/* Button Default */
+.van-button--default {
+  border-radius: var(--h-radius-md) !important;
+  border-color: var(--h-border-color);
+  color: var(--h-text-primary);
+}
+
+/* Button Danger */
+.van-button--danger {
+  background: var(--h-error) !important;
+  border-color: var(--h-error) !important;
+  border-radius: var(--h-radius-md) !important;
+}
+
+/* Card */
+.van-card {
+  border-radius: var(--h-radius-lg) !important;
+  box-shadow: var(--h-shadow-card);
+  background: var(--h-bg-card);
+}
+
+/* Cell Group */
+.van-cell-group {
+  border-radius: var(--h-radius-lg) !important;
+  overflow: hidden;
+  box-shadow: var(--h-shadow-sm);
+}
+
+.van-cell-group--inset {
+  margin: var(--h-spacing-lg);
+}
+
+/* Cell */
+.van-cell {
+  background: var(--h-bg-card);
+  color: var(--h-text-primary);
+}
+
+.van-cell__title {
+  color: var(--h-text-primary);
+  font-weight: 500;
+}
+
+.van-cell__value {
+  color: var(--h-text-secondary);
+}
+
+/* Field */
+.van-field__control {
+  color: var(--h-text-primary);
+}
+
+.van-field__label {
+  color: var(--h-text-primary);
+  font-weight: 500;
+}
+
+.van-field__control::placeholder {
+  color: var(--h-text-light);
+}
+
+/* Nav Bar */
+.van-nav-bar {
+  background: var(--h-primary) !important;
+  box-shadow: var(--h-shadow-md);
+}
+
+.van-nav-bar__title {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.van-nav-bar__arrow,
+.van-nav-bar__text {
+  color: #ffffff !important;
+}
+
+/* Tabbar */
+.van-tabbar {
+  background: var(--h-bg-card);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.van-tabbar-item--active {
+  color: var(--h-primary) !important;
+}
+
+.van-tabbar-item__icon {
+  font-size: 22px;
+}
+
+/* Tag */
+.van-tag--primary {
+  background: var(--h-primary-lighter);
+  color: var(--h-primary);
+  border-color: var(--h-primary-light);
+}
+
+.van-tag--success {
+  background: rgba(5, 205, 153, 0.1);
+  color: var(--h-success);
+  border-color: var(--h-success);
+}
+
+.van-tag--warning {
+  background: rgba(255, 181, 71, 0.1);
+  color: var(--h-warning);
+  border-color: var(--h-warning);
+}
+
+.van-tag--danger {
+  background: rgba(238, 93, 80, 0.1);
+  color: var(--h-error);
+  border-color: var(--h-error);
+}
+
+/* Notify */
+.van-notify--success {
+  background: var(--h-success);
+}
+
+.van-notify--danger {
+  background: var(--h-error);
+}
+
+.van-notify--warning {
+  background: var(--h-warning);
+}
+
+.van-notify--primary {
+  background: var(--h-primary);
+}
+
+/* Dialog */
+.van-dialog {
+  border-radius: var(--h-radius-lg) !important;
+}
+
+.van-dialog__header {
+  font-weight: 600;
+  color: var(--h-text-primary);
+}
+
+.van-dialog__message {
+  color: var(--h-text-secondary);
+}
+
+/* Popup */
+.van-popup {
+  border-radius: var(--h-radius-lg) var(--h-radius-lg) 0 0 !important;
+}
+
+/* Switch */
+.van-switch--on {
+  background: var(--h-primary) !important;
+}
+
+/* Checkbox */
+.van-checkbox__icon--checked {
+  background: var(--h-primary) !important;
+  border-color: var(--h-primary) !important;
+}
+
+/* Radio */
+.van-radio__icon--checked {
+  background: var(--h-primary) !important;
+  border-color: var(--h-primary) !important;
+}
+
+/* Loading */
+.van-loading__spinner {
+  color: var(--h-primary);
+}
+
+/* Progress */
+.van-progress__pivot {
+  background: var(--h-primary);
+}
+
+/* Utility Classes */
+.h-card {
+  background: var(--h-bg-card);
+  border-radius: var(--h-radius-lg);
+  box-shadow: var(--h-shadow-card);
+  padding: var(--h-spacing-2xl);
+}
+
+.h-gradient-primary {
+  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+}
+
+.h-text-primary {
+  color: var(--h-text-primary);
+}
+
+.h-text-secondary {
+  color: var(--h-text-secondary);
+}
+
+.h-text-light {
+  color: var(--h-text-light);
+}

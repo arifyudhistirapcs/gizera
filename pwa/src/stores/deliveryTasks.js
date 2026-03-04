@@ -16,21 +16,103 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
     try {
       // Try to fetch from API first
       if (navigator.onLine || forceRefresh) {
-        const response = await api.get(`/delivery-tasks/driver/${driverId}/today`)
+        console.log('[DeliveryTasks] Fetching tasks for driver:', driverId)
         
-        if (response.data.success) {
-          const apiTasks = response.data.delivery_tasks || []
-          tasks.value = apiTasks
-          lastSync.value = new Date().toISOString()
-          
-          // Cache tasks in IndexedDB for offline access
-          await cacheTasksOffline(apiTasks)
-          
-          return apiTasks
+        // Fetch both delivery tasks and pickup tasks
+        // Use local date to avoid timezone issues
+        const now = new Date()
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+        console.log('[DeliveryTasks] Today date:', today, 'Local time:', now.toString())
+        
+        let deliveryResponse = null
+        let pickupResponse = null
+        
+        // Fetch delivery tasks
+        try {
+          deliveryResponse = await api.get(`/delivery-tasks/driver/${driverId}/today`)
+          console.log('[DeliveryTasks] Delivery API Response:', deliveryResponse.data)
+        } catch (deliveryError) {
+          console.error('[DeliveryTasks] Error fetching delivery tasks:', deliveryError)
         }
+        
+        // Fetch pickup tasks
+        try {
+          pickupResponse = await api.get(`/pickup-tasks`, { params: { driver_id: driverId, date: today } })
+          console.log('[DeliveryTasks] Pickup API Response:', pickupResponse.data)
+        } catch (pickupError) {
+          console.error('[DeliveryTasks] Error fetching pickup tasks:', pickupError)
+        }
+        
+        let allTasks = []
+        
+        // Add delivery tasks
+        if (deliveryResponse?.data?.success) {
+          const deliveryTasks = deliveryResponse.data.delivery_tasks || []
+          // Mark as delivery task type
+          deliveryTasks.forEach(task => {
+            task.task_type = 'delivery'
+          })
+          allTasks = [...allTasks, ...deliveryTasks]
+        }
+        
+        // Add pickup tasks - convert to similar format
+        if (pickupResponse?.data?.pickup_tasks) {
+          const pickupTasks = pickupResponse.data.pickup_tasks || []
+          console.log('[DeliveryTasks] Processing pickup tasks:', pickupTasks.length)
+          // Convert pickup tasks to a format similar to delivery tasks
+          pickupTasks.forEach((pickupTask, idx) => {
+            console.log(`[DeliveryTasks] Pickup task ${idx}:`, {
+              id: pickupTask.id,
+              task_date: pickupTask.task_date,
+              delivery_records: pickupTask.delivery_records,
+              delivery_records_length: pickupTask.delivery_records?.length
+            })
+            // For each delivery record in the pickup task, create a task entry
+            if (pickupTask.delivery_records && pickupTask.delivery_records.length > 0) {
+              pickupTask.delivery_records.forEach(dr => {
+                const pickupTaskEntry = {
+                  id: `pickup-${pickupTask.id}-${dr.id}`,
+                  pickup_task_id: pickupTask.id,
+                  delivery_record_id: dr.id,
+                  task_date: pickupTask.task_date,
+                  driver_id: pickupTask.driver_id,
+                  school_id: dr.school_id,
+                  school: dr.school,
+                  portions: dr.portions,
+                  status: pickupTask.status,
+                  current_stage: dr.current_stage,
+                  route_order: dr.route_order || 1,
+                  task_type: 'pickup',
+                  ompreng_count: dr.ompreng_count
+                }
+                console.log('[DeliveryTasks] Adding pickup task entry:', {
+                  id: pickupTaskEntry.id,
+                  task_type: pickupTaskEntry.task_type,
+                  status: pickupTaskEntry.status,
+                  current_stage: pickupTaskEntry.current_stage,
+                  school: pickupTaskEntry.school?.name
+                })
+                allTasks.push(pickupTaskEntry)
+              })
+            } else {
+              console.log('[DeliveryTasks] No delivery_records for pickup task:', pickupTask.id)
+            }
+          })
+        } else {
+          console.log('[DeliveryTasks] No pickup_tasks in response, pickupResponse:', pickupResponse?.data)
+        }
+        
+        console.log('[DeliveryTasks] All tasks combined:', allTasks.length, allTasks.map(t => ({ id: t.id, type: t.task_type, status: t.status })))
+        tasks.value = allTasks
+        lastSync.value = new Date().toISOString()
+        
+        // Cache tasks in IndexedDB for offline access
+        await cacheTasksOffline(allTasks)
+        
+        return allTasks
       }
     } catch (error) {
-      console.error('Error fetching tasks from API:', error)
+      console.error('[DeliveryTasks] Error fetching tasks from API:', error)
       
       // If API fails, try to load from cache
       const cachedTasks = await loadTasksFromCache(driverId)
@@ -48,13 +130,7 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
   // Cache tasks in IndexedDB
   const cacheTasksOffline = async (tasksData) => {
     try {
-      // Clear existing tasks for today
-      const today = new Date()
-      const todayStr = today.toISOString().split('T')[0]
-      
-      await db.deliveryTasks.where('taskDate').startsWith(todayStr).delete()
-      
-      // Store new tasks
+      // Store new tasks using bulkPut (upsert) instead of bulkAdd to avoid duplicate key errors
       const tasksToCache = tasksData.map(task => ({
         id: task.id,
         taskDate: task.task_date,
@@ -62,16 +138,22 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
         schoolId: task.school_id,
         portions: task.portions,
         status: task.status,
+        currentStage: task.current_stage,
         routeOrder: task.route_order,
         school: task.school,
         menuItems: task.menu_items,
+        taskType: task.task_type,
+        pickupTaskId: task.pickup_task_id,
+        deliveryRecordId: task.delivery_record_id,
+        omprengCount: task.ompreng_count,
         cachedAt: new Date().toISOString()
       }))
       
-      await db.deliveryTasks.bulkAdd(tasksToCache)
-      console.log('Tasks cached successfully:', tasksToCache.length)
+      // Use bulkPut to upsert (insert or update) - this avoids "Key already exists" errors
+      await db.deliveryTasks.bulkPut(tasksToCache)
+      console.log('[DeliveryTasks] Tasks cached successfully:', tasksToCache.length)
     } catch (error) {
-      console.error('Error caching tasks:', error)
+      console.error('[DeliveryTasks] Error caching tasks:', error)
     }
   }
 
@@ -95,15 +177,20 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
         school_id: task.schoolId,
         portions: task.portions,
         status: task.status,
+        current_stage: task.currentStage,
         route_order: task.routeOrder,
         school: task.school,
-        menu_items: task.menuItems
+        menu_items: task.menuItems,
+        task_type: task.taskType,
+        pickup_task_id: task.pickupTaskId,
+        delivery_record_id: task.deliveryRecordId,
+        ompreng_count: task.omprengCount
       }))
       
-      console.log('Loaded tasks from cache:', formattedTasks.length)
+      console.log('[DeliveryTasks] Loaded tasks from cache:', formattedTasks.length)
       return formattedTasks
     } catch (error) {
-      console.error('Error loading tasks from cache:', error)
+      console.error('[DeliveryTasks] Error loading tasks from cache:', error)
       return []
     }
   }
@@ -111,10 +198,21 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
   // Update task status
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
+      // Map status to current_stage for delivery tasks
+      const statusToStage = {
+        'pending': 1,
+        'in_progress': 2,
+        'arrived': 3,
+        'received': 4,
+        'completed': 4
+      }
+      const newStage = statusToStage[newStatus] || 1
+      
       // Update local state immediately for better UX
       const taskIndex = tasks.value.findIndex(task => task.id === taskId)
       if (taskIndex !== -1) {
         tasks.value[taskIndex].status = newStatus
+        tasks.value[taskIndex].current_stage = newStage
       }
 
       if (navigator.onLine) {
@@ -124,8 +222,8 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
         })
         
         if (response.data.success) {
-          // Update cache
-          await updateTaskInCache(taskId, { status: newStatus })
+          // Update cache with both status and current_stage
+          await updateTaskInCache(taskId, { status: newStatus, currentStage: newStage })
         }
       } else {
         // Store update for later sync
@@ -262,7 +360,7 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
       await db.epods.add(localePOD)
 
       // Update task status locally for immediate feedback
-      await updateTaskStatus(ePODData.delivery_task_id, 'completed')
+      await updateTaskStatus(ePODData.delivery_task_id, 'received')
 
       if (navigator.onLine) {
         try {
@@ -289,21 +387,50 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
               epodId: epodId
             })
 
-            // Queue photo and signature uploads if they are base64 data
-            if (ePODData.photo_url && ePODData.photo_url.startsWith('data:')) {
-              await syncService.queueForSync('epod_photo', {
-                epodId: epodId,
-                taskId: ePODData.delivery_task_id,
-                photoData: ePODData.photo_url
-              }, 2)
+            // Upload photo directly if available
+            if (epodId && ePODData.photo_url && ePODData.photo_url.startsWith('data:')) {
+              try {
+                const photoBlob = await fetch(ePODData.photo_url).then(r => r.blob())
+                const photoFormData = new FormData()
+                photoFormData.append('photo', photoBlob, `epod-photo-${epodId}.jpg`)
+                
+                await api.post(`/epod/${epodId}/upload-photo`, photoFormData, {
+                  headers: { 'Content-Type': 'multipart/form-data' },
+                  timeout: 30000
+                })
+                console.log('Photo uploaded successfully for e-POD:', epodId)
+              } catch (photoError) {
+                console.error('Failed to upload photo:', photoError)
+                // Queue for later sync
+                await syncService.queueForSync('epod_photo', {
+                  epodId: epodId,
+                  taskId: ePODData.delivery_task_id,
+                  photoData: ePODData.photo_url
+                }, 2)
+              }
             }
 
-            if (ePODData.signature_url && ePODData.signature_url.startsWith('data:')) {
-              await syncService.queueForSync('epod_signature', {
-                epodId: epodId,
-                taskId: ePODData.delivery_task_id,
-                signatureData: ePODData.signature_url
-              }, 2)
+            // Upload signature directly if available
+            if (epodId && ePODData.signature_url && ePODData.signature_url.startsWith('data:')) {
+              try {
+                const sigBlob = await fetch(ePODData.signature_url).then(r => r.blob())
+                const sigFormData = new FormData()
+                sigFormData.append('signature', sigBlob, `epod-signature-${epodId}.png`)
+                
+                await api.post(`/epod/${epodId}/upload-signature`, sigFormData, {
+                  headers: { 'Content-Type': 'multipart/form-data' },
+                  timeout: 30000
+                })
+                console.log('Signature uploaded successfully for e-POD:', epodId)
+              } catch (sigError) {
+                console.error('Failed to upload signature:', sigError)
+                // Queue for later sync
+                await syncService.queueForSync('epod_signature', {
+                  epodId: epodId,
+                  taskId: ePODData.delivery_task_id,
+                  signatureData: ePODData.signature_url
+                }, 2)
+              }
             }
             
             console.log('e-POD submitted successfully with ID:', epodId)
@@ -407,7 +534,7 @@ export const useDeliveryTasksStore = defineStore('deliveryTasks', () => {
 
   // Enhanced sync that uses the new sync service
   const syncAllOfflineData = async () => {
-    return await syncService.syncAllOfflineData()
+    return await syncService.syncPendingData()
   }
 
   // Get sync status for a delivery task

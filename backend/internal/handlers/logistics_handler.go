@@ -789,6 +789,96 @@ type CreateEPODRequest struct {
 	OmprengDropOff int     `json:"ompreng_drop_off" binding:"gte=0"`
 	OmprengPickUp  int     `json:"ompreng_pick_up" binding:"gte=0"`
 }
+// GetEPODByDeliveryTask retrieves an e-POD by delivery task ID
+func (h *LogisticsHandler) GetEPODByDeliveryTask(c *gin.Context) {
+	// Support both delivery_task_id and delivery_record_id
+	deliveryTaskIDStr := c.Query("delivery_task_id")
+	deliveryRecordIDStr := c.Query("delivery_record_id")
+
+	if deliveryTaskIDStr != "" {
+		// Get by delivery_task_id
+		deliveryTaskID, err := strconv.ParseUint(deliveryTaskIDStr, 10, 32)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_ID",
+				"message":    "ID tugas pengiriman tidak valid",
+			})
+			return
+		}
+
+		epod, err := h.epodService.GetEPODByDeliveryTaskID(uint(deliveryTaskID))
+		if err != nil {
+			if err == services.ErrEPODNotFound {
+				c.JSON(http.StatusNotFound, gin.H{
+					"success":    false,
+					"error_code": "EPOD_NOT_FOUND",
+					"message":    "e-POD tidak ditemukan untuk tugas pengiriman ini",
+				})
+				return
+			}
+
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Terjadi kesalahan pada server",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"epod":    epod,
+		})
+		return
+	}
+
+	if deliveryRecordIDStr != "" {
+		// Get by delivery_record_id - find matching ePOD by school, driver, and date
+		deliveryRecordID, err := strconv.ParseUint(deliveryRecordIDStr, 10, 32)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_ID",
+				"message":    "ID delivery record tidak valid",
+			})
+			return
+		}
+
+		epod, err := h.epodService.GetEPODByDeliveryRecordID(uint(deliveryRecordID))
+		if err != nil {
+			if err == services.ErrEPODNotFound {
+				c.JSON(http.StatusNotFound, gin.H{
+					"success":    false,
+					"error_code": "EPOD_NOT_FOUND",
+					"message":    "e-POD tidak ditemukan untuk delivery record ini",
+				})
+				return
+			}
+
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Terjadi kesalahan pada server",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"epod":    epod,
+		})
+		return
+	}
+
+	c.JSON(http.StatusBadRequest, gin.H{
+		"success":    false,
+		"error_code": "MISSING_PARAMETER",
+		"message":    "Parameter delivery_task_id atau delivery_record_id diperlukan",
+	})
+}
+
+
 
 // CreateEPOD creates a new electronic proof of delivery
 func (h *LogisticsHandler) CreateEPOD(c *gin.Context) {
@@ -830,7 +920,7 @@ func (h *LogisticsHandler) CreateEPOD(c *gin.Context) {
 
 // UploadEPODPhotoRequest represents upload photo request
 type UploadEPODPhotoRequest struct {
-	PhotoURL string `json:"photo_url" binding:"required"`
+	PhotoURL string `json:"photo_url"`
 }
 
 // UploadEPODPhoto uploads photo for an e-POD
@@ -845,18 +935,88 @@ func (h *LogisticsHandler) UploadEPODPhoto(c *gin.Context) {
 		return
 	}
 
-	var req UploadEPODPhotoRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	// Check content type - support both JSON and multipart form
+	contentType := c.GetHeader("Content-Type")
+	var photoURL string
+
+	if strings.Contains(contentType, "multipart/form-data") {
+		// Handle file upload
+		file, err := c.FormFile("photo")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "VALIDATION_ERROR",
+				"message":    "File foto tidak ditemukan",
+				"details":    err.Error(),
+			})
+			return
+		}
+
+		// Validate file size (max 5MB)
+		if file.Size > 5*1024*1024 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "FILE_TOO_LARGE",
+				"message":    "Ukuran file terlalu besar. Maksimal 5MB.",
+			})
+			return
+		}
+
+		// Generate unique filename
+		ext := filepath.Ext(file.Filename)
+		if ext == "" {
+			ext = ".jpg"
+		}
+		filename := fmt.Sprintf("epod-photo-%d-%d%s", id, time.Now().UnixNano(), ext)
+		uploadPath := filepath.Join("uploads", "epod", filename)
+
+		// Ensure directory exists
+		if err := os.MkdirAll(filepath.Dir(uploadPath), 0755); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Gagal membuat direktori upload",
+			})
+			return
+		}
+
+		// Save file
+		if err := c.SaveUploadedFile(file, uploadPath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Gagal menyimpan file",
+			})
+			return
+		}
+
+		// Generate URL
+		photoURL = fmt.Sprintf("/uploads/epod/%s", filename)
+	} else {
+		// Handle JSON request
+		var req UploadEPODPhotoRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "VALIDATION_ERROR",
+				"message":    "Data tidak valid",
+				"details":    err.Error(),
+			})
+			return
+		}
+		photoURL = req.PhotoURL
+	}
+
+	if photoURL == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success":    false,
 			"error_code": "VALIDATION_ERROR",
-			"message":    "Data tidak valid",
-			"details":    err.Error(),
+			"message":    "URL foto tidak boleh kosong",
 		})
 		return
 	}
 
-	if err := h.epodService.UpdateEPODPhoto(uint(id), req.PhotoURL); err != nil {
+	if err := h.epodService.UpdateEPODPhoto(uint(id), photoURL); err != nil {
 		if err == services.ErrEPODNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -875,14 +1035,15 @@ func (h *LogisticsHandler) UploadEPODPhoto(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Foto e-POD berhasil diunggah",
+		"success":   true,
+		"message":   "Foto e-POD berhasil diunggah",
+		"photo_url": photoURL,
 	})
 }
 
 // UploadEPODSignatureRequest represents upload signature request
 type UploadEPODSignatureRequest struct {
-	SignatureURL string `json:"signature_url" binding:"required"`
+	SignatureURL string `json:"signature_url"`
 }
 
 // UploadEPODSignature uploads signature for an e-POD
@@ -897,18 +1058,88 @@ func (h *LogisticsHandler) UploadEPODSignature(c *gin.Context) {
 		return
 	}
 
-	var req UploadEPODSignatureRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	// Check content type - support both JSON and multipart form
+	contentType := c.GetHeader("Content-Type")
+	var signatureURL string
+
+	if strings.Contains(contentType, "multipart/form-data") {
+		// Handle file upload
+		file, err := c.FormFile("signature")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "VALIDATION_ERROR",
+				"message":    "File tanda tangan tidak ditemukan",
+				"details":    err.Error(),
+			})
+			return
+		}
+
+		// Validate file size (max 2MB for signatures)
+		if file.Size > 2*1024*1024 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "FILE_TOO_LARGE",
+				"message":    "Ukuran file terlalu besar. Maksimal 2MB.",
+			})
+			return
+		}
+
+		// Generate unique filename
+		ext := filepath.Ext(file.Filename)
+		if ext == "" {
+			ext = ".png"
+		}
+		filename := fmt.Sprintf("epod-signature-%d-%d%s", id, time.Now().UnixNano(), ext)
+		uploadPath := filepath.Join("uploads", "epod", filename)
+
+		// Ensure directory exists
+		if err := os.MkdirAll(filepath.Dir(uploadPath), 0755); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Gagal membuat direktori upload",
+			})
+			return
+		}
+
+		// Save file
+		if err := c.SaveUploadedFile(file, uploadPath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Gagal menyimpan file",
+			})
+			return
+		}
+
+		// Generate URL
+		signatureURL = fmt.Sprintf("/uploads/epod/%s", filename)
+	} else {
+		// Handle JSON request
+		var req UploadEPODSignatureRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "VALIDATION_ERROR",
+				"message":    "Data tidak valid",
+				"details":    err.Error(),
+			})
+			return
+		}
+		signatureURL = req.SignatureURL
+	}
+
+	if signatureURL == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success":    false,
 			"error_code": "VALIDATION_ERROR",
-			"message":    "Data tidak valid",
-			"details":    err.Error(),
+			"message":    "URL tanda tangan tidak boleh kosong",
 		})
 		return
 	}
 
-	if err := h.epodService.UpdateEPODSignature(uint(id), req.SignatureURL); err != nil {
+	if err := h.epodService.UpdateEPODSignature(uint(id), signatureURL); err != nil {
 		if err == services.ErrEPODNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -927,8 +1158,9 @@ func (h *LogisticsHandler) UploadEPODSignature(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Tanda tangan e-POD berhasil diunggah",
+		"success":       true,
+		"message":       "Tanda tangan e-POD berhasil diunggah",
+		"signature_url": signatureURL,
 	})
 }
 

@@ -64,17 +64,25 @@ class SyncService {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
       
-      const response = await fetch('/api/v1/health', {
+      // Use the configured API base URL
+      const baseURL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+      const healthURL = baseURL.replace('/api/v1', '') + '/api/v1/health'
+      
+      const response = await fetch(healthURL, {
         method: 'HEAD',
         signal: controller.signal,
-        cache: 'no-cache'
+        cache: 'no-cache',
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
       })
       
       clearTimeout(timeoutId)
-      return response.ok
+      return response.ok || response.status === 404 // 404 is ok, means server is reachable
     } catch (error) {
       console.log('Enhanced connectivity check failed:', error.message)
-      return false
+      // If fetch fails but navigator says online, assume online
+      return navigator.onLine
     }
   }
 
@@ -213,14 +221,20 @@ class SyncService {
       // Get sync settings
       const settings = await storageService.getSyncMeta('syncSettings') || {}
       const batchSize = settings.batchSize || 10
+      const maxRetries = settings.maxRetries || 3
 
       // Get all pending sync items ordered by priority and creation time
       const pendingItems = await db.syncQueue
         .where('status')
         .anyOf(['pending', 'failed'])
-        .and(item => item.retryCount < (settings.maxRetries || 3))
-        .orderBy(['priority', 'createdAt'])
-        .toArray()
+        .filter(item => item.retryCount < maxRetries)
+        .sortBy('priority')
+      
+      // Sort by priority then createdAt
+      pendingItems.sort((a, b) => {
+        if (a.priority !== b.priority) return a.priority - b.priority
+        return new Date(a.createdAt) - new Date(b.createdAt)
+      })
 
       this.syncProgress.total = pendingItems.length
       this.syncProgress.currentItem = `Ditemukan ${pendingItems.length} item untuk disinkronkan`

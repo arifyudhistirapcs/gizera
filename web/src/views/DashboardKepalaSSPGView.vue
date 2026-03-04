@@ -40,6 +40,37 @@
       />
     </div>
 
+    <!-- Rating Stats Row -->
+    <div class="stats-row rating-row">
+      <HStatCard
+        :icon="StarOutlined"
+        icon-bg="linear-gradient(135deg, #faad14 0%, #d48806 100%)"
+        label="Rating Keseluruhan"
+        :value="`${reviewSummary.average_overall_rating?.toFixed(1) || '0.0'} / 5`"
+        :change="`${reviewSummary.total_reviews || 0} ulasan`"
+        change-type="increase"
+        :loading="loading"
+      />
+      <HStatCard
+        :icon="CoffeeOutlined"
+        icon-bg="linear-gradient(135deg, #52c41a 0%, #389e0d 100%)"
+        label="Rating Menu"
+        :value="`${reviewSummary.average_menu_rating?.toFixed(1) || '0.0'} / 5`"
+        change="kualitas makanan"
+        change-type="increase"
+        :loading="loading"
+      />
+      <HStatCard
+        :icon="CarOutlined"
+        icon-bg="linear-gradient(135deg, #1890ff 0%, #096dd9 100%)"
+        label="Rating Layanan"
+        :value="`${reviewSummary.average_service_rating?.toFixed(1) || '0.0'} / 5`"
+        change="kualitas pengiriman"
+        change-type="increase"
+        :loading="loading"
+      />
+    </div>
+
     <!-- Charts Row -->
     <div class="charts-row">
       <HChartCard
@@ -205,19 +236,28 @@ import {
   InboxOutlined,
   CheckCircleOutlined,
   WarningOutlined,
-  RightOutlined
+  RightOutlined,
+  StarOutlined,
+  CoffeeOutlined
 } from '@ant-design/icons-vue'
 import HStatCard from '@/components/horizon/HStatCard.vue'
 import HChartCard from '@/components/horizon/HChartCard.vue'
 import HDataTable from '@/components/horizon/HDataTable.vue'
 import { useHorizonChart } from '@/composables/useHorizonChart'
 import { getKepalaSSPGDashboard } from '@/services/dashboardService'
+import reviewService from '@/services/reviewService'
 import { database } from '@/services/firebase'
 import { ref as dbRef, onValue, off } from 'firebase/database'
 
 const router = useRouter()
 const dashboard = ref(null)
 const loading = ref(true)
+const reviewSummary = ref({
+  total_reviews: 0,
+  average_overall_rating: 0,
+  average_menu_rating: 0,
+  average_service_rating: 0
+})
 
 const productionChartRef = ref(null)
 const deliveryChartRef = ref(null)
@@ -407,9 +447,20 @@ const updateCharts = () => {
 const loadDashboardData = async () => {
   loading.value = true
   try {
+    // Load dashboard data
     const response = await getKepalaSSPGDashboard()
     if (response.success) {
       dashboard.value = response.dashboard
+    }
+
+    // Load review summary
+    try {
+      const reviewResponse = await reviewService.getSummary()
+      if (reviewResponse.summary) {
+        reviewSummary.value = reviewResponse.summary
+      }
+    } catch (reviewError) {
+      console.warn('Could not load review summary:', reviewError)
     }
   } catch (error) {
     console.error('Error loading dashboard:', error)
@@ -474,8 +525,11 @@ onUnmounted(() => {
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
-@media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
-@media (max-width: 768px) { .stats-row { grid-template-columns: 1fr; gap: 12px; } }
+.stats-row.rating-row {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); gap: 16px; } .stats-row.rating-row { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .stats-row { grid-template-columns: 1fr; gap: 12px; } .stats-row.rating-row { grid-template-columns: 1fr; } }
 
 .charts-row {
   display: grid;
