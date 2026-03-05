@@ -16,7 +16,7 @@
       </div>
 
       <!-- Date Picker Popup -->
-      <van-popup v-model:show="showDatePicker" position="bottom" :style="{ zIndex: 9999 }">
+      <van-popup v-model:show="showDatePicker" position="bottom">
         <van-date-picker
           v-model="selectedDate"
           :min-date="new Date(2020, 0, 1)"
@@ -197,36 +197,5 @@ onMounted(() => {
   font-size: 12px;
   color: var(--h-text-secondary);
   margin: var(--h-spacing-xs) 0 0 0;
-}
-
-/* Date Picker Popup Fix */
-:deep(.van-popup) {
-  z-index: 9999 !important;
-  background: rgba(0, 0, 0, 0.7) !important;
-}
-
-:deep(.van-popup--bottom) {
-  background: #FFFFFF !important;
-}
-
-:deep(.van-date-picker) {
-  background: #FFFFFF !important;
-}
-
-:deep(.van-picker__toolbar) {
-  background: #FFFFFF !important;
-  border-bottom: 1px solid #ebedf0;
-}
-
-:deep(.van-picker-column) {
-  background: #FFFFFF !important;
-}
-
-:deep(.van-picker-column__item) {
-  color: #323233 !important;
-}
-
-:deep(.van-overlay) {
-  z-index: 9998 !important;
 }
 </style>

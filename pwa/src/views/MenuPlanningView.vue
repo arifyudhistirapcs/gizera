@@ -16,7 +16,7 @@
       </div>
 
       <!-- Week Picker Popup -->
-      <van-popup v-model:show="showWeekPicker" position="bottom" :style="{ zIndex: 9999 }">
+      <van-popup v-model:show="showWeekPicker" position="bottom">
         <van-picker
           :columns="weekColumns"
           @confirm="onWeekConfirm"
@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useMenuPlanningStore } from '@/stores/menuPlanning'
 import { useAuthStore } from '@/stores/auth'
 import { showToast } from 'vant'
@@ -275,6 +275,14 @@ async function onRefresh() {
 onMounted(() => {
   generateWeekColumns()
   menuStore.fetchMenuPlans()
+})
+
+// Cleanup on unmount to prevent issues when navigating away
+onBeforeUnmount(() => {
+  // Close all popups/dialogs
+  showWeekPicker.value = false
+  showReject.value = false
+  expandedPlanId.value = null
 })
 </script>
 
@@ -471,36 +479,5 @@ onMounted(() => {
 /* Reject Dialog */
 .reject-dialog__content {
   padding: var(--h-spacing-md);
-}
-
-/* Date Picker Popup Fix */
-:deep(.van-popup) {
-  z-index: 9999 !important;
-  background: rgba(0, 0, 0, 0.7) !important;
-}
-
-:deep(.van-popup--bottom) {
-  background: #FFFFFF !important;
-}
-
-:deep(.van-date-picker) {
-  background: #FFFFFF !important;
-}
-
-:deep(.van-picker__toolbar) {
-  background: #FFFFFF !important;
-  border-bottom: 1px solid #ebedf0;
-}
-
-:deep(.van-picker-column) {
-  background: #FFFFFF !important;
-}
-
-:deep(.van-picker-column__item) {
-  color: #323233 !important;
-}
-
-:deep(.van-overlay) {
-  z-index: 9998 !important;
 }
 </style>
