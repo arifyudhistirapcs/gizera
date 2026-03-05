@@ -1,11 +1,7 @@
 <template>
   <div class="mobile-layout">
     <div class="mobile-content">
-      <router-view v-slot="{ Component }">
-        <transition name="page-slide" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
+      <router-view />
     </div>
     <BottomNavigation />
   </div>
