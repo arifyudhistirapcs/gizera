@@ -125,6 +125,11 @@
           <div class="upload-hint">Upload foto invoice/nota dari supplier (wajib)</div>
         </a-form-item>
 
+        <a-form-item label="Rating Kualitas Barang" name="quality_rating">
+          <a-rate v-model:value="formData.quality_rating" allow-half />
+          <div class="upload-hint">Berikan rating untuk kualitas barang yang diterima (1-5 bintang)</div>
+        </a-form-item>
+
         <a-divider>Item yang Diterima</a-divider>
 
         <a-alert
@@ -203,6 +208,12 @@
         </a-descriptions-item>
         <a-descriptions-item label="Diterima Oleh">
           {{ selectedGRN.received_by_name }}
+        </a-descriptions-item>
+        <a-descriptions-item label="Rating Kualitas">
+          <a-rate :value="selectedGRN.quality_rating || 0" disabled allow-half />
+          <span v-if="!selectedGRN.quality_rating || selectedGRN.quality_rating === 0" style="color: #999; margin-left: 8px">
+            (Belum diberi rating)
+          </span>
         </a-descriptions-item>
         <a-descriptions-item label="Foto Invoice" :span="2">
           <a-button
@@ -287,6 +298,7 @@ const formData = reactive({
   po_id: undefined,
   receipt_date: dayjs(),
   invoice_photo: null,
+  quality_rating: 0,
   items: [],
   notes: ''
 })
@@ -537,6 +549,7 @@ const handleSubmit = async () => {
     const payload = {
       po_id: formData.po_id,
       receipt_date: formData.receipt_date.format('YYYY-MM-DD'),
+      quality_rating: formData.quality_rating || 0,
       items: formData.items.map(item => ({
         ingredient_id: item.ingredient_id,
         received_quantity: item.received_quantity,
@@ -583,6 +596,7 @@ const resetForm = () => {
   formData.po_id = undefined
   formData.receipt_date = dayjs()
   formData.invoice_photo = null
+  formData.quality_rating = 0
   formData.items = []
   formData.notes = ''
   fileList.value = []

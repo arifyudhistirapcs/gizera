@@ -1,0 +1,8 @@
+[
+  {"id": "sk-001", "module": "sistem-konfigurasi", "scenario": "View system configuration", "steps": ["Login", "Navigate", "Verify"], "expectedResults": ["Config page displayed", "Settings visible"], "actualResults": [], "status": "not_run", "tags": ["critical"]},
+  {"id": "sk-002", "module": "sistem-konfigurasi", "scenario": "Toggle configuration settings", "steps": ["Click toggle", "Verify change"], "expectedResults": ["Toggle works", "Status changes"], "actualResults": [], "status": "not_run", "tags": ["high"]},
+  {"id": "sk-003", "module": "sistem-konfigurasi", "scenario": "Save configuration changes", "steps": ["Modify settings", "Click Simpan"], "expectedResults": ["Changes saved", "Success message"], "actualResults": [], "status": "not_run", "tags": ["critical"]},
+  {"id": "sk-004", "module": "sistem-konfigurasi", "scenario": "Reset to default configuration", "steps": ["Click Inisialisasi Default", "Confirm"], "expectedResults": ["Confirmation shown", "Config reset"], "actualResults": [], "status": "not_run", "tags": ["high"]},
+  {"id": "sk-005", "module": "sistem-konfigurasi", "scenario": "Refresh configuration", "steps": ["Click Refresh"], "expectedResults": ["Config refreshed", "Latest data shown"], "actualResults": [], "status": "not_run", "tags": ["medium"]},
+  {"id": "sk-006", "module": "sistem-konfigurasi", "scenario": "Validate configuration constraints", "steps": ["Enter invalid value", "Try to save"], "expectedResults": ["Validation error shown", "Save prevented"], "actualResults": [], "status": "not_run", "tags": ["medium"]}
+]

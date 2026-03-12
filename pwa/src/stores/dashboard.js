@@ -24,6 +24,13 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const detailPengiriman = ref([])
   const detailPencucian = ref([])
   const stokKritis = ref([])
+  const arusKas = ref({
+    totalPemasukan: 0,
+    totalPengeluaran: 0,
+    netCashFlow: 0,
+    period: ''
+  })
+  const topSuppliers = ref([])
   const loading = ref(false)
   const error = ref(null)
 
@@ -97,11 +104,48 @@ export const useDashboardStore = defineStore('dashboard', () => {
               satuan: item.unit
             }))
             
+            // Fetch cash flow summary (default to current month)
+            try {
+              const today = new Date()
+              const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+              const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+              
+              const startDate = startOfMonth.toISOString().split('T')[0]
+              const endDate = endOfMonth.toISOString().split('T')[0]
+              
+              const cashFlowResponse = await api.get('/cash-flow/summary', {
+                params: { start_date: startDate, end_date: endDate }
+              })
+              
+              if (cashFlowResponse.data?.summary) {
+                arusKas.value = {
+                  totalPemasukan: cashFlowResponse.data.summary.total_income || 0,
+                  totalPengeluaran: cashFlowResponse.data.summary.total_expense || 0,
+                  netCashFlow: cashFlowResponse.data.summary.net_cash_flow || 0,
+                  period: `${startDate} - ${endDate}`
+                }
+              }
+            } catch (cashFlowError) {
+              console.warn('Could not load cash flow summary:', cashFlowError)
+            }
+            
+            // Fetch top 5 suppliers
+            try {
+              const supplierResponse = await api.get('/suppliers/stats')
+              if (supplierResponse.data?.data?.topSuppliers) {
+                topSuppliers.value = supplierResponse.data.data.topSuppliers.slice(0, 5)
+              }
+            } catch (supplierError) {
+              console.warn('Could not load top suppliers:', supplierError)
+            }
+            
             console.log('[Dashboard] Mapped summary:', summary.value)
             console.log('[Dashboard] Detail Produksi:', detailProduksi.value)
             console.log('[Dashboard] Detail Pengiriman:', detailPengiriman.value)
             console.log('[Dashboard] Detail Pencucian:', detailPencucian.value)
             console.log('[Dashboard] Stok Kritis:', stokKritis.value)
+            console.log('[Dashboard] Arus Kas:', arusKas.value)
+            console.log('[Dashboard] Top Suppliers:', topSuppliers.value)
           } else {
             console.warn('[Dashboard] Response not successful')
             resetToEmpty()
@@ -188,6 +232,13 @@ export const useDashboardStore = defineStore('dashboard', () => {
     detailPengiriman.value = []
     detailPencucian.value = []
     stokKritis.value = []
+    arusKas.value = {
+      totalPemasukan: 0,
+      totalPengeluaran: 0,
+      netCashFlow: 0,
+      period: ''
+    }
+    topSuppliers.value = []
   }
 
   function retry() {
@@ -200,6 +251,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
     detailPengiriman,
     detailPencucian,
     stokKritis,
+    arusKas,
+    topSuppliers,
     loading,
     error,
     fetchDashboardData,

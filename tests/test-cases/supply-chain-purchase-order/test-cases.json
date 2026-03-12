@@ -1,0 +1,101 @@
+[
+  {
+    "id": "scpo-001",
+    "module": "supply-chain-purchase-order",
+    "scenario": "View purchase orders list page",
+    "steps": [
+      "Login as kepala.sppg@sppg.com",
+      "Navigate to /purchase-orders",
+      "Verify page loads with heading 'Purchase Order'",
+      "Check for 2 cards",
+      "Check for table with PO data",
+      "Verify 'Buat PO Baru' button exists"
+    ],
+    "expectedResults": [
+      "Page loads successfully",
+      "Heading 'Purchase Order (PO)' visible",
+      "Cards displayed (2 cards)",
+      "Table with PO list visible",
+      "Detail buttons visible (4 buttons in exploration)"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["critical", "crud", "read"]
+  },
+  {
+    "id": "scpo-002",
+    "module": "supply-chain-purchase-order",
+    "scenario": "Create new purchase order",
+    "steps": [
+      "Navigate to /purchase-orders",
+      "Click 'Buat PO Baru' button",
+      "Verify form/modal opens",
+      "Check for input fields"
+    ],
+    "expectedResults": [
+      "'Buat PO Baru' button found",
+      "Form or modal opens",
+      "Input fields visible for PO data"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["critical", "crud", "create"]
+  },
+  {
+    "id": "scpo-003",
+    "module": "supply-chain-purchase-order",
+    "scenario": "View purchase order details",
+    "steps": [
+      "Navigate to /purchase-orders",
+      "Find 'Detail' button in table",
+      "Click 'Detail' button",
+      "Verify detail view opens"
+    ],
+    "expectedResults": [
+      "'Detail' button found (4 buttons in exploration)",
+      "Detail view/modal opens",
+      "All PO information displayed"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["high", "crud", "read"]
+  },
+  {
+    "id": "scpo-004",
+    "module": "supply-chain-purchase-order",
+    "scenario": "Filter purchase orders by status",
+    "steps": [
+      "Navigate to /purchase-orders",
+      "Find dropdown filter",
+      "Select status filter",
+      "Verify table updates"
+    ],
+    "expectedResults": [
+      "Dropdown filter found (1 dropdown in exploration)",
+      "Can select status",
+      "Table filters based on selection"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["medium", "filter"]
+  },
+  {
+    "id": "scpo-005",
+    "module": "supply-chain-purchase-order",
+    "scenario": "Search purchase orders",
+    "steps": [
+      "Navigate to /purchase-orders",
+      "Find search input field",
+      "Enter search query",
+      "Verify results filter"
+    ],
+    "expectedResults": [
+      "Search input field found (1 input in exploration)",
+      "Can enter search text",
+      "Table filters based on search"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["medium", "search"]
+  }
+]

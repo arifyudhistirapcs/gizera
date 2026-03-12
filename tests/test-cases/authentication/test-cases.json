@@ -1,0 +1,177 @@
+[
+  {
+    "id": "auth-001",
+    "module": "authentication",
+    "scenario": "User login with valid credentials",
+    "steps": [
+      "Navigate to login page",
+      "Enter valid username",
+      "Enter valid password",
+      "Click login button"
+    ],
+    "expectedResults": [
+      "User is redirected to dashboard",
+      "User profile is displayed in header",
+      "Authentication token is stored",
+      "No error messages are shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical", "smoke"]
+  },
+  {
+    "id": "auth-002",
+    "module": "authentication",
+    "scenario": "User login with invalid username",
+    "steps": [
+      "Navigate to login page",
+      "Enter invalid username",
+      "Enter valid password",
+      "Click login button"
+    ],
+    "expectedResults": [
+      "User remains on login page",
+      "Error message 'Invalid credentials' is displayed",
+      "No authentication token is stored",
+      "Login form is still visible"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high", "negative"]
+  },
+  {
+    "id": "auth-003",
+    "module": "authentication",
+    "scenario": "User login with invalid password",
+    "steps": [
+      "Navigate to login page",
+      "Enter valid username",
+      "Enter invalid password",
+      "Click login button"
+    ],
+    "expectedResults": [
+      "User remains on login page",
+      "Error message 'Invalid credentials' is displayed",
+      "No authentication token is stored",
+      "Login form is still visible"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high", "negative"]
+  },
+  {
+    "id": "auth-004",
+    "module": "authentication",
+    "scenario": "User login with empty credentials",
+    "steps": [
+      "Navigate to login page",
+      "Leave username field empty",
+      "Leave password field empty",
+      "Click login button"
+    ],
+    "expectedResults": [
+      "User remains on login page",
+      "Validation error messages are displayed",
+      "Username field shows 'Username is required'",
+      "Password field shows 'Password is required'"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium", "validation"]
+  },
+  {
+    "id": "auth-005",
+    "module": "authentication",
+    "scenario": "User logout successfully",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to dashboard",
+      "Click user profile menu",
+      "Click logout button"
+    ],
+    "expectedResults": [
+      "User is redirected to login page",
+      "Authentication token is cleared",
+      "Session is terminated",
+      "User cannot access protected pages"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical", "smoke"]
+  },
+  {
+    "id": "auth-006",
+    "module": "authentication",
+    "scenario": "Session persistence after page refresh",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to dashboard",
+      "Refresh the page",
+      "Verify user session"
+    ],
+    "expectedResults": [
+      "User remains logged in",
+      "Dashboard is still displayed",
+      "User profile is still visible",
+      "No redirect to login page"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high", "session"]
+  },
+  {
+    "id": "auth-007",
+    "module": "authentication",
+    "scenario": "Access protected page without authentication",
+    "steps": [
+      "Clear all cookies and storage",
+      "Navigate directly to dashboard URL",
+      "Verify redirect behavior"
+    ],
+    "expectedResults": [
+      "User is redirected to login page",
+      "Dashboard is not accessible",
+      "Error message or notification is shown",
+      "URL changes to login page"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical", "security"]
+  },
+  {
+    "id": "auth-008",
+    "module": "authentication",
+    "scenario": "Login with network error",
+    "steps": [
+      "Navigate to login page",
+      "Enter valid credentials",
+      "Simulate network disconnection",
+      "Click login button"
+    ],
+    "expectedResults": [
+      "User remains on login page",
+      "Network error message is displayed",
+      "Login button is re-enabled",
+      "User can retry login"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium", "error-handling"]
+  }
+]

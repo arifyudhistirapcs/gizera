@@ -1,0 +1,45 @@
+{
+  "pwaBaseUrl": "http://localhost:5173",
+  "backendBaseUrl": "https://king-conglomeratic-kristopher.ngrok-free.dev/api/v1",
+  "browser": {
+    "headless": false,
+    "slowMo": 100,
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "timeouts": {
+    "default": 30000,
+    "navigation": 60000,
+    "action": 10000
+  },
+  "screenshots": {
+    "onFailure": true,
+    "path": "screenshots"
+  },
+  "modules": [
+    "authentication",
+    "dashboard",
+    "monitoring-aktivitas",
+    "ulasan-rating",
+    "display-kds",
+    "menu-perencanaan",
+    "menu-manajemen",
+    "menu-komponen",
+    "supply-chain-supplier",
+    "supply-chain-purchase-order",
+    "supply-chain-penerimaan-barang",
+    "supply-chain-bahan-baku",
+    "logistik-data-sekolah",
+    "logistik-tugas-pengiriman",
+    "sdm-data-karyawan",
+    "sdm-laporan-absensi",
+    "sdm-konfigurasi-absensi",
+    "keuangan-aset-dapur",
+    "keuangan-arus-kas",
+    "keuangan-laporan",
+    "sistem-audit-trail",
+    "sistem-konfigurasi"
+  ]
+}

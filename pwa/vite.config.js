@@ -1,13 +1,11 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
-import basicSsl from '@vitejs/plugin-basic-ssl'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [
     vue(),
-    basicSsl(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
@@ -61,13 +59,7 @@ export default defineConfig({
   server: {
     port: 5174,
     host: true,
-    https: true,
-    allowedHosts: [
-      'localhost',
-      '127.0.0.1',
-      '.ngrok-free.dev',
-      'king-conglomeratic-kristopher.ngrok-free.dev'
-    ],
+    strictPort: false,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

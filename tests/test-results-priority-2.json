@@ -1,0 +1,3799 @@
+{
+  "config": {
+    "rootDir": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "test-suites/authentication.spec.js",
+      "file": "test-suites/authentication.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication Module",
+          "file": "test-suites/authentication.spec.js",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "auth-001: User login with valid credentials",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2364,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Test auth-001 passed: User logged in successfully\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:25.527Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b1e4e5d41673c9a03f3-4a74be49c30793c26c63",
+              "file": "test-suites/authentication.spec.js",
+              "line": 22,
+              "column": 3
+            },
+            {
+              "title": "auth-002: User login with invalid username",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3013,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Test auth-002 passed: Invalid login rejected with error message\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:30.227Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b1e4e5d41673c9a03f3-356ec8ec645f21406c67",
+              "file": "test-suites/authentication.spec.js",
+              "line": 63,
+              "column": 3
+            },
+            {
+              "title": "auth-003: User login with invalid password",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2957,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Test auth-003 passed: Invalid password rejected with error message\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:33.259Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b1e4e5d41673c9a03f3-283617e12d6467485e49",
+              "file": "test-suites/authentication.spec.js",
+              "line": 107,
+              "column": 3
+            },
+            {
+              "title": "auth-004: User login with empty credentials",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1873,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Test auth-004 passed: Empty credentials validation works\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:36.226Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b1e4e5d41673c9a03f3-cac81069475295360a6c",
+              "file": "test-suites/authentication.spec.js",
+              "line": 143,
+              "column": 3
+            },
+            {
+              "title": "auth-005: User logout successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 994,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Logout button not found, test skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:38.107Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b1e4e5d41673c9a03f3-8104407db938502d7d33",
+              "file": "test-suites/authentication.spec.js",
+              "line": 164,
+              "column": 3
+            },
+            {
+              "title": "auth-006: Session persistence after page refresh",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5636,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/authentication.spec.js:230:34",
+                        "location": {
+                          "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/authentication.spec.js",
+                          "column": 34,
+                          "line": 230
+                        },
+                        "snippet": "  228 |       // Verify still logged in (check for logout button instead of password input)\n  229 |       const logoutButtonExists = await page.locator('.logout-button, button.logout-button, [aria-label=\"Keluar\"]').count() > 0;\n> 230 |       expect(logoutButtonExists).toBeTruthy();\n      |                                  ^\n  231 |       \n  232 |       console.log('✓ Test auth-006 passed: Session persisted after refresh');\n  233 |     }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/authentication.spec.js",
+                            "column": 34,
+                            "line": 230
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  228 |       // Verify still logged in (check for logout button instead of password input)\n  229 |       const logoutButtonExists = await page.locator('.logout-button, button.logout-button, [aria-label=\"Keluar\"]').count() > 0;\n> 230 |       expect(logoutButtonExists).toBeTruthy();\n      |                                  ^\n  231 |       \n  232 |       console.log('✓ Test auth-006 passed: Session persisted after refresh');\n  233 |     }\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/authentication.spec.js:230:34"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:39.109Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-results/test-suites-authentication-67c75-sistence-after-page-refresh/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/authentication.spec.js",
+                        "column": 34,
+                        "line": 230
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "4b1e4e5d41673c9a03f3-b1f2d1238089a0c33b83",
+              "file": "test-suites/authentication.spec.js",
+              "line": 201,
+              "column": 3
+            },
+            {
+              "title": "auth-007: Access protected page without authentication",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 921,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Test auth-007 passed: Protected page requires authentication\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:45.354Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4b1e4e5d41673c9a03f3-cabe3fb241687b8b998a",
+              "file": "test-suites/authentication.spec.js",
+              "line": 237,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/dashboard.spec.js",
+      "file": "test-suites/dashboard.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Dashboard Module",
+          "file": "test-suites/dashboard.spec.js",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "dash-001: View dashboard with all widgets loaded",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4959,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Test dash-001 passed: Dashboard loaded successfully\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:25.526Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "583a90da529007c336de-6b2b4c81dcac5b9006fd",
+              "file": "test-suites/dashboard.spec.js",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "dash-002: Refresh dashboard data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4141,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Test dash-002 passed: Dashboard reloaded (no refresh button found)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:32.790Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "583a90da529007c336de-b917a975e961f7dc1020",
+              "file": "test-suites/dashboard.spec.js",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "dash-003: Navigate from dashboard to other modules",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3658,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test dash-003 skipped: No menu items found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:36.943Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "583a90da529007c336de-199a4985190b689069de",
+              "file": "test-suites/dashboard.spec.js",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "dash-004: Filter dashboard by date range",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3499,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test dash-004 skipped: No date picker found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:40.612Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "583a90da529007c336de-861e9006997c195813e3",
+              "file": "test-suites/dashboard.spec.js",
+              "line": 119,
+              "column": 3
+            },
+            {
+              "title": "dash-005: Dashboard with data loading error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4494,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Test dash-005 passed: Dashboard loaded without errors\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:44.119Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "583a90da529007c336de-266c59726ddb298106ed",
+              "file": "test-suites/dashboard.spec.js",
+              "line": 148,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/keuangan-arus-kas.spec.js",
+      "file": "test-suites/keuangan-arus-kas.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Keuangan - Arus Kas Module",
+          "file": "test-suites/keuangan-arus-kas.spec.js",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "kak-001: View cash flow dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4929,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Page not accessible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:25.528Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2eecf96d2002bf4ac70a-0471af7f985b17441b09",
+              "file": "test-suites/keuangan-arus-kas.spec.js",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "kak-002: Add new transaction",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4616,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kak-002 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:32.808Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2eecf96d2002bf4ac70a-f6049da3f3d8fc1bb157",
+              "file": "test-suites/keuangan-arus-kas.spec.js",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "kak-003: Filter transactions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4523,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Dropdowns: 0\n"
+                        },
+                        {
+                          "text": "✓ Test kak-003 passed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:37.441Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2eecf96d2002bf4ac70a-2616b0362a51c9dcf00e",
+              "file": "test-suites/keuangan-arus-kas.spec.js",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "kak-004: Export report",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4557,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kak-004 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:41.975Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2eecf96d2002bf4ac70a-39deb4729ad18345ea8c",
+              "file": "test-suites/keuangan-arus-kas.spec.js",
+              "line": 72,
+              "column": 3
+            },
+            {
+              "title": "kak-005: Reset filters",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4614,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kak-005 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:46.544Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2eecf96d2002bf4ac70a-9e26613d35d519e88dd6",
+              "file": "test-suites/keuangan-arus-kas.spec.js",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "kak-006: View transaction details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4602,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kak-006 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:51.169Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2eecf96d2002bf4ac70a-f5ab4a99d86a9fc8f02e",
+              "file": "test-suites/keuangan-arus-kas.spec.js",
+              "line": 101,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/keuangan-laporan.spec.js",
+      "file": "test-suites/keuangan-laporan.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Keuangan - Laporan Module",
+          "file": "test-suites/keuangan-laporan.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "kl-001: View financial reports page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 5124,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found heading: true\n"
+                        },
+                        {
+                          "text": "✓ Found 7 cards\n"
+                        },
+                        {
+                          "text": "✓ Export PDF button: true\n"
+                        },
+                        {
+                          "text": "✓ Export Excel button: true\n"
+                        },
+                        {
+                          "text": "✓ Generate Laporan buttons: 2\n"
+                        },
+                        {
+                          "text": "✓ Test kl-001 passed: Financial reports page loaded successfully\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:25.528Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7f31ba6a27972c460ca4-fcd85c59485b090cb393",
+              "file": "test-suites/keuangan-laporan.spec.js",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "kl-002: Select report period",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4596,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kl-002 skipped: Period selector not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:32.938Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7f31ba6a27972c460ca4-bd4ded68526c97dcf0a2",
+              "file": "test-suites/keuangan-laporan.spec.js",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "kl-003: Generate financial report",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4478,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kl-003 skipped: \"Generate Laporan\" button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:37.551Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7f31ba6a27972c460ca4-bf842e5037157c2b1d50",
+              "file": "test-suites/keuangan-laporan.spec.js",
+              "line": 90,
+              "column": 3
+            },
+            {
+              "title": "kl-004: Export report as PDF",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4556,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kl-004 skipped: \"Export PDF\" button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:42.044Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7f31ba6a27972c460ca4-0f42f193acee697dad72",
+              "file": "test-suites/keuangan-laporan.spec.js",
+              "line": 115,
+              "column": 3
+            },
+            {
+              "title": "kl-005: Export report as Excel",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4593,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kl-005 skipped: \"Export Excel\" button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:46.621Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7f31ba6a27972c460ca4-badf1b392d53eee7e190",
+              "file": "test-suites/keuangan-laporan.spec.js",
+              "line": 143,
+              "column": 3
+            },
+            {
+              "title": "kl-006: Validate report data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4611,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test kl-006 skipped: Expected 7 cards, found 0\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:51.232Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7f31ba6a27972c460ca4-abbea92c795ddee78322",
+              "file": "test-suites/keuangan-laporan.spec.js",
+              "line": 171,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/logistik-data-sekolah.spec.js",
+      "file": "test-suites/logistik-data-sekolah.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Logistik - Data Sekolah Module",
+          "file": "test-suites/logistik-data-sekolah.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "lds-001: View schools list page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4573,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test lds-001 skipped: Page not accessible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:46.586Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8e9c1cfe115e35ba8b0a-cd044d1c484b2d443230",
+              "file": "test-suites/logistik-data-sekolah.spec.js",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "lds-002: Add new school",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4574,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test lds-002 skipped: \"Tambah Sekolah\" button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:51.175Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8e9c1cfe115e35ba8b0a-6c2a9dcc00ba114371aa",
+              "file": "test-suites/logistik-data-sekolah.spec.js",
+              "line": 71,
+              "column": 3
+            },
+            {
+              "title": "lds-003: Edit school details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4641,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test lds-003 skipped: \"Edit\" buttons not found (no school data)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:55.763Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8e9c1cfe115e35ba8b0a-3b361e439c8ea101478b",
+              "file": "test-suites/logistik-data-sekolah.spec.js",
+              "line": 96,
+              "column": 3
+            },
+            {
+              "title": "lds-004: Delete school",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4705,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test lds-004 skipped: \"Hapus\" buttons not found (no school data)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:00.414Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8e9c1cfe115e35ba8b0a-d1a61457a8b8942e9980",
+              "file": "test-suites/logistik-data-sekolah.spec.js",
+              "line": 121,
+              "column": 3
+            },
+            {
+              "title": "lds-005: View school details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5886,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found 8 \"Detail\" buttons\n"
+                        },
+                        {
+                          "text": "✓ Test lds-005 passed: Detail view opened\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:05.131Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8e9c1cfe115e35ba8b0a-c57681c9fa7af593ca51",
+              "file": "test-suites/logistik-data-sekolah.spec.js",
+              "line": 146,
+              "column": 3
+            },
+            {
+              "title": "lds-006: View school on map",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4567,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test lds-006 skipped: \"Lihat di Maps\" buttons not found (no school data)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:11.032Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8e9c1cfe115e35ba8b0a-8bb2038beb62070e5dfc",
+              "file": "test-suites/logistik-data-sekolah.spec.js",
+              "line": 171,
+              "column": 3
+            },
+            {
+              "title": "lds-007: Search schools",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5132,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found search input\n"
+                        },
+                        {
+                          "text": "✓ Test lds-007 passed: Search input functional\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:15.611Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8e9c1cfe115e35ba8b0a-f52cc694dca112db8b3e",
+              "file": "test-suites/logistik-data-sekolah.spec.js",
+              "line": 196,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/logistik-tugas-pengiriman.spec.js",
+      "file": "test-suites/logistik-tugas-pengiriman.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Logistik - Tugas Pengiriman Module",
+          "file": "test-suites/logistik-tugas-pengiriman.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ltp-001: View delivery tasks page",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 4643,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/logistik-tugas-pengiriman.spec.js:39:37",
+                        "location": {
+                          "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/logistik-tugas-pengiriman.spec.js",
+                          "column": 37,
+                          "line": 39
+                        },
+                        "snippet": "  37 |     \n  38 |     console.log(`✓ Heading: ${heading > 0}, Tabs: ${tabs}, Tables: ${tables > 0}, Cards: ${cards}`);\n> 39 |     expect(heading > 0 || tabs > 0).toBeTruthy();\n     |                                     ^\n  40 |     console.log('✓ Test ltp-001 passed');\n  41 |   });\n  42 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/logistik-tugas-pengiriman.spec.js",
+                            "column": 37,
+                            "line": 39
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  37 |     \n  38 |     console.log(`✓ Heading: ${heading > 0}, Tabs: ${tabs}, Tables: ${tables > 0}, Cards: ${cards}`);\n> 39 |     expect(heading > 0 || tabs > 0).toBeTruthy();\n     |                                     ^\n  40 |     console.log('✓ Test ltp-001 passed');\n  41 |   });\n  42 |\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/logistik-tugas-pengiriman.spec.js:39:37"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✓ Heading: false, Tabs: 0, Tables: false, Cards: 0\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:48.636Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-results/test-suites-logistik-tugas-e541d-01-View-delivery-tasks-page/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/logistik-tugas-pengiriman.spec.js",
+                        "column": 37,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "dbe258e01680c50785c9-482f14a1b87a81cf9ef9",
+              "file": "test-suites/logistik-tugas-pengiriman.spec.js",
+              "line": 28,
+              "column": 3
+            },
+            {
+              "title": "ltp-002: Switch between Pengiriman and Pengambilan tabs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4569,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test ltp-002 skipped: Tabs not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:53.824Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dbe258e01680c50785c9-ab4bcc8d7a15653b9cd5",
+              "file": "test-suites/logistik-tugas-pengiriman.spec.js",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "ltp-003: Create new delivery task",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4550,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test ltp-003 skipped: Create button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:58.699Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dbe258e01680c50785c9-a591fa62a16f8ff2f2af",
+              "file": "test-suites/logistik-tugas-pengiriman.spec.js",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "ltp-004: Filter delivery tasks",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4820,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Dropdowns: 3, Date picker: 1\n"
+                        },
+                        {
+                          "text": "✓ Test ltp-004 passed: Filter elements present\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:03.260Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dbe258e01680c50785c9-bb276f21da8c56388820",
+              "file": "test-suites/logistik-tugas-pengiriman.spec.js",
+              "line": 78,
+              "column": 3
+            },
+            {
+              "title": "ltp-005: Reset filters",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5758,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found reset button\n"
+                        },
+                        {
+                          "text": "✓ Test ltp-005 passed: Reset button clicked\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:08.089Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dbe258e01680c50785c9-bb2dafdf2492c86f18fb",
+              "file": "test-suites/logistik-tugas-pengiriman.spec.js",
+              "line": 90,
+              "column": 3
+            },
+            {
+              "title": "ltp-006: View task details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4544,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test ltp-006 skipped: No detail buttons found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:13.860Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "dbe258e01680c50785c9-6cd80c7673503679d61c",
+              "file": "test-suites/logistik-tugas-pengiriman.spec.js",
+              "line": 107,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/menu-perencanaan.spec.js",
+      "file": "test-suites/menu-perencanaan.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Menu Perencanaan Module",
+          "file": "test-suites/menu-perencanaan.spec.js",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "mp-001: View weekly menu planning page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4603,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test mp-001 skipped: Page not accessible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:55.790Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5ff5afcb4e2b5782f0de-1e9662000d3cbaa8485d",
+              "file": "test-suites/menu-perencanaan.spec.js",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "mp-002: Create new menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4692,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test mp-002 skipped: \"Buat Menu Baru\" button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:00.403Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5ff5afcb4e2b5782f0de-6d3d67e6f89f2f590eb7",
+              "file": "test-suites/menu-perencanaan.spec.js",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "mp-003: Duplicate last week's menu",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 5839,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found \"Duplikat Minggu Lalu\" button\n"
+                        },
+                        {
+                          "text": "✓ Test mp-003 passed: Duplicate button clicked\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:05.112Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5ff5afcb4e2b5782f0de-d6698cefef08c0c22b3e",
+              "file": "test-suites/menu-perencanaan.spec.js",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "mp-004: Add menu to specific day",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4605,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test mp-004 skipped: \"Tambah Menu\" buttons not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:10.973Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5ff5afcb4e2b5782f0de-9f34a41da2bd09599181",
+              "file": "test-suites/menu-perencanaan.spec.js",
+              "line": 132,
+              "column": 3
+            },
+            {
+              "title": "mp-005: Navigate between weeks",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4634,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test mp-005: Week navigation elements not clearly identified\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:15.589Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5ff5afcb4e2b5782f0de-fbaefaeb345988371af6",
+              "file": "test-suites/menu-perencanaan.spec.js",
+              "line": 162,
+              "column": 3
+            },
+            {
+              "title": "mp-006: View menu details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4526,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test mp-006 skipped: No menu items or detail buttons found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:20.232Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5ff5afcb4e2b5782f0de-88cdbdb03bf053b159b1",
+              "file": "test-suites/menu-perencanaan.spec.js",
+              "line": 188,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/monitoring-aktivitas.spec.js",
+      "file": "test-suites/monitoring-aktivitas.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Monitoring Aktivitas Module",
+          "file": "test-suites/monitoring-aktivitas.spec.js",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "mon-001: View activity monitoring dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4535,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test mon-001 skipped: Monitoring aktivitas page not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:02:55.868Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "226f7ba779d02796e0c4-fee06b9a7e95da2b3387",
+              "file": "test-suites/monitoring-aktivitas.spec.js",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "mon-002: Filter activities by date",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4720,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test mon-002: Could not find date picker or filters\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:00.418Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "226f7ba779d02796e0c4-761687bc22e9924696c1",
+              "file": "test-suites/monitoring-aktivitas.spec.js",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "mon-003: View activity details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 5876,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found 1 activity rows\n"
+                        },
+                        {
+                          "text": "✓ Test mon-003 passed: Detail button clicked\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:05.147Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "226f7ba779d02796e0c4-3a4708867131a1e297f5",
+              "file": "test-suites/monitoring-aktivitas.spec.js",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "mon-004: Real-time activity updates",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 7617,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Initial activity count: 0\n"
+                        },
+                        {
+                          "text": "✓ Test mon-004 passed: Activity monitoring page is functional\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:11.034Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "226f7ba779d02796e0c4-c764b947bd6f0604c6fe",
+              "file": "test-suites/monitoring-aktivitas.spec.js",
+              "line": 169,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/sdm-data-karyawan.spec.js",
+      "file": "test-suites/sdm-data-karyawan.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SDM - Data Karyawan Module",
+          "file": "test-suites/sdm-data-karyawan.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "sdk-001: View employees list page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4467,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sdk-001 skipped: Page not accessible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:18.421Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ffcf186c6a3eee5fd93a-eab0ab0064887be11604",
+              "file": "test-suites/sdm-data-karyawan.spec.js",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "sdk-002: Add new employee",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4617,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sdk-002 skipped: \"Tambah Karyawan\" button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:22.896Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ffcf186c6a3eee5fd93a-f579ef8370b85fc776a1",
+              "file": "test-suites/sdm-data-karyawan.spec.js",
+              "line": 65,
+              "column": 3
+            },
+            {
+              "title": "sdk-003: Filter employees by role",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4446,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sdk-003 skipped: Dropdown filters not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:27.521Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ffcf186c6a3eee5fd93a-15ff7e84a66f5aea6fbc",
+              "file": "test-suites/sdm-data-karyawan.spec.js",
+              "line": 90,
+              "column": 3
+            },
+            {
+              "title": "sdk-004: Filter employees by status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4526,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sdk-004 skipped: Status dropdown not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:31.976Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ffcf186c6a3eee5fd93a-699a746125798f30eec6",
+              "file": "test-suites/sdm-data-karyawan.spec.js",
+              "line": 108,
+              "column": 3
+            },
+            {
+              "title": "sdk-005: Search employees",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5028,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found search input\n"
+                        },
+                        {
+                          "text": "✓ Test sdk-005 passed: Search input functional\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:36.510Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ffcf186c6a3eee5fd93a-b839c32836d7e2f97c55",
+              "file": "test-suites/sdm-data-karyawan.spec.js",
+              "line": 126,
+              "column": 3
+            },
+            {
+              "title": "sdk-006: View employee details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4552,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sdk-006 skipped: No employee data found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:41.551Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ffcf186c6a3eee5fd93a-4424ed28d34cc748f115",
+              "file": "test-suites/sdm-data-karyawan.spec.js",
+              "line": 143,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/sdm-konfigurasi-absensi.spec.js",
+      "file": "test-suites/sdm-konfigurasi-absensi.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SDM - Konfigurasi Absensi Module",
+          "file": "test-suites/sdm-konfigurasi-absensi.spec.js",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ska-001: View attendance configuration",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 4459,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sdm-konfigurasi-absensi.spec.js:34:37",
+                        "location": {
+                          "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sdm-konfigurasi-absensi.spec.js",
+                          "column": 37,
+                          "line": 34
+                        },
+                        "snippet": "  32 |     const tabs = await page.locator('.ant-tabs-tab, [role=\"tab\"]').count();\n  33 |     console.log(`✓ Heading: ${heading > 0}, Tabs: ${tabs}`);\n> 34 |     expect(heading > 0 || tabs > 0).toBeTruthy();\n     |                                     ^\n  35 |     console.log('✓ Test ska-001 passed');\n  36 |   });\n  37 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sdm-konfigurasi-absensi.spec.js",
+                            "column": 37,
+                            "line": 34
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  32 |     const tabs = await page.locator('.ant-tabs-tab, [role=\"tab\"]').count();\n  33 |     console.log(`✓ Heading: ${heading > 0}, Tabs: ${tabs}`);\n> 34 |     expect(heading > 0 || tabs > 0).toBeTruthy();\n     |                                     ^\n  35 |     console.log('✓ Test ska-001 passed');\n  36 |   });\n  37 |\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sdm-konfigurasi-absensi.spec.js:34:37"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✓ Heading: false, Tabs: 0\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:18.673Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-results/test-suites-sdm-konfiguras-8cb47-ew-attendance-configuration/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sdm-konfigurasi-absensi.spec.js",
+                        "column": 37,
+                        "line": 34
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ac89d3bf209f6edb75bc-bfa9d33cf8d6629b7cf6",
+              "file": "test-suites/sdm-konfigurasi-absensi.spec.js",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "ska-002: Switch between Wi-Fi and GPS tabs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4618,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test ska-002 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:23.672Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac89d3bf209f6edb75bc-673a1773663368e6a07c",
+              "file": "test-suites/sdm-konfigurasi-absensi.spec.js",
+              "line": 38,
+              "column": 3
+            },
+            {
+              "title": "ska-003: Add new Wi-Fi network",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4476,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test ska-003 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:28.632Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac89d3bf209f6edb75bc-10bc7bc6edbe8c6577ce",
+              "file": "test-suites/sdm-konfigurasi-absensi.spec.js",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "ska-004: Edit configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4511,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test ska-004 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:33.116Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac89d3bf209f6edb75bc-d63a4ac30741f27cf6c0",
+              "file": "test-suites/sdm-konfigurasi-absensi.spec.js",
+              "line": 68,
+              "column": 3
+            },
+            {
+              "title": "ska-005: Disable configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4497,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test ska-005 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:37.634Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac89d3bf209f6edb75bc-6f55eac7970af6372957",
+              "file": "test-suites/sdm-konfigurasi-absensi.spec.js",
+              "line": 83,
+              "column": 3
+            },
+            {
+              "title": "ska-006: Delete configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4485,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test ska-006 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:42.139Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac89d3bf209f6edb75bc-60e581583d4f043099f2",
+              "file": "test-suites/sdm-konfigurasi-absensi.spec.js",
+              "line": 97,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/sistem-audit-trail.spec.js",
+      "file": "test-suites/sistem-audit-trail.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Sistem - Audit Trail Module",
+          "file": "test-suites/sistem-audit-trail.spec.js",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "sat-001: View audit trail logs",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 4535,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-audit-trail.spec.js:34:39",
+                        "location": {
+                          "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-audit-trail.spec.js",
+                          "column": 39,
+                          "line": 34
+                        },
+                        "snippet": "  32 |     const tables = await page.locator('.ant-table, table').count();\n  33 |     console.log(`✓ Heading: ${heading > 0}, Tables: ${tables > 0}`);\n> 34 |     expect(heading > 0 || tables > 0).toBeTruthy();\n     |                                       ^\n  35 |     console.log('✓ Test sat-001 passed');\n  36 |   });\n  37 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-audit-trail.spec.js",
+                            "column": 39,
+                            "line": 34
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  32 |     const tables = await page.locator('.ant-table, table').count();\n  33 |     console.log(`✓ Heading: ${heading > 0}, Tables: ${tables > 0}`);\n> 34 |     expect(heading > 0 || tables > 0).toBeTruthy();\n     |                                       ^\n  35 |     console.log('✓ Test sat-001 passed');\n  36 |   });\n  37 |\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-audit-trail.spec.js:34:39"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✓ Heading: false, Tables: false\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:20.755Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-results/test-suites-sistem-audit-t-ca89f-t-001-View-audit-trail-logs/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-audit-trail.spec.js",
+                        "column": 39,
+                        "line": 34
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "52728107d645be06a10a-68aa6a2f077567dc8169",
+              "file": "test-suites/sistem-audit-trail.spec.js",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "sat-002: Filter by date range",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4581,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Date picker: false\n"
+                        },
+                        {
+                          "text": "✓ Test sat-002 passed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:25.758Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "52728107d645be06a10a-8dd66e95d9e9b708fe85",
+              "file": "test-suites/sistem-audit-trail.spec.js",
+              "line": 38,
+              "column": 3
+            },
+            {
+              "title": "sat-003: Filter by user/action",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4510,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Dropdowns: 0\n"
+                        },
+                        {
+                          "text": "✓ Test sat-003 passed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:30.632Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "52728107d645be06a10a-c23f149e989b5640ca1c",
+              "file": "test-suites/sistem-audit-trail.spec.js",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "sat-004: Refresh audit logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4489,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sat-004 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:35.153Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "52728107d645be06a10a-702274a50a00ff5f92d1",
+              "file": "test-suites/sistem-audit-trail.spec.js",
+              "line": 58,
+              "column": 3
+            },
+            {
+              "title": "sat-005: View log details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4566,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sat-005 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:39.654Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "52728107d645be06a10a-5c327c0a62e3e9949a43",
+              "file": "test-suites/sistem-audit-trail.spec.js",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "sat-006: Search audit logs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4523,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Search inputs: 1\n"
+                        },
+                        {
+                          "text": "✓ Test sat-006 passed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:44.228Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "52728107d645be06a10a-9b04b19bb298aa3bac96",
+              "file": "test-suites/sistem-audit-trail.spec.js",
+              "line": 88,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/sistem-konfigurasi.spec.js",
+      "file": "test-suites/sistem-konfigurasi.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Sistem - Konfigurasi Module",
+          "file": "test-suites/sistem-konfigurasi.spec.js",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "sk-001: View system configuration",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 4501,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-konfigurasi.spec.js:34:38",
+                        "location": {
+                          "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-konfigurasi.spec.js",
+                          "column": 38,
+                          "line": 34
+                        },
+                        "snippet": "  32 |     const cards = await page.locator('[class*=\"card\"]').count();\n  33 |     console.log(`✓ Heading: ${heading > 0}, Cards: ${cards}`);\n> 34 |     expect(heading > 0 || cards > 0).toBeTruthy();\n     |                                      ^\n  35 |     console.log('✓ Test sk-001 passed');\n  36 |   });\n  37 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-konfigurasi.spec.js",
+                            "column": 38,
+                            "line": 34
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  32 |     const cards = await page.locator('[class*=\"card\"]').count();\n  33 |     console.log(`✓ Heading: ${heading > 0}, Cards: ${cards}`);\n> 34 |     expect(heading > 0 || cards > 0).toBeTruthy();\n     |                                      ^\n  35 |     console.log('✓ Test sk-001 passed');\n  36 |   });\n  37 |\n    at /Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-konfigurasi.spec.js:34:38"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "✓ Heading: false, Cards: 0\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:24.773Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-results/test-suites-sistem-konfigu-92166-1-View-system-configuration/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/arifyudhistira/Documents/PCS/ERP SPPG/tests/test-suites/sistem-konfigurasi.spec.js",
+                        "column": 38,
+                        "line": 34
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f0272e2627c9bce27ddd-e4e4365fd06f72c50399",
+              "file": "test-suites/sistem-konfigurasi.spec.js",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "sk-002: Toggle configuration settings",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4552,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Toggles found: 0\n"
+                        },
+                        {
+                          "text": "✓ Test sk-002 passed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:29.843Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f0272e2627c9bce27ddd-d3d99b9dc0a6b512a2a5",
+              "file": "test-suites/sistem-konfigurasi.spec.js",
+              "line": 38,
+              "column": 3
+            },
+            {
+              "title": "sk-003: Save configuration changes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4499,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sk-003 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:34.703Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f0272e2627c9bce27ddd-661bad50e07cb727ca24",
+              "file": "test-suites/sistem-konfigurasi.spec.js",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "sk-004: Reset to default configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4553,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sk-004 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:39.211Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f0272e2627c9bce27ddd-72741edd0a386845c742",
+              "file": "test-suites/sistem-konfigurasi.spec.js",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "sk-005: Refresh configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4478,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test sk-005 skipped\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:43.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f0272e2627c9bce27ddd-5f64f1768011b9070426",
+              "file": "test-suites/sistem-konfigurasi.spec.js",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "sk-006: Validate configuration constraints",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4542,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Input fields: 1\n"
+                        },
+                        {
+                          "text": "✓ Test sk-006 passed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:48.258Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f0272e2627c9bce27ddd-5a429aada56b3bd36ee9",
+              "file": "test-suites/sistem-konfigurasi.spec.js",
+              "line": 91,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/supply-chain-purchase-order.spec.js",
+      "file": "test-suites/supply-chain-purchase-order.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Supply Chain - Purchase Order Module",
+          "file": "test-suites/supply-chain-purchase-order.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "scpo-001: View purchase orders list page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4494,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test scpo-001 skipped: Page not accessible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:46.123Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c749f4667736a3bf238b-cf9b29cafccf3fafd6a1",
+              "file": "test-suites/supply-chain-purchase-order.spec.js",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "scpo-002: Create new purchase order",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4523,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test scpo-002 skipped: \"Buat PO Baru\" button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:50.629Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c749f4667736a3bf238b-4659ab3aa9563950f9b2",
+              "file": "test-suites/supply-chain-purchase-order.spec.js",
+              "line": 65,
+              "column": 3
+            },
+            {
+              "title": "scpo-003: View purchase order details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4477,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test scpo-003 skipped: \"Detail\" buttons not found (no PO data)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:55.159Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c749f4667736a3bf238b-c5caf3bfbbba6a281b0c",
+              "file": "test-suites/supply-chain-purchase-order.spec.js",
+              "line": 90,
+              "column": 3
+            },
+            {
+              "title": "scpo-004: Filter purchase orders by status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4529,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test scpo-004 skipped: Dropdown filter not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:59.649Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c749f4667736a3bf238b-d3b46439fb5339177624",
+              "file": "test-suites/supply-chain-purchase-order.spec.js",
+              "line": 115,
+              "column": 3
+            },
+            {
+              "title": "scpo-005: Search purchase orders",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5331,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found search input\n"
+                        },
+                        {
+                          "text": "✓ Test scpo-005 passed: Search input functional\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:04:04.191Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c749f4667736a3bf238b-9b542d5dea796d35873f",
+              "file": "test-suites/supply-chain-purchase-order.spec.js",
+              "line": 132,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/supply-chain-supplier.spec.js",
+      "file": "test-suites/supply-chain-supplier.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Supply Chain - Supplier Module",
+          "file": "test-suites/supply-chain-supplier.spec.js",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "scs-001: View supplier list page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4426,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test scs-001 skipped: Page not accessible\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:46.636Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3990b2b5a6bc592b5853-251845f3a6a5d7e3f21d",
+              "file": "test-suites/supply-chain-supplier.spec.js",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "scs-002: Add new supplier",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4469,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test scs-002 skipped: \"Tambah Supplier\" button not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:51.070Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3990b2b5a6bc592b5853-cd8382c2fcf4e4a912b7",
+              "file": "test-suites/supply-chain-supplier.spec.js",
+              "line": 83,
+              "column": 3
+            },
+            {
+              "title": "scs-003: Edit supplier details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4515,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test scs-003 skipped: \"Edit\" buttons not found (no supplier data)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:55.547Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3990b2b5a6bc592b5853-8031648ce75b48090d41",
+              "file": "test-suites/supply-chain-supplier.spec.js",
+              "line": 111,
+              "column": 3
+            },
+            {
+              "title": "scs-004: Delete supplier",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 4528,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test scs-004 skipped: \"Hapus\" buttons not found (no supplier data)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:04:00.074Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3990b2b5a6bc592b5853-abb43f317c4f39c79d37",
+              "file": "test-suites/supply-chain-supplier.spec.js",
+              "line": 141,
+              "column": 3
+            },
+            {
+              "title": "scs-005: View supplier details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 5690,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found 2 \"Detail\" buttons\n"
+                        },
+                        {
+                          "text": "✓ Test scs-005 passed: Detail view opened\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:04:04.611Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3990b2b5a6bc592b5853-be90b3451f4f9ca69bcd",
+              "file": "test-suites/supply-chain-supplier.spec.js",
+              "line": 171,
+              "column": 3
+            },
+            {
+              "title": "scs-006: Search suppliers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 5137,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✓ Found search input\n"
+                        },
+                        {
+                          "text": "✓ Test scs-006 passed: Search input functional\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:04:10.308Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3990b2b5a6bc592b5853-fc1a33a16c79083cb429",
+              "file": "test-suites/supply-chain-supplier.spec.js",
+              "line": 201,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "test-suites/ulasan-rating.spec.js",
+      "file": "test-suites/ulasan-rating.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Ulasan & Rating Module",
+          "file": "test-suites/ulasan-rating.spec.js",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "rev-001: View reviews and ratings list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4492,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test rev-001 skipped: Reviews page not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:48.764Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d64d784aacd71efec55c-c32ae8534064a5cb87d2",
+              "file": "test-suites/ulasan-rating.spec.js",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "rev-002: Submit a new review",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4455,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test rev-002 skipped: This is a read-only review display page (no add functionality)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:53.262Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d64d784aacd71efec55c-f5ee3abd450b89c168ea",
+              "file": "test-suites/ulasan-rating.spec.js",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "rev-003: Edit existing review",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4485,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test rev-003 skipped: No Detail buttons found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:03:57.726Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d64d784aacd71efec55c-26f256929468862f1d78",
+              "file": "test-suites/ulasan-rating.spec.js",
+              "line": 107,
+              "column": 3
+            },
+            {
+              "title": "rev-004: Filter reviews by rating",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4640,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠ Test rev-004: No filter elements found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-11T10:04:02.236Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d64d784aacd71efec55c-aa2f3911ac3f6ce35e8e",
+              "file": "test-suites/ulasan-rating.spec.js",
+              "line": 141,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-11T10:02:24.943Z",
+    "duration": 110542.876,
+    "expected": 81,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

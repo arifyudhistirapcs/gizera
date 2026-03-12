@@ -1,0 +1,8 @@
+[
+  {"id": "ska-001", "module": "sdm-konfigurasi-absensi", "scenario": "View attendance configuration", "steps": ["Login", "Navigate", "Verify"], "expectedResults": ["Page displayed", "Tabs visible"], "actualResults": [], "status": "not_run", "tags": ["critical"]},
+  {"id": "ska-002", "module": "sdm-konfigurasi-absensi", "scenario": "Switch between Wi-Fi and GPS tabs", "steps": ["Click tabs", "Verify content"], "expectedResults": ["Tabs switch", "Content updates"], "actualResults": [], "status": "not_run", "tags": ["high"]},
+  {"id": "ska-003", "module": "sdm-konfigurasi-absensi", "scenario": "Add new Wi-Fi network", "steps": ["Click Tambah", "Fill form", "Submit"], "expectedResults": ["Form opens", "Network added"], "actualResults": [], "status": "not_run", "tags": ["critical"]},
+  {"id": "ska-004", "module": "sdm-konfigurasi-absensi", "scenario": "Edit configuration", "steps": ["Click Edit", "Modify", "Save"], "expectedResults": ["Edit form opens", "Changes saved"], "actualResults": [], "status": "not_run", "tags": ["high"]},
+  {"id": "ska-005", "module": "sdm-konfigurasi-absensi", "scenario": "Disable configuration", "steps": ["Click Nonaktifkan", "Confirm"], "expectedResults": ["Config disabled", "Status updated"], "actualResults": [], "status": "not_run", "tags": ["medium"]},
+  {"id": "ska-006", "module": "sdm-konfigurasi-absensi", "scenario": "Delete configuration", "steps": ["Click Hapus", "Confirm"], "expectedResults": ["Confirmation shown", "Config deleted"], "actualResults": [], "status": "not_run", "tags": ["medium"]}
+]

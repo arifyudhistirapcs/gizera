@@ -1,0 +1,50 @@
+[
+  {
+    "id": "grn-001",
+    "module": "supply-chain-penerimaan-barang",
+    "scenario": "View goods receipt list",
+    "steps": ["Login", "Navigate to Penerimaan Barang", "Wait for GRN to load", "Verify list"],
+    "expectedResults": ["GRN page displayed", "List loaded", "Receipt details visible", "Status shown"],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "grn-002",
+    "module": "supply-chain-penerimaan-barang",
+    "scenario": "Create goods receipt",
+    "steps": ["Navigate to GRN", "Click create", "Select PO", "Enter received quantities", "Save GRN"],
+    "expectedResults": ["Form displayed", "GRN created", "Success message", "Stock updated"],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "grn-003",
+    "module": "supply-chain-penerimaan-barang",
+    "scenario": "Verify received goods",
+    "steps": ["Navigate to GRN", "Select receipt", "Verify quantities", "Approve receipt"],
+    "expectedResults": ["Verification form shown", "Quantities validated", "Status updated", "Approval recorded"],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "grn-004",
+    "module": "supply-chain-penerimaan-barang",
+    "scenario": "Handle quantity mismatch",
+    "steps": ["Navigate to GRN", "Create receipt", "Enter different quantity", "Save with discrepancy"],
+    "expectedResults": ["Discrepancy noted", "Reason required", "Alert generated", "Report created"],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  }
+]

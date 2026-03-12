@@ -61,6 +61,7 @@ type GoodsReceipt struct {
 	InvoicePhoto  string             `gorm:"size:500" json:"invoice_photo"` // cloud storage URL
 	ReceivedBy    uint               `gorm:"not null;index" json:"received_by"`
 	Notes         string             `gorm:"type:text" json:"notes"`
+	QualityRating float64            `gorm:"default:0" json:"quality_rating"` // 0-5 rating for this delivery
 	CreatedAt     time.Time          `json:"created_at"`
 	PurchaseOrder PurchaseOrder      `gorm:"foreignKey:POID" json:"purchase_order,omitempty"`
 	Receiver      User               `gorm:"foreignKey:ReceivedBy" json:"receiver,omitempty"`

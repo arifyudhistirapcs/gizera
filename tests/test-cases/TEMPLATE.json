@@ -1,0 +1,22 @@
+[
+  {
+    "id": "module-001",
+    "module": "module-name",
+    "scenario": "Brief description of what is being tested",
+    "steps": [
+      "Step 1: Action to perform",
+      "Step 2: Another action",
+      "Step 3: Final action"
+    ],
+    "expectedResults": [
+      "Expected outcome 1",
+      "Expected outcome 2",
+      "Expected outcome 3"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["priority-level", "test-type"]
+  }
+]

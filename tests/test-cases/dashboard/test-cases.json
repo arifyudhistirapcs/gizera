@@ -1,0 +1,112 @@
+[
+  {
+    "id": "dash-001",
+    "module": "dashboard",
+    "scenario": "View dashboard with all widgets loaded",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to dashboard",
+      "Wait for all widgets to load",
+      "Verify all dashboard components"
+    ],
+    "expectedResults": [
+      "Dashboard page is displayed",
+      "All widgets are visible and loaded",
+      "No loading errors are shown",
+      "Data is displayed correctly"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical", "smoke"]
+  },
+  {
+    "id": "dash-002",
+    "module": "dashboard",
+    "scenario": "Refresh dashboard data",
+    "steps": [
+      "Login and navigate to dashboard",
+      "Click refresh button",
+      "Wait for data to reload",
+      "Verify updated data"
+    ],
+    "expectedResults": [
+      "Loading indicator is shown",
+      "Dashboard data is refreshed",
+      "Updated timestamp is displayed",
+      "All widgets show current data"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "dash-003",
+    "module": "dashboard",
+    "scenario": "Navigate from dashboard to other modules",
+    "steps": [
+      "Login and navigate to dashboard",
+      "Click on menu item",
+      "Verify navigation",
+      "Return to dashboard"
+    ],
+    "expectedResults": [
+      "Navigation is successful",
+      "Target page is loaded",
+      "Dashboard link remains accessible",
+      "No navigation errors"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  },
+  {
+    "id": "dash-004",
+    "module": "dashboard",
+    "scenario": "Filter dashboard by date range",
+    "steps": [
+      "Login and navigate to dashboard",
+      "Click date range filter",
+      "Select custom date range",
+      "Apply filter"
+    ],
+    "expectedResults": [
+      "Date picker is displayed",
+      "Selected dates are applied",
+      "Dashboard data is filtered",
+      "Filtered data matches date range"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "dash-005",
+    "module": "dashboard",
+    "scenario": "Dashboard with data loading error",
+    "steps": [
+      "Login and navigate to dashboard",
+      "Simulate API error",
+      "Observe error handling",
+      "Verify retry mechanism"
+    ],
+    "expectedResults": [
+      "Error message is displayed",
+      "Retry button is available",
+      "Dashboard remains functional",
+      "User can retry loading data"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium", "error-handling"]
+  }
+]

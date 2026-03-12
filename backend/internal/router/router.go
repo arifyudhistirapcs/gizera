@@ -184,6 +184,7 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 			}
 			{
 				suppliers.GET("", supplyChainHandler.GetAllSuppliers)
+				suppliers.GET("/stats", supplyChainHandler.GetSupplierStats)
 				suppliers.POST("", supplyChainHandler.CreateSupplier)
 				suppliers.GET("/:id", supplyChainHandler.GetSupplier)
 				suppliers.PUT("/:id", supplyChainHandler.UpdateSupplier)

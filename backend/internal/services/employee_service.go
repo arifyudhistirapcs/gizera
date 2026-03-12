@@ -95,6 +95,67 @@ func (s *EmployeeService) CreateEmployee(employee *models.Employee, role string)
 	return user, password, nil
 }
 
+// CreateEmployeeWithPassword creates a new employee with a custom password
+func (s *EmployeeService) CreateEmployeeWithPassword(employee *models.Employee, role string, password string) (*models.User, error) {
+	// Validate unique NIK
+	var existingEmployee models.Employee
+	if err := s.db.Where("nik = ?", employee.NIK).First(&existingEmployee).Error; err == nil {
+		return nil, ErrDuplicateNIK
+	}
+
+	// Validate unique email
+	if err := s.db.Where("email = ?", employee.Email).First(&existingEmployee).Error; err == nil {
+		return nil, ErrDuplicateEmail
+	}
+
+	// Hash password
+	hashedPassword, err := s.authService.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create user account
+	user := &models.User{
+		NIK:          employee.NIK,
+		Email:        employee.Email,
+		PasswordHash: hashedPassword,
+		FullName:     employee.FullName,
+		PhoneNumber:  employee.PhoneNumber,
+		Role:         role,
+		IsActive:     true,
+	}
+
+	// Start transaction
+	tx := s.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Create user
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Link employee to user
+	employee.UserID = user.ID
+
+	// Create employee
+	if err := tx.Create(employee).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 // GetEmployeeByID retrieves an employee by ID
 func (s *EmployeeService) GetEmployeeByID(id uint) (*models.Employee, error) {
 	var employee models.Employee

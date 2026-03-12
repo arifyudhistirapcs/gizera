@@ -1,0 +1,116 @@
+[
+  {
+    "id": "mm-001",
+    "module": "menu-manajemen",
+    "scenario": "View menu list",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to Menu & Komponen > Manajemen Menu",
+      "Wait for menu items to load",
+      "Verify menu list is displayed"
+    ],
+    "expectedResults": [
+      "Menu management page is displayed",
+      "List of menu items is loaded",
+      "Menu details are visible",
+      "Prices and categories are shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "mm-002",
+    "module": "menu-manajemen",
+    "scenario": "Create new menu item",
+    "steps": [
+      "Navigate to Manajemen Menu",
+      "Click add menu item button",
+      "Enter menu name and description",
+      "Set price",
+      "Upload menu image",
+      "Save menu item"
+    ],
+    "expectedResults": [
+      "Menu item form is displayed",
+      "Menu item is created successfully",
+      "Success message is shown",
+      "New menu item appears in list"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "mm-003",
+    "module": "menu-manajemen",
+    "scenario": "Edit menu item",
+    "steps": [
+      "Navigate to Manajemen Menu",
+      "Select a menu item",
+      "Click edit button",
+      "Modify menu details",
+      "Save changes"
+    ],
+    "expectedResults": [
+      "Edit form is displayed with current data",
+      "Changes are saved successfully",
+      "Updated menu item is displayed",
+      "Price history is maintained"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "mm-004",
+    "module": "menu-manajemen",
+    "scenario": "Delete menu item",
+    "steps": [
+      "Navigate to Manajemen Menu",
+      "Select a menu item",
+      "Click delete button",
+      "Confirm deletion"
+    ],
+    "expectedResults": [
+      "Confirmation dialog is shown",
+      "Menu item is deleted successfully",
+      "Menu item is removed from list",
+      "Associated data is handled properly"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  },
+  {
+    "id": "mm-005",
+    "module": "menu-manajemen",
+    "scenario": "Update menu pricing",
+    "steps": [
+      "Navigate to Manajemen Menu",
+      "Select a menu item",
+      "Update price",
+      "Set effective date",
+      "Save price change"
+    ],
+    "expectedResults": [
+      "Price update form is displayed",
+      "New price is saved",
+      "Price history is recorded",
+      "Effective date is applied"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  }
+]

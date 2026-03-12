@@ -1,0 +1,8 @@
+[
+  {"id": "kak-001", "module": "keuangan-arus-kas", "scenario": "View cash flow dashboard", "steps": ["Login", "Navigate to Arus Kas", "Verify dashboard"], "expectedResults": ["Dashboard displayed", "Cards visible", "Table present"], "actualResults": [], "status": "not_run", "tags": ["critical"]},
+  {"id": "kak-002", "module": "keuangan-arus-kas", "scenario": "Add new transaction", "steps": ["Navigate to Arus Kas", "Click Tambah Transaksi", "Fill form", "Submit"], "expectedResults": ["Form opens", "Transaction created", "Success message"], "actualResults": [], "status": "not_run", "tags": ["critical"]},
+  {"id": "kak-003", "module": "keuangan-arus-kas", "scenario": "Filter transactions", "steps": ["Navigate to Arus Kas", "Use filters", "Apply"], "expectedResults": ["Filters work", "Results filtered"], "actualResults": [], "status": "not_run", "tags": ["high"]},
+  {"id": "kak-004", "module": "keuangan-arus-kas", "scenario": "Export report", "steps": ["Navigate to Arus Kas", "Click Export Laporan", "Download"], "expectedResults": ["Export button works", "File downloads"], "actualResults": [], "status": "not_run", "tags": ["high"]},
+  {"id": "kak-005", "module": "keuangan-arus-kas", "scenario": "Reset filters", "steps": ["Apply filters", "Click Reset Filter"], "expectedResults": ["Filters cleared", "Full list shown"], "actualResults": [], "status": "not_run", "tags": ["medium"]},
+  {"id": "kak-006", "module": "keuangan-arus-kas", "scenario": "View transaction details", "steps": ["Click Detail button", "View info"], "expectedResults": ["Detail view opens", "Info displayed"], "actualResults": [], "status": "not_run", "tags": ["medium"]}
+]

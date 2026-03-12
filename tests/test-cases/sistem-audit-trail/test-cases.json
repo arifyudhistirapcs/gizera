@@ -1,0 +1,8 @@
+[
+  {"id": "sat-001", "module": "sistem-audit-trail", "scenario": "View audit trail logs", "steps": ["Login", "Navigate", "Verify logs"], "expectedResults": ["Logs displayed", "Table visible"], "actualResults": [], "status": "not_run", "tags": ["critical"]},
+  {"id": "sat-002", "module": "sistem-audit-trail", "scenario": "Filter by date range", "steps": ["Select date range", "Apply"], "expectedResults": ["Date picker works", "Logs filtered"], "actualResults": [], "status": "not_run", "tags": ["high"]},
+  {"id": "sat-003", "module": "sistem-audit-trail", "scenario": "Filter by user/action", "steps": ["Use dropdowns", "Filter"], "expectedResults": ["Filters work", "Results filtered"], "actualResults": [], "status": "not_run", "tags": ["high"]},
+  {"id": "sat-004", "module": "sistem-audit-trail", "scenario": "Refresh audit logs", "steps": ["Click Refresh"], "expectedResults": ["Logs refreshed", "Latest data shown"], "actualResults": [], "status": "not_run", "tags": ["medium"]},
+  {"id": "sat-005", "module": "sistem-audit-trail", "scenario": "View log details", "steps": ["Click Detail", "View info"], "expectedResults": ["Detail view opens", "Full info shown"], "actualResults": [], "status": "not_run", "tags": ["medium"]},
+  {"id": "sat-006", "module": "sistem-audit-trail", "scenario": "Search audit logs", "steps": ["Use search", "Enter query"], "expectedResults": ["Search works", "Results match query"], "actualResults": [], "status": "not_run", "tags": ["medium"]}
+]

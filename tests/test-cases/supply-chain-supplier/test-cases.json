@@ -1,0 +1,120 @@
+[
+  {
+    "id": "scs-001",
+    "module": "supply-chain-supplier",
+    "scenario": "View supplier list page",
+    "steps": [
+      "Login as kepala.sppg@sppg.com",
+      "Navigate to /suppliers",
+      "Verify page loads with heading 'Manajemen Supplier'",
+      "Check for 19 cards",
+      "Check for table with supplier data",
+      "Verify 'Tambah Supplier' button exists"
+    ],
+    "expectedResults": [
+      "Page loads successfully",
+      "Heading 'Manajemen Supplier' visible",
+      "Cards displayed (19 cards)",
+      "Table with supplier list visible",
+      "Action buttons (Detail, Edit, Hapus) visible"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["critical", "crud", "read"]
+  },
+  {
+    "id": "scs-002",
+    "module": "supply-chain-supplier",
+    "scenario": "Add new supplier",
+    "steps": [
+      "Navigate to /suppliers",
+      "Click 'Tambah Supplier' button",
+      "Verify form/modal opens",
+      "Check for input fields"
+    ],
+    "expectedResults": [
+      "'Tambah Supplier' button found",
+      "Form or modal opens",
+      "Input fields visible for supplier data"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["critical", "crud", "create"]
+  },
+  {
+    "id": "scs-003",
+    "module": "supply-chain-supplier",
+    "scenario": "Edit supplier details",
+    "steps": [
+      "Navigate to /suppliers",
+      "Find 'Edit' button in table",
+      "Click 'Edit' button",
+      "Verify edit form opens"
+    ],
+    "expectedResults": [
+      "'Edit' button found",
+      "Edit form opens with existing data",
+      "Can modify supplier information"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["high", "crud", "update"]
+  },
+  {
+    "id": "scs-004",
+    "module": "supply-chain-supplier",
+    "scenario": "Delete supplier",
+    "steps": [
+      "Navigate to /suppliers",
+      "Find 'Hapus' button in table",
+      "Click 'Hapus' button",
+      "Verify confirmation dialog appears"
+    ],
+    "expectedResults": [
+      "'Hapus' button found",
+      "Confirmation dialog shown",
+      "Can confirm or cancel deletion"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["high", "crud", "delete"]
+  },
+  {
+    "id": "scs-005",
+    "module": "supply-chain-supplier",
+    "scenario": "View supplier details",
+    "steps": [
+      "Navigate to /suppliers",
+      "Find 'Detail' button in table",
+      "Click 'Detail' button",
+      "Verify detail view opens"
+    ],
+    "expectedResults": [
+      "'Detail' button found (2 buttons in exploration)",
+      "Detail view/modal opens",
+      "All supplier information displayed"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["medium", "crud", "read"]
+  },
+  {
+    "id": "scs-006",
+    "module": "supply-chain-supplier",
+    "scenario": "Search suppliers",
+    "steps": [
+      "Navigate to /suppliers",
+      "Find search input field",
+      "Enter search query",
+      "Verify results filter"
+    ],
+    "expectedResults": [
+      "Search input field found (1 input in exploration)",
+      "Can enter search text",
+      "Table filters based on search"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["medium", "search"]
+  }
+]

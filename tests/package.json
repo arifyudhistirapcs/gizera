@@ -1,0 +1,29 @@
+{
+  "name": "playwright-web-testing",
+  "version": "1.0.0",
+  "description": "Comprehensive web testing system using Playwright with headed browser mode",
+  "main": "run-tests.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:module": "playwright test --grep",
+    "install:browsers": "playwright install chromium"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "qa",
+    "automation"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@playwright/test": "^1.40.0",
+    "axios": "^1.13.6",
+    "fast-check": "^3.15.0",
+    "googleapis": "^171.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0"
+  }
+}

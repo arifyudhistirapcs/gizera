@@ -29,6 +29,11 @@ const supplierService = {
   // Get supplier performance metrics
   getSupplierPerformance(id) {
     return api.get(`/suppliers/${id}/performance`)
+  },
+
+  // Get supplier statistics (total, spending, top suppliers)
+  getSupplierStats() {
+    return api.get('/suppliers/stats')
   }
 }
 

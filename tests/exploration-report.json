@@ -1,0 +1,666 @@
+[
+  {
+    "name": "Dashboard",
+    "path": "/dashboard",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Dashboard",
+        "Performa",
+        "Ulasan",
+        "Arus Kas",
+        "Top 5 Supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Lihat Semua",
+        "Lihat Lainnya"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 122,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-dashboard.png"
+    ]
+  },
+  {
+    "name": "Monitoring Aktivitas",
+    "path": "/monitoring-activity",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Monitoring Aktivitas",
+        "Monitoring AktivitasPantau status aktivitas menu dan omprengRefresh",
+        "Monitoring AktivitasPantau status aktivitas menu dan ompreng",
+        "Monitoring Aktivitas",
+        "Pantau status aktivitas menu dan ompreng"
+      ],
+      "buttons": [
+        "Keluar",
+        "Refresh",
+        "Detail"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 7,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-monitoring-aktivitas.png"
+    ]
+  },
+  {
+    "name": "Ulasan & Rating",
+    "path": "/reviews",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Ulasan & Rating",
+        "Ulasan & RatingUlasan pengiriman makanan dari sekolah",
+        "Ulasan & RatingUlasan pengiriman makanan dari sekolah",
+        "Ulasan & Rating",
+        "Ulasan pengiriman makanan dari sekolah"
+      ],
+      "buttons": [
+        "Keluar",
+        "Cari",
+        "Reset",
+        "Detail",
+        "Detail"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": true,
+      "modals": false,
+      "filters": [],
+      "cards": 24,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-ulasan---rating.png"
+    ]
+  },
+  {
+    "name": "Display/KDS",
+    "path": "/kds",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Dashboard",
+        "Performa",
+        "Ulasan",
+        "Arus Kas",
+        "Top 5 Supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Lihat Semua",
+        "Lihat Lainnya"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 122,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-display-kds.png"
+    ]
+  },
+  {
+    "name": "Menu Perencanaan",
+    "path": "/menu-planning",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Perencanaan Menu"
+      ],
+      "buttons": [
+        "Keluar",
+        "Duplikat Minggu Lalu",
+        "Buat Menu Baru",
+        "Minggu Ini",
+        "Tambah Menu",
+        "Tambah Menu",
+        "Tambah Menu",
+        "Tambah Menu",
+        "Tambah Menu",
+        "Tambah Menu"
+      ],
+      "inputs": 0,
+      "tables": false,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 11,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-menu-perencanaan.png"
+    ]
+  },
+  {
+    "name": "Menu Manajemen",
+    "path": "/menu-management",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Dashboard",
+        "Performa",
+        "Ulasan",
+        "Arus Kas",
+        "Top 5 Supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Lihat Semua",
+        "Lihat Lainnya"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 122,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-menu-manajemen.png"
+    ]
+  },
+  {
+    "name": "Menu Komponen",
+    "path": "/menu-components",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Dashboard",
+        "Performa",
+        "Ulasan",
+        "Arus Kas",
+        "Top 5 Supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Lihat Semua",
+        "Lihat Lainnya"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 122,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-menu-komponen.png"
+    ]
+  },
+  {
+    "name": "Supply Chain - Supplier",
+    "path": "/suppliers",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Manajemen Supplier",
+        "Manajemen SupplierKelola data supplier dan lihat performaTambah Supplier",
+        "Manajemen SupplierKelola data supplier dan lihat performa",
+        "Manajemen Supplier",
+        "Kelola data supplier dan lihat performa"
+      ],
+      "buttons": [
+        "Keluar",
+        "Tambah Supplier",
+        "Detail",
+        "Edit",
+        "Hapus",
+        "Detail",
+        "Edit",
+        "Hapus"
+      ],
+      "inputs": 1,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 19,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-supply-chain---supplier.png"
+    ]
+  },
+  {
+    "name": "Supply Chain - Purchase Order",
+    "path": "/purchase-orders",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Purchase Order",
+        "Purchase Order (PO)Kelola pemesanan barang ke supplierBuat PO Baru",
+        "Purchase Order (PO)Kelola pemesanan barang ke supplier",
+        "Purchase Order (PO)",
+        "Kelola pemesanan barang ke supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Buat PO Baru",
+        "Detail",
+        "Detail",
+        "Detail",
+        "Detail"
+      ],
+      "inputs": 1,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 2,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-supply-chain---purchase-order.png"
+    ]
+  },
+  {
+    "name": "Supply Chain - Penerimaan Barang",
+    "path": "/goods-receipt",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Dashboard",
+        "Performa",
+        "Ulasan",
+        "Arus Kas",
+        "Top 5 Supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Lihat Semua",
+        "Lihat Lainnya"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 122,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-supply-chain---penerimaan-barang.png"
+    ]
+  },
+  {
+    "name": "Supply Chain - Bahan Baku",
+    "path": "/raw-materials",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Dashboard",
+        "Performa",
+        "Ulasan",
+        "Arus Kas",
+        "Top 5 Supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Lihat Semua",
+        "Lihat Lainnya"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 122,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-supply-chain---bahan-baku.png"
+    ]
+  },
+  {
+    "name": "Logistik - Data Sekolah",
+    "path": "/schools",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Manajemen Sekolah",
+        "Manajemen SekolahKelola data sekolah penerima manfaatTambah Sekolah",
+        "Manajemen SekolahKelola data sekolah penerima manfaat",
+        "Manajemen Sekolah",
+        "Kelola data sekolah penerima manfaat"
+      ],
+      "buttons": [
+        "Keluar",
+        "Tambah Sekolah",
+        "Lihat di Maps",
+        "Detail",
+        "Edit",
+        "Hapus",
+        "Lihat di Maps",
+        "Detail",
+        "Edit",
+        "Hapus"
+      ],
+      "inputs": 1,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 2,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-logistik---data-sekolah.png"
+    ]
+  },
+  {
+    "name": "Logistik - Tugas Pengiriman",
+    "path": "/delivery-tasks",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Manajemen Tugas Pengiriman",
+        "Manajemen Tugas Pengiriman & PengambilanKelola tugas pengiriman makanan dan pengambilan ompreng",
+        "Manajemen Tugas Pengiriman & PengambilanKelola tugas pengiriman makanan dan pengambilan ompreng",
+        "Manajemen Tugas Pengiriman & Pengambilan",
+        "Kelola tugas pengiriman makanan dan pengambilan ompreng"
+      ],
+      "buttons": [
+        "Keluar",
+        "Reset Filter",
+        "Buat Tugas Pengiriman",
+        "Detail"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [
+        "Reset Filter"
+      ],
+      "cards": 5,
+      "tabs": [
+        "Pengiriman",
+        "Pengiriman",
+        "Pengambilan",
+        "Pengambilan"
+      ]
+    },
+    "screenshots": [
+      "screenshots/explore-logistik---tugas-pengiriman.png"
+    ]
+  },
+  {
+    "name": "SDM - Data Karyawan",
+    "path": "/employees",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Manajemen Karyawan",
+        "Manajemen KaryawanKelola data karyawan dan akun penggunaTambah Karyawan",
+        "Manajemen KaryawanKelola data karyawan dan akun pengguna",
+        "Manajemen Karyawan",
+        "Kelola data karyawan dan akun pengguna"
+      ],
+      "buttons": [
+        "Keluar",
+        "Tambah Karyawan"
+      ],
+      "inputs": 1,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 11,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-sdm---data-karyawan.png"
+    ]
+  },
+  {
+    "name": "SDM - Laporan Absensi",
+    "path": "/attendance-reports",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Dashboard",
+        "Performa",
+        "Ulasan",
+        "Arus Kas",
+        "Top 5 Supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Lihat Semua",
+        "Lihat Lainnya"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 122,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-sdm---laporan-absensi.png"
+    ]
+  },
+  {
+    "name": "SDM - Konfigurasi Absensi",
+    "path": "/attendance-config",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Konfigurasi Absensi",
+        "Konfigurasi AbsensiKelola konfigurasi Wi-Fi dan GPS untuk validasi absensi karyawan",
+        "Konfigurasi AbsensiKelola konfigurasi Wi-Fi dan GPS untuk validasi absensi karyawan",
+        "Konfigurasi Absensi",
+        "Kelola konfigurasi Wi-Fi dan GPS untuk validasi absensi karyawan"
+      ],
+      "buttons": [
+        "Keluar",
+        "Tambah Jaringan Wi-Fi",
+        "Edit",
+        "Nonaktifkan",
+        "Hapus"
+      ],
+      "inputs": 1,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 12,
+      "tabs": [
+        "Wi-Fi / IP",
+        "Wi-Fi / IP",
+        "GPS / Lokasi",
+        "GPS / Lokasi"
+      ]
+    },
+    "screenshots": [
+      "screenshots/explore-sdm---konfigurasi-absensi.png"
+    ]
+  },
+  {
+    "name": "Keuangan - Aset Dapur",
+    "path": "/kitchen-assets",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Dashboard",
+        "Performa",
+        "Ulasan",
+        "Arus Kas",
+        "Top 5 Supplier"
+      ],
+      "buttons": [
+        "Keluar",
+        "Lihat Semua",
+        "Lihat Lainnya"
+      ],
+      "inputs": 0,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 122,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-keuangan---aset-dapur.png"
+    ]
+  },
+  {
+    "name": "Keuangan - Arus Kas",
+    "path": "/cash-flow",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Manajemen Arus Kas",
+        "Manajemen Arus KasKelola pencatatan arus kas operasionalExport LaporanTambah Transaksi",
+        "Manajemen Arus KasKelola pencatatan arus kas operasional",
+        "Manajemen Arus Kas",
+        "Kelola pencatatan arus kas operasional"
+      ],
+      "buttons": [
+        "Keluar",
+        "Export Laporan",
+        "Tambah Transaksi",
+        "Reset Filter",
+        "Detail",
+        "Detail",
+        "Detail",
+        "Detail"
+      ],
+      "inputs": 1,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [
+        "Reset Filter"
+      ],
+      "cards": 23,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-keuangan---arus-kas.png"
+    ]
+  },
+  {
+    "name": "Keuangan - Laporan",
+    "path": "/financial-reports",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Laporan Keuangan",
+        "Laporan KeuanganLaporan arus kas dan analisis keuangan komprehensifExport PDFExport ExcelGenerate Laporan",
+        "Laporan KeuanganLaporan arus kas dan analisis keuangan komprehensif",
+        "Laporan Keuangan",
+        "Laporan arus kas dan analisis keuangan komprehensif"
+      ],
+      "buttons": [
+        "Keluar",
+        "Export PDF",
+        "Export Excel",
+        "Generate Laporan",
+        "Generate Laporan"
+      ],
+      "inputs": 0,
+      "tables": false,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 7,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-keuangan---laporan.png"
+    ]
+  },
+  {
+    "name": "Sistem - Audit Trail",
+    "path": "/audit-trail",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Audit Trail",
+        "Audit TrailRiwayat aktivitas pengguna dalam sistemRefresh",
+        "Audit TrailRiwayat aktivitas pengguna dalam sistem",
+        "Audit Trail",
+        "Riwayat aktivitas pengguna dalam sistem"
+      ],
+      "buttons": [
+        "Keluar",
+        "Refresh",
+        "Detail",
+        "Detail",
+        "Detail",
+        "Detail",
+        "Detail",
+        "Detail",
+        "Detail",
+        "Detail"
+      ],
+      "inputs": 2,
+      "tables": true,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 19,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-sistem---audit-trail.png"
+    ]
+  },
+  {
+    "name": "Sistem - Konfigurasi",
+    "path": "/system-config",
+    "accessible": true,
+    "elements": {
+      "headings": [
+        "Konfigurasi Sistem",
+        "Konfigurasi SistemKelola parameter operasional sistem SPPGRefreshInisialisasi DefaultSimpan Semua Perubahan",
+        "Konfigurasi SistemKelola parameter operasional sistem SPPG",
+        "Konfigurasi Sistem",
+        "Kelola parameter operasional sistem SPPG"
+      ],
+      "buttons": [
+        "Keluar",
+        "Refresh",
+        "Inisialisasi Default",
+        "Simpan Semua Perubahan",
+        "AktifTidak Aktif",
+        "AktifTidak Aktif",
+        "AktifTidak Aktif",
+        "AktifTidak Aktif"
+      ],
+      "inputs": 0,
+      "tables": false,
+      "forms": false,
+      "modals": false,
+      "filters": [],
+      "cards": 29,
+      "tabs": []
+    },
+    "screenshots": [
+      "screenshots/explore-sistem---konfigurasi.png"
+    ]
+  }
+]

@@ -53,7 +53,7 @@
               :weekPeriod="plan.weekPeriod"
               :approvalStatus="plan.approvalStatus"
               :menuCount="plan.menuCount"
-              :canApprove="isKepalaSPPG && plan.approvalStatus === 'pending'"
+              :canApprove="isKepalaSPPG && plan.approvalStatus === 'draft'"
               @approve="handleApprove(plan.id)"
               @reject="showRejectDialog(plan.id)"
               @click="toggleDetail(plan.id)"

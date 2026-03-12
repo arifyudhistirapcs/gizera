@@ -1,0 +1,90 @@
+[
+  {
+    "id": "kds-001",
+    "module": "display-kds",
+    "scenario": "View Kitchen Display System",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to Display/KDS",
+      "Wait for orders to load",
+      "Verify KDS interface is displayed"
+    ],
+    "expectedResults": [
+      "KDS page is displayed",
+      "Active orders are shown",
+      "Order status is visible",
+      "Kitchen display is functional"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "kds-002",
+    "module": "display-kds",
+    "scenario": "Update order status",
+    "steps": [
+      "Navigate to Display/KDS",
+      "Select an order",
+      "Change order status",
+      "Confirm status update"
+    ],
+    "expectedResults": [
+      "Order status is updated",
+      "Status change is reflected immediately",
+      "Order moves to appropriate section",
+      "Timestamp is updated"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "kds-003",
+    "module": "display-kds",
+    "scenario": "Complete order workflow",
+    "steps": [
+      "Navigate to Display/KDS",
+      "Select pending order",
+      "Mark as in progress",
+      "Mark as completed"
+    ],
+    "expectedResults": [
+      "Order progresses through statuses",
+      "Each status change is recorded",
+      "Completed order is archived",
+      "Order completion time is logged"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "kds-004",
+    "module": "display-kds",
+    "scenario": "Real-time order updates",
+    "steps": [
+      "Navigate to Display/KDS",
+      "Create new order in another session",
+      "Observe KDS display",
+      "Verify new order appears"
+    ],
+    "expectedResults": [
+      "New order appears automatically",
+      "No manual refresh needed",
+      "Order details are complete",
+      "Real-time sync is working"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  }
+]

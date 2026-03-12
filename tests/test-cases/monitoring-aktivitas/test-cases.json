@@ -1,0 +1,90 @@
+[
+  {
+    "id": "mon-001",
+    "module": "monitoring-aktivitas",
+    "scenario": "View activity monitoring dashboard",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to Monitoring Aktivitas",
+      "Wait for activity data to load",
+      "Verify activity list is displayed"
+    ],
+    "expectedResults": [
+      "Activity monitoring page is displayed",
+      "Activity list is loaded",
+      "Activities are sorted by timestamp",
+      "Activity details are visible"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "mon-002",
+    "module": "monitoring-aktivitas",
+    "scenario": "Filter activities by date",
+    "steps": [
+      "Navigate to Monitoring Aktivitas",
+      "Select date filter",
+      "Choose specific date",
+      "Apply filter"
+    ],
+    "expectedResults": [
+      "Date picker is displayed",
+      "Activities are filtered by selected date",
+      "Only matching activities are shown",
+      "Activity count is updated"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  },
+  {
+    "id": "mon-003",
+    "module": "monitoring-aktivitas",
+    "scenario": "View activity details",
+    "steps": [
+      "Navigate to Monitoring Aktivitas",
+      "Click on an activity item",
+      "View activity details",
+      "Verify all information is displayed"
+    ],
+    "expectedResults": [
+      "Activity detail modal/page opens",
+      "All activity information is shown",
+      "Timestamp and user are displayed",
+      "Activity type is clearly indicated"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  },
+  {
+    "id": "mon-004",
+    "module": "monitoring-aktivitas",
+    "scenario": "Real-time activity updates",
+    "steps": [
+      "Navigate to Monitoring Aktivitas",
+      "Perform an action in another tab",
+      "Return to monitoring page",
+      "Verify new activity appears"
+    ],
+    "expectedResults": [
+      "New activity is displayed",
+      "Activity list is updated automatically",
+      "No manual refresh needed",
+      "Activity appears in correct order"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  }
+]

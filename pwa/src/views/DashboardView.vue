@@ -94,6 +94,68 @@
           />
         </div>
 
+        <!-- Arus Kas Section -->
+        <div class="detail-card h-card arus-kas-card">
+          <h3 class="section-title">Arus Kas</h3>
+          <div class="arus-kas-grid">
+            <div class="arus-kas-item income">
+              <div class="arus-kas-icon">
+                <van-icon name="arrow-up" size="20" />
+              </div>
+              <div class="arus-kas-info">
+                <span class="arus-kas-label">Total Pemasukan</span>
+                <span class="arus-kas-value">{{ formatCurrency(dashboardStore.arusKas.totalPemasukan) }}</span>
+                <span class="arus-kas-period">{{ dashboardStore.arusKas.period }}</span>
+              </div>
+            </div>
+            <div class="arus-kas-item expense">
+              <div class="arus-kas-icon">
+                <van-icon name="arrow-down" size="20" />
+              </div>
+              <div class="arus-kas-info">
+                <span class="arus-kas-label">Total Pengeluaran</span>
+                <span class="arus-kas-value">{{ formatCurrency(dashboardStore.arusKas.totalPengeluaran) }}</span>
+                <span class="arus-kas-period">{{ dashboardStore.arusKas.period }}</span>
+              </div>
+            </div>
+            <div class="arus-kas-item net">
+              <div class="arus-kas-icon">
+                <van-icon name="balance-o" size="20" />
+              </div>
+              <div class="arus-kas-info">
+                <span class="arus-kas-label">Arus Kas Bersih</span>
+                <span class="arus-kas-value" :class="{ negative: dashboardStore.arusKas.netCashFlow < 0 }">
+                  {{ formatCurrency(dashboardStore.arusKas.netCashFlow) }}
+                </span>
+                <span class="arus-kas-period">{{ dashboardStore.arusKas.period }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top 5 Supplier Section -->
+        <div class="detail-card h-card supplier-card">
+          <h3 class="section-title">Top 5 Supplier</h3>
+          <div v-if="dashboardStore.topSuppliers.length === 0" class="empty-state">
+            <p class="empty-state__text">Belum ada data supplier</p>
+          </div>
+          <div v-else class="supplier-list">
+            <div
+              v-for="(supplier, index) in dashboardStore.topSuppliers"
+              :key="supplier.id"
+              class="supplier-item"
+            >
+              <div class="supplier-rank" :class="`rank-${index + 1}`">
+                {{ index + 1 }}
+              </div>
+              <div class="supplier-info">
+                <span class="supplier-name">{{ supplier.name }}</span>
+                <span class="supplier-meta">{{ supplier.total_orders }} Order • {{ formatCurrency(supplier.total_amount) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Detail Tables -->
         <div class="detail-section">
           <!-- Detail Produksi -->
@@ -227,6 +289,16 @@ function getStatusType(status) {
   if (statusLower.includes('proses') || statusLower.includes('progress')) return 'primary'
   if (statusLower.includes('pending') || statusLower.includes('menunggu')) return 'warning'
   return 'default'
+}
+
+function formatCurrency(value) {
+  if (!value) return 'Rp 0'
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(value)
 }
 
 async function onRefresh() {
@@ -395,6 +467,15 @@ onMounted(() => {
   color: var(--h-text-secondary);
 }
 
+.stok-kritis-note {
+  font-size: 12px;
+  color: var(--h-text-secondary);
+  text-align: center;
+  margin-top: var(--h-spacing-md);
+  padding-top: var(--h-spacing-md);
+  border-top: 1px solid var(--h-border-light);
+}
+
 /* Error State */
 .error-state {
   display: flex;
@@ -422,5 +503,180 @@ onMounted(() => {
   font-size: 14px;
   color: var(--h-text-light);
   margin: 0;
+}
+
+/* Arus Kas Card */
+.arus-kas-card {
+  margin-bottom: var(--h-spacing-lg);
+}
+
+.arus-kas-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-md);
+}
+
+.arus-kas-item {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-md);
+  padding: var(--h-spacing-md);
+  background: var(--h-bg-light);
+  border-radius: var(--h-radius-md);
+  border-left: 4px solid;
+}
+
+.arus-kas-item.income {
+  border-left-color: #52c41a;
+}
+
+.arus-kas-item.expense {
+  border-left-color: #ff4d4f;
+}
+
+.arus-kas-item.net {
+  border-left-color: #1890ff;
+}
+
+.arus-kas-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.arus-kas-item.income .arus-kas-icon {
+  background: rgba(82, 196, 26, 0.1);
+  color: #52c41a;
+}
+
+.arus-kas-item.expense .arus-kas-icon {
+  background: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+}
+
+.arus-kas-item.net .arus-kas-icon {
+  background: rgba(24, 144, 255, 0.1);
+  color: #1890ff;
+}
+
+.arus-kas-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.arus-kas-label {
+  font-size: 12px;
+  color: var(--h-text-secondary);
+}
+
+.arus-kas-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--h-text-primary);
+}
+
+.arus-kas-value.negative {
+  color: var(--h-error);
+}
+
+.arus-kas-period {
+  font-size: 11px;
+  color: var(--h-text-light);
+}
+
+/* Supplier Card */
+.supplier-card {
+  margin-bottom: var(--h-spacing-lg);
+}
+
+.supplier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--h-spacing-md);
+}
+
+.supplier-header .section-title {
+  margin: 0;
+}
+
+.supplier-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-md);
+}
+
+.supplier-item {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-md);
+  padding: var(--h-spacing-md);
+  background: var(--h-bg-light);
+  border-radius: var(--h-radius-md);
+}
+
+.supplier-rank {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.supplier-rank.rank-1 {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.supplier-rank.rank-2 {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+  box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+}
+
+.supplier-rank.rank-3 {
+  background: linear-gradient(135deg, #CD7F32 0%, #B8732D 100%);
+  box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
+}
+
+.supplier-rank.rank-4 {
+  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+}
+
+.supplier-rank.rank-5 {
+  background: linear-gradient(135deg, #74788C 0%, #5A4372 100%);
+}
+
+.supplier-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.supplier-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--h-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.supplier-meta {
+  font-size: 12px;
+  color: var(--h-text-secondary);
 }
 </style>

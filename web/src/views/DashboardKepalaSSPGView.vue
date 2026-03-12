@@ -1,90 +1,192 @@
 <template>
   <div class="dashboard-sspg">
-    <!-- Stats Cards Row -->
-    <div class="stats-row">
-      <HStatCard
-        :icon="AppstoreOutlined"
-        icon-bg="linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)"
-        label="Porsi Disiapkan"
-        :value="String(kpis.portions_prepared)"
-        change="porsi hari ini"
-        change-type="increase"
-        :loading="loading"
-      />
-      <HStatCard
-        :icon="CarOutlined"
-        icon-bg="linear-gradient(135deg, #74788C 0%, #5A4372 100%)"
-        label="Delivery Rate"
-        :value="`${kpis.delivery_rate}%`"
-        :change="`${delivery.total_deliveries} pengiriman hari ini`"
-        change-type="increase"
-        :loading="loading"
-      />
-      <HStatCard
-        :icon="InboxOutlined"
-        icon-bg="linear-gradient(135deg, #3D2B53 0%, #5A4372 100%)"
-        label="Ketersediaan Stok"
-        :value="`${kpis.stock_availability}%`"
-        :change="`${criticalStockItems.length} item kritis`"
-        :change-type="criticalStockItems.length > 0 ? 'decrease' : 'increase'"
-        :loading="loading"
-      />
-      <HStatCard
-        :icon="CheckCircleOutlined"
-        icon-bg="linear-gradient(135deg, #05CD99 0%, #52c41a 100%)"
-        label="On-Time Delivery"
-        :value="`${kpis.on_time_delivery_rate}%`"
-        :change="`${delivery.total_deliveries} pengiriman tepat waktu`"
-        change-type="increase"
-        :loading="loading"
-      />
+    <!-- KPI Stats Row -->
+    <div class="kpi-section">
+      <div class="section-header">
+        <h3 class="section-title">Performa</h3>
+      </div>
+      <div class="stats-row">
+        <HStatCard
+          :icon="AppstoreOutlined"
+          icon-bg="linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)"
+          label="Porsi Disiapkan"
+          :value="String(kpis.portions_prepared)"
+          change="porsi hari ini"
+          change-type="increase"
+          :loading="loading"
+        />
+        <HStatCard
+          :icon="CarOutlined"
+          icon-bg="linear-gradient(135deg, #74788C 0%, #5A4372 100%)"
+          label="Delivery Rate"
+          :value="`${kpis.delivery_rate}%`"
+          :change="`${delivery.total_deliveries} pengiriman hari ini`"
+          change-type="increase"
+          :loading="loading"
+        />
+        <HStatCard
+          :icon="InboxOutlined"
+          icon-bg="linear-gradient(135deg, #3D2B53 0%, #5A4372 100%)"
+          label="Ketersediaan Stok"
+          :value="`${kpis.stock_availability}%`"
+          :change="`${criticalStockItems.length} item kritis`"
+          :change-type="criticalStockItems.length > 0 ? 'decrease' : 'increase'"
+          :loading="loading"
+        />
+        <HStatCard
+          :icon="CheckCircleOutlined"
+          icon-bg="linear-gradient(135deg, #05CD99 0%, #52c41a 100%)"
+          label="On-Time Delivery"
+          :value="`${kpis.on_time_delivery_rate}%`"
+          :change="`${delivery.total_deliveries} pengiriman tepat waktu`"
+          change-type="increase"
+          :loading="loading"
+        />
+      </div>
     </div>
 
     <!-- Rating Stats Row -->
-    <div class="stats-row rating-row">
-      <HStatCard
-        :icon="StarOutlined"
-        icon-bg="linear-gradient(135deg, #faad14 0%, #d48806 100%)"
-        label="Rating Keseluruhan"
-        :value="`${reviewSummary.average_overall_rating?.toFixed(1) || '0.0'} / 5`"
-        :change="`${reviewSummary.total_reviews || 0} ulasan`"
-        change-type="increase"
-        :loading="loading"
-      />
-      <HStatCard
-        :icon="CoffeeOutlined"
-        icon-bg="linear-gradient(135deg, #52c41a 0%, #389e0d 100%)"
-        label="Rating Menu"
-        :value="`${reviewSummary.average_menu_rating?.toFixed(1) || '0.0'} / 5`"
-        change="kualitas makanan"
-        change-type="increase"
-        :loading="loading"
-      />
-      <HStatCard
-        :icon="CarOutlined"
-        icon-bg="linear-gradient(135deg, #1890ff 0%, #096dd9 100%)"
-        label="Rating Layanan"
-        :value="`${reviewSummary.average_service_rating?.toFixed(1) || '0.0'} / 5`"
-        change="kualitas pengiriman"
-        change-type="increase"
-        :loading="loading"
-      />
+    <div class="rating-section">
+      <div class="section-header">
+        <h3 class="section-title">Ulasan</h3>
+      </div>
+      <div class="stats-row rating-row">
+        <HStatCard
+          :icon="StarOutlined"
+          icon-bg="linear-gradient(135deg, #faad14 0%, #d48806 100%)"
+          label="Rating Keseluruhan"
+          :value="`${reviewSummary.average_overall_rating?.toFixed(1) || '0.0'} / 5`"
+          :change="`${reviewSummary.total_reviews || 0} ulasan`"
+          change-type="increase"
+          :loading="loading"
+        />
+        <HStatCard
+          :icon="CoffeeOutlined"
+          icon-bg="linear-gradient(135deg, #52c41a 0%, #389e0d 100%)"
+          label="Rating Menu"
+          :value="`${reviewSummary.average_menu_rating?.toFixed(1) || '0.0'} / 5`"
+          change="kualitas makanan"
+          change-type="increase"
+          :loading="loading"
+        />
+        <HStatCard
+          :icon="CarOutlined"
+          icon-bg="linear-gradient(135deg, #1890ff 0%, #096dd9 100%)"
+          label="Rating Layanan"
+          :value="`${reviewSummary.average_service_rating?.toFixed(1) || '0.0'} / 5`"
+          change="kualitas pengiriman"
+          change-type="increase"
+          :loading="loading"
+        />
+      </div>
+    </div>
+
+    <!-- Cash Flow Stats Row with Date Range Filter -->
+    <div class="cash-flow-section">
+      <div class="section-header">
+        <h3 class="section-title">Arus Kas</h3>
+        <a-range-picker
+          v-model:value="cashFlowDateRange"
+          format="DD/MM/YYYY"
+          @change="handleCashFlowDateChange"
+          :placeholder="['Tanggal Mulai', 'Tanggal Akhir']"
+          style="width: 280px;"
+        />
+      </div>
+      <div class="stats-row cash-flow-row">
+        <HStatCard
+          :icon="ArrowUpOutlined"
+          icon-bg="linear-gradient(135deg, #52c41a 0%, #389e0d 100%)"
+          label="Total Pemasukan"
+          :value="formatCurrency(cashFlowSummary.total_income || 0)"
+          :change="cashFlowDateRangeText"
+          change-type="increase"
+          :loading="loadingCashFlow"
+        />
+        <HStatCard
+          :icon="ArrowDownOutlined"
+          icon-bg="linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%)"
+          label="Total Pengeluaran"
+          :value="formatCurrency(cashFlowSummary.total_expense || 0)"
+          :change="cashFlowDateRangeText"
+          change-type="decrease"
+          :loading="loadingCashFlow"
+        />
+        <HStatCard
+          :icon="DollarOutlined"
+          icon-bg="linear-gradient(135deg, #1890ff 0%, #096dd9 100%)"
+          label="Arus Kas Bersih"
+          :value="formatCurrency(cashFlowSummary.net_cash_flow || 0)"
+          :change="cashFlowDateRangeText"
+          :change-type="(cashFlowSummary.net_cash_flow || 0) >= 0 ? 'increase' : 'decrease'"
+          :loading="loadingCashFlow"
+        />
+      </div>
+    </div>
+
+    <!-- Top 5 Suppliers Section -->
+    <div class="top-suppliers-section">
+      <div class="section-header">
+        <h3 class="section-title">Top 5 Supplier</h3>
+        <a-button 
+          type="link" 
+          @click="goToSuppliers"
+          style="color: #5A4372;"
+        >
+          Lihat Semua
+          <RightOutlined />
+        </a-button>
+      </div>
+      <div class="top-suppliers-list">
+        <div
+          v-for="(supplier, index) in topSuppliers"
+          :key="supplier.id"
+          class="supplier-card h-card"
+        >
+          <div class="supplier-rank" :class="`supplier-rank--${index + 1}`">
+            {{ index + 1 }}
+          </div>
+          <div class="supplier-info">
+            <div class="supplier-name">{{ supplier.name }}</div>
+            <div class="supplier-meta">
+              <span class="supplier-orders">{{ supplier.total_orders }} Order</span>
+              <span class="supplier-amount">{{ formatCurrency(supplier.total_amount) }}</span>
+            </div>
+          </div>
+          <div class="supplier-progress">
+            <a-progress
+              :percent="Math.round((supplier.total_amount / topSuppliers[0].total_amount) * 100)"
+              :stroke-color="getRankColor(index)"
+              :show-info="false"
+              size="small"
+            />
+          </div>
+        </div>
+      </div>
+      <div v-if="topSuppliers.length === 0 && !loading" class="no-suppliers">
+        <InboxOutlined style="font-size: 24px; color: #A3AED0; margin-right: 8px;" />
+        <span>Belum ada data supplier</span>
+      </div>
     </div>
 
     <!-- Charts Row -->
-    <div class="charts-row">
-      <HChartCard
-        title="Status Produksi"
-        subtitle="Resep & Packing hari ini"
-        :height="320"
-        :loading="loading"
-        class="chart-card"
-      >
-        <div ref="productionChartRef" class="chart-container"></div>
-      </HChartCard>
+    <div class="activity-section">
+      <div class="section-header">
+        <h3 class="section-title">Aktivitas</h3>
+      </div>
+      <div class="charts-row">
+        <HChartCard
+          title="Status Produksi"
+          subtitle="Resep & Packing hari ini"
+          :height="320"
+          :loading="loading"
+          class="chart-card"
+        >
+          <div ref="productionChartRef" class="chart-container"></div>
+        </HChartCard>
 
-      <HChartCard
-        title="Status Pengiriman & Pengambilan"
+        <HChartCard
+          title="Status Pengiriman & Pengambilan"
         subtitle="Progress delivery hari ini"
         :height="320"
         :loading="loading"
@@ -102,6 +204,7 @@
       >
         <div ref="cleaningChartRef" class="chart-container"></div>
       </HChartCard>
+      </div>
     </div>
 
     <!-- Production, Delivery & Cleaning Detail Tables -->
@@ -238,7 +341,10 @@ import {
   WarningOutlined,
   RightOutlined,
   StarOutlined,
-  CoffeeOutlined
+  CoffeeOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  DollarOutlined
 } from '@ant-design/icons-vue'
 import HStatCard from '@/components/horizon/HStatCard.vue'
 import HChartCard from '@/components/horizon/HChartCard.vue'
@@ -246,18 +352,29 @@ import HDataTable from '@/components/horizon/HDataTable.vue'
 import { useHorizonChart } from '@/composables/useHorizonChart'
 import { getKepalaSSPGDashboard } from '@/services/dashboardService'
 import reviewService from '@/services/reviewService'
+import supplierService from '@/services/supplierService'
+import cashFlowService from '@/services/cashFlowService'
 import { database } from '@/services/firebase'
 import { ref as dbRef, onValue, off } from 'firebase/database'
+import dayjs from 'dayjs'
 
 const router = useRouter()
 const dashboard = ref(null)
 const loading = ref(true)
+const loadingCashFlow = ref(false)
 const reviewSummary = ref({
   total_reviews: 0,
   average_overall_rating: 0,
   average_menu_rating: 0,
   average_service_rating: 0
 })
+const topSuppliers = ref([])
+const cashFlowSummary = ref({
+  total_income: 0,
+  total_expense: 0,
+  net_cash_flow: 0
+})
+const cashFlowDateRange = ref([])
 
 const productionChartRef = ref(null)
 const deliveryChartRef = ref(null)
@@ -288,9 +405,73 @@ const criticalStockItems = computed(() => dashboard.value?.critical_stock || [])
 // Display only first 6 critical stock items
 const displayedCriticalStock = computed(() => criticalStockItems.value.slice(0, 6))
 
+// Computed text for cash flow date range
+const cashFlowDateRangeText = computed(() => {
+  if (cashFlowDateRange.value && cashFlowDateRange.value.length === 2) {
+    const start = cashFlowDateRange.value[0].format('DD/MM/YYYY')
+    const end = cashFlowDateRange.value[1].format('DD/MM/YYYY')
+    return `${start} - ${end}`
+  }
+  return 'Pilih rentang tanggal'
+})
+
 // Navigate to inventory with low stock filter
 const goToInventory = () => {
   router.push('/inventory')
+}
+
+// Navigate to suppliers page
+const goToSuppliers = () => {
+  router.push('/suppliers')
+}
+
+// Format currency
+const formatCurrency = (value) => {
+  if (!value) return 'Rp 0'
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(value)
+}
+
+// Get rank color for progress bar
+const getRankColor = (index) => {
+  const colors = ['#FFD700', '#C0C0C0', '#CD7F32', '#5A4372', '#74788C']
+  return colors[index] || '#A3AED0'
+}
+
+// Load cash flow summary
+const loadCashFlowSummary = async () => {
+  if (!cashFlowDateRange.value || cashFlowDateRange.value.length !== 2) return
+  
+  loadingCashFlow.value = true
+  try {
+    const startDate = cashFlowDateRange.value[0].format('YYYY-MM-DD')
+    const endDate = cashFlowDateRange.value[1].format('YYYY-MM-DD')
+    
+    const response = await cashFlowService.getCashFlowSummary(startDate, endDate)
+    if (response.summary) {
+      cashFlowSummary.value = response.summary
+    }
+  } catch (error) {
+    console.warn('Could not load cash flow summary:', error)
+  } finally {
+    loadingCashFlow.value = false
+  }
+}
+
+// Handle cash flow date range change
+const handleCashFlowDateChange = () => {
+  loadCashFlowSummary()
+}
+
+// Set default cash flow date range to current month
+const setDefaultCashFlowDateRange = () => {
+  const startOfMonth = dayjs().startOf('month')
+  const endOfMonth = dayjs().endOf('month')
+  cashFlowDateRange.value = [startOfMonth, endOfMonth]
 }
 
 // Production table data from real API
@@ -462,6 +643,16 @@ const loadDashboardData = async () => {
     } catch (reviewError) {
       console.warn('Could not load review summary:', reviewError)
     }
+
+    // Load top 5 suppliers
+    try {
+      const supplierResponse = await supplierService.getSupplierStats()
+      if (supplierResponse.data && supplierResponse.data.data) {
+        topSuppliers.value = (supplierResponse.data.data.topSuppliers || []).slice(0, 5)
+      }
+    } catch (supplierError) {
+      console.warn('Could not load top suppliers:', supplierError)
+    }
   } catch (error) {
     console.error('Error loading dashboard:', error)
     message.error('Gagal memuat data dashboard')
@@ -504,7 +695,9 @@ const getStatusType = (status) => {
 }
 
 onMounted(() => {
+  setDefaultCashFlowDateRange()
   loadDashboardData()
+  loadCashFlowSummary()
   setupFirebaseListeners()
 })
 
@@ -528,13 +721,25 @@ onUnmounted(() => {
 .stats-row.rating-row {
   grid-template-columns: repeat(3, 1fr);
 }
-@media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); gap: 16px; } .stats-row.rating-row { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 768px) { .stats-row { grid-template-columns: 1fr; gap: 12px; } .stats-row.rating-row { grid-template-columns: 1fr; } }
+.stats-row.cash-flow-row {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); gap: 16px; } .stats-row.rating-row { grid-template-columns: repeat(3, 1fr); } .stats-row.cash-flow-row { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .stats-row { grid-template-columns: 1fr; gap: 12px; } .stats-row.rating-row { grid-template-columns: 1fr; } .stats-row.cash-flow-row { grid-template-columns: 1fr; } }
+
+.cash-flow-section { margin-top: 4px; }
+
+.rating-section { margin-top: 4px; }
+
+.activity-section { margin-top: 4px; }
+
+.kpi-section { margin-top: 4px; }
 
 .charts-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+  margin-top: 16px;
 }
 @media (max-width: 1024px) { .charts-row { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
 @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; gap: 16px; } }
@@ -572,6 +777,10 @@ onUnmounted(() => {
 @media (max-width: 768px) { .tables-row { grid-template-columns: 1fr; gap: 16px; } }
 
 .table-section { display: flex; flex-direction: column; }
+
+.table-section .section-title {
+  margin-bottom: 16px;
+}
 
 .critical-stock-section { margin-top: 4px; }
 
@@ -621,4 +830,133 @@ onUnmounted(() => {
 .status-badge--warning .status-dot { background: #FFB547; }
 .status-badge--default { background: rgba(163, 174, 208, 0.1); color: #74788C; }
 .status-badge--default .status-dot { background: #74788C; }
+
+/* Top Suppliers Section */
+.top-suppliers-section { margin-top: 4px; }
+
+.top-suppliers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.supplier-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.supplier-rank {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.supplier-rank--1 {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.supplier-rank--2 {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3);
+}
+
+.supplier-rank--3 {
+  background: linear-gradient(135deg, #CD7F32 0%, #B8732D 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.3);
+}
+
+.supplier-rank--4 {
+  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  color: #fff;
+}
+
+.supplier-rank--5 {
+  background: linear-gradient(135deg, #74788C 0%, #5A4372 100%);
+  color: #fff;
+}
+
+.supplier-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.supplier-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--h-text-primary, #322837);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dark .supplier-name { color: var(--h-text-primary-dark, #F8FDEA); }
+
+.supplier-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--h-text-secondary, #74788C);
+}
+
+.supplier-orders {
+  font-weight: 500;
+}
+
+.supplier-amount {
+  font-weight: 600;
+  color: var(--h-text-primary, #322837);
+}
+.dark .supplier-amount { color: var(--h-text-primary-dark, #F8FDEA); }
+
+.supplier-progress {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.no-suppliers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: rgba(163, 174, 208, 0.08);
+  border-radius: 12px;
+  font-size: 14px;
+  color: #A3AED0;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .supplier-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .supplier-rank {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .supplier-progress {
+    width: 100%;
+  }
+  
+  .supplier-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
 </style>

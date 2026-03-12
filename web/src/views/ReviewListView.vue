@@ -318,7 +318,7 @@ const columns = [
 const fetchSchools = async () => {
   try {
     const response = await schoolService.getSchools()
-    schools.value = response.data || []
+    schools.value = response.data.schools || []
   } catch (error) {
     console.error('Failed to load schools:', error)
   }

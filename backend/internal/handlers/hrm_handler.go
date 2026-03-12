@@ -34,23 +34,38 @@ func NewHRMHandler(db *gorm.DB, authService *services.AuthService) *HRMHandler {
 
 // CreateEmployeeRequest represents create employee request
 type CreateEmployeeRequest struct {
-	NIK         string    `json:"nik" binding:"required"`
-	FullName    string    `json:"full_name" binding:"required"`
-	Email       string    `json:"email" binding:"required,email"`
-	PhoneNumber string    `json:"phone_number"`
-	Position    string    `json:"position" binding:"required"`
-	Role        string    `json:"role" binding:"required"`
-	JoinDate    time.Time `json:"join_date" binding:"required"`
+	NIK         string `json:"nik" binding:"required"`
+	FullName    string `json:"full_name" binding:"required"`
+	Email       string `json:"email" binding:"required,email"`
+	PhoneNumber string `json:"phone_number"`
+	Position    string `json:"position" binding:"required"`
+	Role        string `json:"role" binding:"required"`
+	JoinDate    string `json:"join_date" binding:"required"`
+	Password    string `json:"password" binding:"omitempty,min=6"`
+	IsActive    bool   `json:"is_active"`
 }
 
 // CreateEmployee creates a new employee
 func (h *HRMHandler) CreateEmployee(c *gin.Context) {
 	var req CreateEmployeeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[CREATE EMPLOYEE] Validation error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success":    false,
 			"error_code": "VALIDATION_ERROR",
-			"message":    "Data tidak valid",
+			"message":    "Data tidak valid: " + err.Error(),
+		})
+		return
+	}
+
+	// Parse join_date from string to time.Time
+	joinDate, err := time.Parse("2006-01-02", req.JoinDate)
+	if err != nil {
+		log.Printf("[CREATE EMPLOYEE] Date parse error: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_DATE",
+			"message":    "Format tanggal tidak valid",
 		})
 		return
 	}
@@ -61,11 +76,20 @@ func (h *HRMHandler) CreateEmployee(c *gin.Context) {
 		Email:       req.Email,
 		PhoneNumber: req.PhoneNumber,
 		Position:    req.Position,
-		JoinDate:    req.JoinDate,
-		IsActive:    true,
+		JoinDate:    joinDate,
+		IsActive:    req.IsActive,
 	}
 
-	user, password, err := h.employeeService.CreateEmployee(employee, req.Role)
+	// Create employee with custom password if provided
+	var user *models.User
+	var password string
+	
+	if req.Password != "" {
+		user, err = h.employeeService.CreateEmployeeWithPassword(employee, req.Role, req.Password)
+		password = req.Password
+	} else {
+		user, password, err = h.employeeService.CreateEmployee(employee, req.Role)
+	}
 	if err != nil {
 		if err == services.ErrDuplicateNIK {
 			c.JSON(http.StatusConflict, gin.H{
@@ -101,7 +125,9 @@ func (h *HRMHandler) CreateEmployee(c *gin.Context) {
 		"data": gin.H{
 			"employee": employee,
 			"user":     user,
-			"password": password,
+			"credentials": gin.H{
+				"password": password,
+			},
 		},
 	})
 }

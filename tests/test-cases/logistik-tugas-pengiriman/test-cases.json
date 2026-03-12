@@ -1,0 +1,134 @@
+[
+  {
+    "id": "ltp-001",
+    "module": "logistik-tugas-pengiriman",
+    "scenario": "View delivery tasks page",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to Tugas Pengiriman",
+      "Wait for page to load",
+      "Verify tasks list is displayed"
+    ],
+    "expectedResults": [
+      "Delivery tasks page is displayed",
+      "Tasks table is visible",
+      "Tabs (Pengiriman/Pengambilan) are present",
+      "Filter options are available"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical", "smoke"]
+  },
+  {
+    "id": "ltp-002",
+    "module": "logistik-tugas-pengiriman",
+    "scenario": "Switch between Pengiriman and Pengambilan tabs",
+    "steps": [
+      "Navigate to Tugas Pengiriman",
+      "Click on Pengambilan tab",
+      "Verify content changes",
+      "Click back to Pengiriman tab"
+    ],
+    "expectedResults": [
+      "Tabs are clickable",
+      "Content updates when switching tabs",
+      "Active tab is highlighted",
+      "Data loads correctly for each tab"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "ltp-003",
+    "module": "logistik-tugas-pengiriman",
+    "scenario": "Create new delivery task",
+    "steps": [
+      "Navigate to Tugas Pengiriman",
+      "Click 'Buat Tugas Pengiriman' button",
+      "Fill in task details",
+      "Submit form"
+    ],
+    "expectedResults": [
+      "Task creation form is displayed",
+      "All required fields are present",
+      "Task is created successfully",
+      "Success message is shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "ltp-004",
+    "module": "logistik-tugas-pengiriman",
+    "scenario": "Filter delivery tasks",
+    "steps": [
+      "Navigate to Tugas Pengiriman",
+      "Use filter dropdowns",
+      "Select filter criteria",
+      "Apply filters"
+    ],
+    "expectedResults": [
+      "Filter dropdowns are functional",
+      "Tasks are filtered correctly",
+      "Filtered results are displayed",
+      "Can reset filters"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "ltp-005",
+    "module": "logistik-tugas-pengiriman",
+    "scenario": "Reset filters",
+    "steps": [
+      "Navigate to Tugas Pengiriman",
+      "Apply some filters",
+      "Click 'Reset Filter' button",
+      "Verify filters are cleared"
+    ],
+    "expectedResults": [
+      "Reset Filter button is visible",
+      "All filters are cleared",
+      "Full task list is displayed",
+      "Filter dropdowns return to default"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  },
+  {
+    "id": "ltp-006",
+    "module": "logistik-tugas-pengiriman",
+    "scenario": "View task details",
+    "steps": [
+      "Navigate to Tugas Pengiriman",
+      "Click 'Detail' button on a task",
+      "View task information",
+      "Verify all details are displayed"
+    ],
+    "expectedResults": [
+      "Detail button is clickable",
+      "Task detail view opens",
+      "All task information is visible",
+      "Can close detail view"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  }
+]

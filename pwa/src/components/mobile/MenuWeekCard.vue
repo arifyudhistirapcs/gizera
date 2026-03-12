@@ -14,7 +14,7 @@
         <span class="menu-week-card__count">{{ menuCount }} menu</span>
       </div>
     </div>
-    <div v-if="canApprove && approvalStatus === 'pending'" class="menu-week-card__actions">
+    <div v-if="canApprove && approvalStatus === 'draft'" class="menu-week-card__actions">
       <van-button
         type="primary"
         size="small"
@@ -48,7 +48,7 @@ const props = defineProps({
   approvalStatus: {
     type: String,
     required: true,
-    validator: (val) => ['pending', 'approved', 'rejected'].includes(val)
+    validator: (val) => ['draft', 'approved', 'rejected'].includes(val)
   },
   menuCount: {
     type: Number,
@@ -64,7 +64,7 @@ defineEmits(['approve', 'reject', 'click'])
 
 const statusLabel = computed(() => {
   const labels = {
-    pending: 'Pending',
+    draft: 'Draft',
     approved: 'Approved',
     rejected: 'Rejected'
   }
@@ -108,7 +108,7 @@ const statusLabel = computed(() => {
   border-radius: var(--h-radius-full);
 }
 
-.menu-week-card__status--pending {
+.menu-week-card__status--draft {
   color: var(--h-warning);
   background: rgba(255, 181, 71, 0.1);
 }

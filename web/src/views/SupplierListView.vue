@@ -12,6 +12,104 @@
       </template>
     </a-page-header>
 
+    <!-- Statistics Cards -->
+    <a-row :gutter="16" style="margin-bottom: 16px">
+      <a-col :span="6">
+        <a-card>
+          <a-statistic
+            title="Total Supplier"
+            :value="stats.totalSuppliers"
+            :loading="loadingStats"
+          >
+            <template #prefix>
+              <ShopOutlined />
+            </template>
+          </a-statistic>
+        </a-card>
+      </a-col>
+      <a-col :span="6">
+        <a-card>
+          <a-statistic
+            title="Total Pengeluaran"
+            :value="stats.totalSpending"
+            :loading="loadingStats"
+            :precision="0"
+          >
+            <template #prefix>
+              <DollarOutlined />
+            </template>
+            <template #formatter="{ value }">
+              {{ formatCurrency(value) }}
+            </template>
+          </a-statistic>
+        </a-card>
+      </a-col>
+      <a-col :span="6">
+        <a-card>
+          <a-statistic
+            title="Supplier Aktif"
+            :value="stats.activeSuppliers"
+            :loading="loadingStats"
+          >
+            <template #prefix>
+              <CheckCircleOutlined style="color: #52c41a" />
+            </template>
+          </a-statistic>
+        </a-card>
+      </a-col>
+      <a-col :span="6">
+        <a-card>
+          <a-statistic
+            title="Rata-rata Rating"
+            :value="stats.averageRating"
+            :loading="loadingStats"
+            :precision="1"
+            suffix="/ 5"
+          >
+            <template #prefix>
+              <StarOutlined style="color: #faad14" />
+            </template>
+          </a-statistic>
+        </a-card>
+      </a-col>
+    </a-row>
+
+    <!-- Top 3 Suppliers Card -->
+    <a-card title="Top 3 Supplier" style="margin-bottom: 16px" :loading="loadingStats">
+      <a-list
+        :data-source="stats.topSuppliers"
+        :loading="loadingStats"
+      >
+        <template #renderItem="{ item, index }">
+          <a-list-item>
+            <a-list-item-meta>
+              <template #avatar>
+                <a-avatar :style="{ backgroundColor: getTrophyColor(index) }">
+                  {{ index + 1 }}
+                </a-avatar>
+              </template>
+              <template #title>
+                {{ item.name }}
+              </template>
+              <template #description>
+                <a-space direction="vertical" size="small" style="width: 100%">
+                  <div>
+                    <a-tag color="blue">{{ item.total_orders }} Order</a-tag>
+                    <a-tag color="green">{{ formatCurrency(item.total_amount) }}</a-tag>
+                  </div>
+                  <a-progress
+                    :percent="Math.round((item.total_amount / stats.totalSpending) * 100)"
+                    :show-info="true"
+                    size="small"
+                  />
+                </a-space>
+              </template>
+            </a-list-item-meta>
+          </a-list-item>
+        </template>
+      </a-list>
+    </a-card>
+
     <a-card>
       <a-space direction="vertical" style="width: 100%" :size="16">
         <!-- Search and Filter -->
@@ -182,6 +280,9 @@
       <a-row :gutter="16">
         <a-col :span="12">
           <a-statistic title="Pengiriman Tepat Waktu" :value="selectedSupplier.on_time_delivery || 0" suffix="%" />
+          <a-typography-text type="secondary" style="font-size: 12px">
+            Dihitung otomatis saat barang diterima
+          </a-typography-text>
         </a-col>
         <a-col :span="12">
           <a-statistic title="Rating Kualitas">
@@ -189,6 +290,9 @@
               <a-rate :value="selectedSupplier.quality_rating || 0" disabled allow-half />
             </template>
           </a-statistic>
+          <a-typography-text type="secondary" style="font-size: 12px">
+            Rata-rata dari rating saat penerimaan barang (GRN)
+          </a-typography-text>
         </a-col>
       </a-row>
 
@@ -217,10 +321,18 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
+import {
+  PlusOutlined,
+  SearchOutlined,
+  ShopOutlined,
+  DollarOutlined,
+  CheckCircleOutlined,
+  StarOutlined
+} from '@ant-design/icons-vue'
 import supplierService from '@/services/supplierService'
 
 const loading = ref(false)
+const loadingStats = ref(false)
 const submitting = ref(false)
 const modalVisible = ref(false)
 const detailModalVisible = ref(false)
@@ -237,6 +349,14 @@ const pagination = reactive({
   current: 1,
   pageSize: 10,
   total: 0
+})
+
+const stats = reactive({
+  totalSuppliers: 0,
+  totalSpending: 0,
+  activeSuppliers: 0,
+  averageRating: 0,
+  topSuppliers: []
 })
 
 const formData = reactive({
@@ -345,6 +465,31 @@ const fetchSuppliers = async () => {
   }
 }
 
+const fetchSupplierStats = async () => {
+  loadingStats.value = true
+  try {
+    const response = await supplierService.getSupplierStats()
+    console.log('Supplier stats response:', response)
+    console.log('Response data:', response.data)
+    // Backend returns { success: true, data: { totalSuppliers, ... } }
+    // So we need response.data.data
+    if (response.data && response.data.data) {
+      Object.assign(stats, response.data.data)
+    }
+    console.log('Stats after assign:', stats)
+  } catch (error) {
+    console.error('Gagal memuat statistik supplier:', error)
+    console.error('Error details:', error.response || error)
+  } finally {
+    loadingStats.value = false
+  }
+}
+
+const getTrophyColor = (index) => {
+  const colors = ['#FFD700', '#C0C0C0', '#CD7F32'] // Gold, Silver, Bronze
+  return colors[index] || '#1890ff'
+}
+
 const handleTableChange = (pag, filters, sorter) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
@@ -380,11 +525,21 @@ const viewSupplier = async (supplier) => {
   selectedSupplier.value = supplier
   detailModalVisible.value = true
   
-  // Fetch transaction history
+  // Fetch transaction history and performance metrics
   loadingTransactions.value = true
   try {
     const response = await supplierService.getSupplierPerformance(supplier.id)
-    transactionHistory.value = response.data.transactions || []
+    console.log('Performance response:', response.data)
+    // Backend returns { success: true, data: { ...performance } }
+    if (response.data && response.data.data) {
+      transactionHistory.value = response.data.data.transactions || []
+      // Update supplier with latest performance metrics
+      selectedSupplier.value = {
+        ...supplier,
+        on_time_delivery: response.data.data.on_time_rate || 0,
+        quality_rating: response.data.data.quality_rating || 0
+      }
+    }
   } catch (error) {
     console.error('Gagal memuat riwayat transaksi:', error)
   } finally {
@@ -464,6 +619,7 @@ const formatDate = (date) => {
 
 onMounted(() => {
   fetchSuppliers()
+  fetchSupplierStats()
 })
 </script>
 

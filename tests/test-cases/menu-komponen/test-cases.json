@@ -1,0 +1,93 @@
+[
+  {
+    "id": "mk-001",
+    "module": "menu-komponen",
+    "scenario": "View component list",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to Menu & Komponen > Manajemen Komponen",
+      "Wait for components to load",
+      "Verify component list is displayed"
+    ],
+    "expectedResults": [
+      "Component management page is displayed",
+      "List of components is loaded",
+      "Component details are visible",
+      "Quantities and units are shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "mk-002",
+    "module": "menu-komponen",
+    "scenario": "Create new component",
+    "steps": [
+      "Navigate to Manajemen Komponen",
+      "Click add component button",
+      "Enter component name",
+      "Set quantity and unit",
+      "Save component"
+    ],
+    "expectedResults": [
+      "Component form is displayed",
+      "Component is created successfully",
+      "Success message is shown",
+      "New component appears in list"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "mk-003",
+    "module": "menu-komponen",
+    "scenario": "Edit component",
+    "steps": [
+      "Navigate to Manajemen Komponen",
+      "Select a component",
+      "Click edit button",
+      "Modify component details",
+      "Save changes"
+    ],
+    "expectedResults": [
+      "Edit form is displayed with current data",
+      "Changes are saved successfully",
+      "Updated component is displayed",
+      "Change history is logged"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "mk-004",
+    "module": "menu-komponen",
+    "scenario": "Associate component with menu",
+    "steps": [
+      "Navigate to Manajemen Komponen",
+      "Select a component",
+      "Click associate with menu",
+      "Select menu items",
+      "Save associations"
+    ],
+    "expectedResults": [
+      "Menu selection dialog is shown",
+      "Associations are saved",
+      "Component-menu links are created",
+      "Success message is displayed"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  }
+]

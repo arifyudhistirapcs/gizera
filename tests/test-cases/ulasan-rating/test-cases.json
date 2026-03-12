@@ -1,0 +1,92 @@
+[
+  {
+    "id": "rev-001",
+    "module": "ulasan-rating",
+    "scenario": "View reviews and ratings list",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to Ulasan & Rating",
+      "Wait for reviews to load",
+      "Verify reviews are displayed"
+    ],
+    "expectedResults": [
+      "Reviews page is displayed",
+      "List of reviews is loaded",
+      "Ratings are visible",
+      "Review details are shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "rev-002",
+    "module": "ulasan-rating",
+    "scenario": "Submit a new review",
+    "steps": [
+      "Navigate to Ulasan & Rating",
+      "Click add review button",
+      "Enter review text",
+      "Select rating stars",
+      "Submit review"
+    ],
+    "expectedResults": [
+      "Review form is displayed",
+      "Review is submitted successfully",
+      "Success message is shown",
+      "New review appears in list"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "rev-003",
+    "module": "ulasan-rating",
+    "scenario": "Edit existing review",
+    "steps": [
+      "Navigate to Ulasan & Rating",
+      "Select a review to edit",
+      "Modify review text",
+      "Update rating",
+      "Save changes"
+    ],
+    "expectedResults": [
+      "Edit form is displayed with current data",
+      "Changes are saved successfully",
+      "Updated review is displayed",
+      "Modification timestamp is updated"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  },
+  {
+    "id": "rev-004",
+    "module": "ulasan-rating",
+    "scenario": "Filter reviews by rating",
+    "steps": [
+      "Navigate to Ulasan & Rating",
+      "Select rating filter",
+      "Choose specific rating (e.g., 5 stars)",
+      "Apply filter"
+    ],
+    "expectedResults": [
+      "Filter is applied",
+      "Only reviews with selected rating are shown",
+      "Review count is updated",
+      "Filter can be cleared"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  }
+]

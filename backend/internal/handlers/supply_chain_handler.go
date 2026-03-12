@@ -19,6 +19,7 @@ var uploadBaseDir = filepath.Join("uploads")
 
 // SupplyChainHandler handles supply chain endpoints
 type SupplyChainHandler struct {
+	db                    *gorm.DB
 	supplierService       *services.SupplierService
 	purchaseOrderService  *services.PurchaseOrderService
 	goodsReceiptService   *services.GoodsReceiptService
@@ -31,6 +32,7 @@ func NewSupplyChainHandler(db *gorm.DB) *SupplyChainHandler {
 	cashFlowService := services.NewCashFlowService(db)
 	
 	return &SupplyChainHandler{
+		db:                   db,
 		supplierService:      services.NewSupplierService(db),
 		purchaseOrderService: services.NewPurchaseOrderService(db),
 		goodsReceiptService:  services.NewGoodsReceiptService(db, inventoryService, cashFlowService),
@@ -261,8 +263,32 @@ func (h *SupplyChainHandler) GetSupplierPerformance(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success":     true,
-		"performance": performance,
+		"success": true,
+		"data":    performance,
+	})
+}
+
+// GetSupplierStats retrieves supplier statistics
+func (h *SupplyChainHandler) GetSupplierStats(c *gin.Context) {
+	stats, err := h.supplierService.GetSupplierStats()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    "Terjadi kesalahan pada server",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"totalSuppliers":  stats.TotalSuppliers,
+			"totalSpending":   stats.TotalSpending,
+			"activeSuppliers": stats.ActiveSuppliers,
+			"averageRating":   stats.AverageRating,
+			"topSuppliers":    stats.TopSuppliers,
+		},
 	})
 }
 
@@ -520,9 +546,10 @@ func (h *SupplyChainHandler) ApprovePurchaseOrder(c *gin.Context) {
 
 // CreateGoodsReceiptRequest represents create GRN request
 type CreateGoodsReceiptRequest struct {
-	POID  uint                      `json:"po_id" binding:"required"`
-	Notes string                    `json:"notes"`
-	Items []GoodsReceiptItemRequest `json:"items" binding:"required,min=1"`
+	POID          uint                      `json:"po_id" binding:"required"`
+	Notes         string                    `json:"notes"`
+	QualityRating float64                   `json:"quality_rating" binding:"gte=0,lte=5"` // 0-5 rating
+	Items         []GoodsReceiptItemRequest `json:"items" binding:"required,min=1"`
 }
 
 // GoodsReceiptItemRequest represents GRN item request
@@ -549,8 +576,9 @@ func (h *SupplyChainHandler) CreateGoodsReceipt(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 
 	grn := &models.GoodsReceipt{
-		POID:  req.POID,
-		Notes: req.Notes,
+		POID:          req.POID,
+		Notes:         req.Notes,
+		QualityRating: req.QualityRating,
 	}
 
 	var items []models.GoodsReceiptItem
@@ -586,9 +614,20 @@ func (h *SupplyChainHandler) CreateGoodsReceipt(c *gin.Context) {
 		return
 	}
 
+	// Update supplier metrics (rating and on-time delivery) after GRN is created
+	// This is done asynchronously to not block the response
+	go func() {
+		// Get PO to find supplier
+		var po models.PurchaseOrder
+		if err := h.db.Preload("Supplier").First(&po, req.POID).Error; err == nil {
+			// Update supplier performance metrics
+			_, _ = h.supplierService.GetSupplierPerformance(po.SupplierID)
+		}
+	}()
+
 	c.JSON(http.StatusCreated, gin.H{
 		"success":       true,
-		"message":       "Goods receipt berhasil dibuat",
+		"message":       "Goods receipt berhasil dibuat dan metrik supplier diperbarui",
 		"goods_receipt": grn,
 	})
 }
@@ -605,9 +644,30 @@ func (h *SupplyChainHandler) GetAllGoodsReceipts(c *gin.Context) {
 		return
 	}
 
+	// Add received_by_name field for frontend
+	var response []map[string]interface{}
+	for _, grn := range grns {
+		grnMap := map[string]interface{}{
+			"id":              grn.ID,
+			"grn_number":      grn.GRNNumber,
+			"po_id":           grn.POID,
+			"receipt_date":    grn.ReceiptDate,
+			"invoice_photo":   grn.InvoicePhoto,
+			"received_by":     grn.ReceivedBy,
+			"notes":           grn.Notes,
+			"quality_rating":  grn.QualityRating,
+			"created_at":      grn.CreatedAt,
+			"purchase_order":  grn.PurchaseOrder,
+			"receiver":        grn.Receiver,
+			"grn_items":       grn.GRNItems,
+			"received_by_name": grn.Receiver.FullName,
+		}
+		response = append(response, grnMap)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success":        true,
-		"goods_receipts": grns,
+		"goods_receipts": response,
 	})
 }
 
@@ -642,9 +702,26 @@ func (h *SupplyChainHandler) GetGoodsReceipt(c *gin.Context) {
 		return
 	}
 
+	// Add received_by_name field for frontend
+	response := map[string]interface{}{
+		"id":              grn.ID,
+		"grn_number":      grn.GRNNumber,
+		"po_id":           grn.POID,
+		"receipt_date":    grn.ReceiptDate,
+		"invoice_photo":   grn.InvoicePhoto,
+		"received_by":     grn.ReceivedBy,
+		"notes":           grn.Notes,
+		"quality_rating":  grn.QualityRating,
+		"created_at":      grn.CreatedAt,
+		"purchase_order":  grn.PurchaseOrder,
+		"receiver":        grn.Receiver,
+		"grn_items":       grn.GRNItems,
+		"received_by_name": grn.Receiver.FullName,
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success":       true,
-		"goods_receipt": grn,
+		"goods_receipt": response,
 	})
 }
 

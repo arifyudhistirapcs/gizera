@@ -183,6 +183,19 @@
 
         <a-row :gutter="16">
           <a-col :span="12">
+            <a-form-item label="Password" name="password">
+              <a-input-password v-model:value="formData.password" placeholder="Password untuk login" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="Konfirmasi Password" name="password_confirmation">
+              <a-input-password v-model:value="formData.password_confirmation" placeholder="Ketik ulang password" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="16">
+          <a-col :span="12">
             <a-form-item label="Posisi" name="position">
               <a-select v-model:value="formData.position" placeholder="Pilih posisi">
                 <a-select-option value="Kepala SPPG">Kepala SPPG</a-select-option>
@@ -341,7 +354,9 @@ const formData = reactive({
   position: '',
   role: '',
   join_date: null,
-  is_active: true
+  is_active: true,
+  password: '',
+  password_confirmation: ''
 })
 
 const rules = {
@@ -354,7 +369,36 @@ const rules = {
   phone_number: [{ required: true, message: 'Nomor telepon wajib diisi' }],
   position: [{ required: true, message: 'Posisi wajib dipilih' }],
   role: [{ required: true, message: 'Role sistem wajib dipilih' }],
-  join_date: [{ required: true, message: 'Tanggal bergabung wajib diisi' }]
+  join_date: [{ required: true, message: 'Tanggal bergabung wajib diisi' }],
+  password: [
+    { 
+      validator: (rule, value) => {
+        // Only required for new employee
+        if (!editingEmployee.value && !value) {
+          return Promise.reject('Password wajib diisi')
+        }
+        // If provided, must be at least 6 characters
+        if (value && value.length < 6) {
+          return Promise.reject('Password minimal 6 karakter')
+        }
+        return Promise.resolve()
+      }
+    }
+  ],
+  password_confirmation: [
+    { 
+      validator: (rule, value) => {
+        // Only required if password is provided
+        if (formData.password && !value) {
+          return Promise.reject('Konfirmasi password wajib diisi')
+        }
+        if (value && value !== formData.password) {
+          return Promise.reject('Password tidak cocok')
+        }
+        return Promise.resolve()
+      }
+    }
+  ]
 }
 
 const columns = [
@@ -459,7 +503,9 @@ const editEmployee = (employee) => {
     position: employee.position,
     role: employee.user?.role || '',
     join_date: employee.join_date ? dayjs(employee.join_date) : null,
-    is_active: employee.is_active
+    is_active: employee.is_active,
+    password: '',
+    password_confirmation: ''
   })
   modalVisible.value = true
 }
@@ -475,8 +521,19 @@ const handleSubmit = async () => {
     submitting.value = true
 
     const submitData = {
-      ...formData,
-      join_date: formData.join_date ? formData.join_date.format('YYYY-MM-DD') : null
+      nik: formData.nik,
+      full_name: formData.full_name,
+      email: formData.email,
+      phone_number: formData.phone_number,
+      position: formData.position,
+      role: formData.role,
+      join_date: formData.join_date ? formData.join_date.format('YYYY-MM-DD') : null,
+      is_active: formData.is_active
+    }
+
+    // Add password only if provided (for new employee)
+    if (!editingEmployee.value && formData.password) {
+      submitData.password = formData.password
     }
 
     if (editingEmployee.value) {
@@ -545,7 +602,9 @@ const resetForm = () => {
     position: '',
     role: '',
     join_date: null,
-    is_active: true
+    is_active: true,
+    password: '',
+    password_confirmation: ''
   })
   formRef.value?.resetFields()
 }

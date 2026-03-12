@@ -1,0 +1,116 @@
+[
+  {
+    "id": "kl-001",
+    "module": "keuangan-laporan",
+    "scenario": "View financial reports page",
+    "steps": [
+      "Login as kepala.sppg@sppg.com",
+      "Navigate to /financial-reports",
+      "Verify page loads with heading 'Laporan Keuangan'",
+      "Check for 7 cards",
+      "Verify action buttons exist"
+    ],
+    "expectedResults": [
+      "Page loads successfully",
+      "Heading 'Laporan Keuangan' visible",
+      "Cards displayed (7 cards)",
+      "Export PDF, Export Excel, Generate Laporan buttons visible"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["critical", "report", "read"]
+  },
+  {
+    "id": "kl-002",
+    "module": "keuangan-laporan",
+    "scenario": "Select report period",
+    "steps": [
+      "Navigate to /financial-reports",
+      "Find date picker or period selector",
+      "Select date range",
+      "Verify selection applied"
+    ],
+    "expectedResults": [
+      "Date picker or dropdown found",
+      "Can select date range",
+      "Period selection applied"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["high", "filter"]
+  },
+  {
+    "id": "kl-003",
+    "module": "keuangan-laporan",
+    "scenario": "Generate financial report",
+    "steps": [
+      "Navigate to /financial-reports",
+      "Click 'Generate Laporan' button",
+      "Verify report generation starts",
+      "Check for loading indicator or success message"
+    ],
+    "expectedResults": [
+      "'Generate Laporan' button found (2 buttons in exploration)",
+      "Report generation initiated",
+      "Loading indicator or success message shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["critical", "report", "generate"]
+  },
+  {
+    "id": "kl-004",
+    "module": "keuangan-laporan",
+    "scenario": "Export report as PDF",
+    "steps": [
+      "Navigate to /financial-reports",
+      "Click 'Export PDF' button",
+      "Verify export initiated"
+    ],
+    "expectedResults": [
+      "'Export PDF' button found",
+      "PDF export initiated",
+      "Download starts or success message shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["high", "export"]
+  },
+  {
+    "id": "kl-005",
+    "module": "keuangan-laporan",
+    "scenario": "Export report as Excel",
+    "steps": [
+      "Navigate to /financial-reports",
+      "Click 'Export Excel' button",
+      "Verify export initiated"
+    ],
+    "expectedResults": [
+      "'Export Excel' button found",
+      "Excel export initiated",
+      "Download starts or success message shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["high", "export"]
+  },
+  {
+    "id": "kl-006",
+    "module": "keuangan-laporan",
+    "scenario": "Validate report data",
+    "steps": [
+      "Navigate to /financial-reports",
+      "Generate report",
+      "Verify data displayed in cards",
+      "Check for financial metrics"
+    ],
+    "expectedResults": [
+      "Report data displayed",
+      "Financial metrics visible in 7 cards",
+      "Data appears accurate and formatted"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "tags": ["medium", "validation"]
+  }
+]

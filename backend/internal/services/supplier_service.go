@@ -131,15 +131,24 @@ func (s *SupplierService) ActivateSupplier(id uint) error {
 
 // SupplierPerformance represents performance metrics for a supplier
 type SupplierPerformance struct {
-	SupplierID       uint      `json:"supplier_id"`
-	SupplierName     string    `json:"supplier_name"`
-	TotalOrders      int       `json:"total_orders"`
-	CompletedOrders  int       `json:"completed_orders"`
-	OnTimeDeliveries int       `json:"on_time_deliveries"`
-	OnTimeRate       float64   `json:"on_time_rate"`
-	QualityRating    float64   `json:"quality_rating"`
-	TotalAmount      float64   `json:"total_amount"`
-	LastOrderDate    *time.Time `json:"last_order_date"`
+	SupplierID       uint                `json:"supplier_id"`
+	SupplierName     string              `json:"supplier_name"`
+	TotalOrders      int                 `json:"total_orders"`
+	CompletedOrders  int                 `json:"completed_orders"`
+	OnTimeDeliveries int                 `json:"on_time_deliveries"`
+	OnTimeRate       float64             `json:"on_time_rate"`
+	QualityRating    float64             `json:"quality_rating"`
+	TotalAmount      float64             `json:"total_amount"`
+	LastOrderDate    *time.Time          `json:"last_order_date"`
+	Transactions     []TransactionSummary `json:"transactions"`
+}
+
+// TransactionSummary represents a summary of a purchase order transaction
+type TransactionSummary struct {
+	PONumber  string    `json:"po_number"`
+	OrderDate time.Time `json:"order_date"`
+	Amount    float64   `json:"amount"`
+	Status    string    `json:"status"`
 }
 
 // GetSupplierPerformance retrieves performance metrics for a supplier
@@ -152,7 +161,6 @@ func (s *SupplierService) GetSupplierPerformance(id uint) (*SupplierPerformance,
 	performance := &SupplierPerformance{
 		SupplierID:   supplier.ID,
 		SupplierName: supplier.Name,
-		QualityRating: supplier.QualityRating,
 	}
 
 	// Count total orders
@@ -181,6 +189,15 @@ func (s *SupplierService) GetSupplierPerformance(id uint) (*SupplierPerformance,
 		performance.OnTimeRate = float64(performance.OnTimeDeliveries) / float64(performance.CompletedOrders) * 100
 	}
 
+	// Calculate average quality rating from all GRNs (not from supplier table)
+	var avgRating float64
+	s.db.Model(&models.GoodsReceipt{}).
+		Joins("JOIN purchase_orders ON purchase_orders.id = goods_receipts.po_id").
+		Where("purchase_orders.supplier_id = ? AND goods_receipts.quality_rating > 0", id).
+		Select("COALESCE(AVG(goods_receipts.quality_rating), 0)").
+		Scan(&avgRating)
+	performance.QualityRating = avgRating
+
 	// Calculate total amount
 	var totalAmount float64
 	s.db.Model(&models.PurchaseOrder{}).
@@ -198,8 +215,30 @@ func (s *SupplierService) GetSupplierPerformance(id uint) (*SupplierPerformance,
 		performance.LastOrderDate = &lastOrder.OrderDate
 	}
 
-	// Update supplier's on-time delivery rate
-	s.db.Model(&models.Supplier{}).Where("id = ?", id).Update("on_time_delivery", performance.OnTimeRate)
+	// Update supplier's on-time delivery rate and quality rating in supplier table
+	s.db.Model(&models.Supplier{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"on_time_delivery": performance.OnTimeRate,
+		"quality_rating":   performance.QualityRating,
+	})
+
+	// Get recent transactions (last 10 purchase orders)
+	var purchaseOrders []models.PurchaseOrder
+	err = s.db.Where("supplier_id = ?", id).
+		Order("order_date DESC").
+		Limit(10).
+		Find(&purchaseOrders).Error
+	
+	if err == nil {
+		performance.Transactions = make([]TransactionSummary, 0, len(purchaseOrders))
+		for _, po := range purchaseOrders {
+			performance.Transactions = append(performance.Transactions, TransactionSummary{
+				PONumber:  po.PONumber,
+				OrderDate: po.OrderDate,
+				Amount:    po.TotalAmount,
+				Status:    po.Status,
+			})
+		}
+	}
 
 	return performance, nil
 }
@@ -240,3 +279,92 @@ func (s *SupplierService) SearchSuppliers(query string, productCategory string, 
 	err := db.Order("name ASC").Find(&suppliers).Error
 	return suppliers, err
 }
+// SupplierStats represents overall supplier statistics
+type SupplierStats struct {
+	TotalSuppliers   int              `json:"total_suppliers"`
+	TotalSpending    float64          `json:"total_spending"`
+	ActiveSuppliers  int              `json:"active_suppliers"`
+	AverageRating    float64          `json:"average_rating"`
+	TopSuppliers     []TopSupplier    `json:"top_suppliers"`
+}
+
+// TopSupplier represents a top performing supplier
+type TopSupplier struct {
+	ID          uint    `json:"id"`
+	Name        string  `json:"name"`
+	TotalOrders int     `json:"total_orders"`
+	TotalAmount float64 `json:"total_amount"`
+}
+
+// GetSupplierStats retrieves overall supplier statistics
+func (s *SupplierService) GetSupplierStats() (*SupplierStats, error) {
+	stats := &SupplierStats{}
+
+	// Get total suppliers count
+	var totalSuppliers int64
+	if err := s.db.Model(&models.Supplier{}).Count(&totalSuppliers).Error; err != nil {
+		return nil, err
+	}
+	stats.TotalSuppliers = int(totalSuppliers)
+
+	// Get active suppliers count
+	var activeSuppliers int64
+	if err := s.db.Model(&models.Supplier{}).Where("is_active = ?", true).Count(&activeSuppliers).Error; err != nil {
+		return nil, err
+	}
+	stats.ActiveSuppliers = int(activeSuppliers)
+
+	// Get average quality rating
+	var avgRating float64
+	if err := s.db.Model(&models.Supplier{}).
+		Where("quality_rating > 0").
+		Select("COALESCE(AVG(quality_rating), 0)").
+		Scan(&avgRating).Error; err != nil {
+		return nil, err
+	}
+	stats.AverageRating = avgRating
+
+	// Get total spending from purchase orders (approved and received)
+	var totalSpending float64
+	if err := s.db.Model(&models.PurchaseOrder{}).
+		Where("status IN ?", []string{"approved", "received"}).
+		Select("COALESCE(SUM(total_amount), 0)").
+		Scan(&totalSpending).Error; err != nil {
+		return nil, err
+	}
+	stats.TotalSpending = totalSpending
+
+	// Get top 3 suppliers by order count and total amount
+	type SupplierOrderStats struct {
+		SupplierID  uint
+		SupplierName string
+		OrderCount  int
+		TotalAmount float64
+	}
+
+	var topSupplierStats []SupplierOrderStats
+	if err := s.db.Model(&models.PurchaseOrder{}).
+		Select("suppliers.id as supplier_id, suppliers.name as supplier_name, COUNT(purchase_orders.id) as order_count, COALESCE(SUM(purchase_orders.total_amount), 0) as total_amount").
+		Joins("JOIN suppliers ON suppliers.id = purchase_orders.supplier_id").
+		Where("purchase_orders.status IN ?", []string{"approved", "received"}).
+		Group("suppliers.id, suppliers.name").
+		Order("total_amount DESC, order_count DESC").
+		Limit(3).
+		Scan(&topSupplierStats).Error; err != nil {
+		return nil, err
+	}
+
+	// Convert to TopSupplier format
+	stats.TopSuppliers = make([]TopSupplier, 0, len(topSupplierStats))
+	for _, ts := range topSupplierStats {
+		stats.TopSuppliers = append(stats.TopSuppliers, TopSupplier{
+			ID:          ts.SupplierID,
+			Name:        ts.SupplierName,
+			TotalOrders: ts.OrderCount,
+			TotalAmount: ts.TotalAmount,
+		})
+	}
+
+	return stats, nil
+}
+

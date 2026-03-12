@@ -1,0 +1,136 @@
+[
+  {
+    "id": "mp-001",
+    "module": "menu-perencanaan",
+    "scenario": "View weekly menu planning page",
+    "steps": [
+      "Login with valid credentials",
+      "Navigate to Menu Perencanaan",
+      "Wait for page to load",
+      "Verify weekly calendar is displayed"
+    ],
+    "expectedResults": [
+      "Menu planning page is displayed",
+      "Weekly calendar with days is visible",
+      "Action buttons are available",
+      "Current week is highlighted"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical", "smoke"]
+  },
+  {
+    "id": "mp-002",
+    "module": "menu-perencanaan",
+    "scenario": "Create new menu",
+    "steps": [
+      "Navigate to Menu Perencanaan",
+      "Click 'Buat Menu Baru' button",
+      "Fill in menu details",
+      "Submit form"
+    ],
+    "expectedResults": [
+      "Menu creation form is displayed",
+      "Form fields are editable",
+      "Menu is created successfully",
+      "Success message is shown"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "mp-003",
+    "module": "menu-perencanaan",
+    "scenario": "Duplicate last week's menu",
+    "steps": [
+      "Navigate to Menu Perencanaan",
+      "Click 'Duplikat Minggu Lalu' button",
+      "Confirm duplication",
+      "Verify menus are copied"
+    ],
+    "expectedResults": [
+      "Confirmation dialog is shown",
+      "Previous week's menus are copied to current week",
+      "Success message is displayed",
+      "Calendar is updated with duplicated menus"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["high"]
+  },
+  {
+    "id": "mp-004",
+    "module": "menu-perencanaan",
+    "scenario": "Add menu to specific day",
+    "steps": [
+      "Navigate to Menu Perencanaan",
+      "Select a specific day",
+      "Click 'Tambah Menu' button for that day",
+      "Fill in menu details",
+      "Save menu"
+    ],
+    "expectedResults": [
+      "Menu form is displayed for selected day",
+      "Menu is added to the correct day",
+      "Calendar is updated",
+      "Menu appears in day's slot"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["critical"]
+  },
+  {
+    "id": "mp-005",
+    "module": "menu-perencanaan",
+    "scenario": "Navigate between weeks",
+    "steps": [
+      "Navigate to Menu Perencanaan",
+      "Note current week",
+      "Click next week navigation",
+      "Verify week changes",
+      "Click previous week navigation"
+    ],
+    "expectedResults": [
+      "Week navigation controls are visible",
+      "Calendar updates to show next week",
+      "Week label changes correctly",
+      "Can navigate back to previous week"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  },
+  {
+    "id": "mp-006",
+    "module": "menu-perencanaan",
+    "scenario": "View menu details",
+    "steps": [
+      "Navigate to Menu Perencanaan",
+      "Click on an existing menu",
+      "View menu details",
+      "Verify all information is displayed"
+    ],
+    "expectedResults": [
+      "Menu detail view opens",
+      "All menu information is visible",
+      "Ingredients and portions are shown",
+      "Can close detail view"
+    ],
+    "actualResults": [],
+    "status": "not_run",
+    "lastExecuted": null,
+    "executionTime": null,
+    "tags": ["medium"]
+  }
+]
