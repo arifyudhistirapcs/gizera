@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/erp-sppg/backend/internal/middleware"
 	"github.com/erp-sppg/backend/internal/models"
 	"github.com/erp-sppg/backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -14,12 +15,14 @@ import (
 
 // MenuPlanningHandler handles menu planning endpoints
 type MenuPlanningHandler struct {
+	db                  *gorm.DB
 	menuPlanningService *services.MenuPlanningService
 }
 
 // NewMenuPlanningHandler creates a new menu planning handler
 func NewMenuPlanningHandler(db *gorm.DB) *MenuPlanningHandler {
 	return &MenuPlanningHandler{
+		db:                  db,
 		menuPlanningService: services.NewMenuPlanningService(db),
 	}
 }
@@ -94,7 +97,13 @@ func (h *MenuPlanningHandler) CreateMenuPlan(c *gin.Context) {
 			CreatedBy: userID.(uint),
 		}
 
-		if err := h.menuPlanningService.CreateEmptyMenuPlan(menuPlan); err != nil {
+		// Auto-inject sppg_id for SPPG-level roles
+		if sppgID, ok := middleware.GetTenantSPPGID(c); ok {
+			menuPlan.SPPGID = &sppgID
+		}
+
+		scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+		if err := scopedService.CreateEmptyMenuPlan(menuPlan); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success":    false,
 				"error_code": "INTERNAL_ERROR",
@@ -131,8 +140,9 @@ func (h *MenuPlanningHandler) CreateMenuPlan(c *gin.Context) {
 		})
 	}
 
-	// Create menu plan
-	menuPlan, err := h.menuPlanningService.CreateWeeklyPlan(weekStart, menuItems, userID.(uint))
+	// Create menu plan with tenant-scoped DB
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	menuPlan, err := scopedService.CreateWeeklyPlan(weekStart, menuItems, userID.(uint))
 	if err != nil {
 		if err == services.ErrDailyNutritionInsufficient {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -170,7 +180,8 @@ func (h *MenuPlanningHandler) GetMenuPlan(c *gin.Context) {
 		return
 	}
 
-	menuPlan, err := h.menuPlanningService.GetMenuPlanByID(uint(id))
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	menuPlan, err := scopedService.GetMenuPlanByID(uint(id))
 	if err != nil {
 		if err == services.ErrMenuPlanNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -197,7 +208,8 @@ func (h *MenuPlanningHandler) GetMenuPlan(c *gin.Context) {
 
 // GetAllMenuPlans retrieves all menu plans
 func (h *MenuPlanningHandler) GetAllMenuPlans(c *gin.Context) {
-	menuPlans, err := h.menuPlanningService.GetAllMenuPlans()
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	menuPlans, err := scopedService.GetAllMenuPlans()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -228,7 +240,8 @@ func (h *MenuPlanningHandler) GetAllMenuPlans(c *gin.Context) {
 
 // GetCurrentWeekMenuPlan retrieves the current week's menu plan
 func (h *MenuPlanningHandler) GetCurrentWeekMenuPlan(c *gin.Context) {
-	menuPlan, err := h.menuPlanningService.GetCurrentWeekMenuPlan()
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	menuPlan, err := scopedService.GetCurrentWeekMenuPlan()
 	if err != nil {
 		if err == services.ErrMenuPlanNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -298,8 +311,9 @@ func (h *MenuPlanningHandler) UpdateMenuPlan(c *gin.Context) {
 		})
 	}
 
-	// Update menu plan
-	if err := h.menuPlanningService.UpdateMenuPlan(uint(id), menuItems); err != nil {
+	// Update menu plan with tenant-scoped DB
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.UpdateMenuPlan(uint(id), menuItems); err != nil {
 		if err == services.ErrMenuPlanNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -356,8 +370,9 @@ func (h *MenuPlanningHandler) ApproveMenuPlan(c *gin.Context) {
 	// Get user ID from context
 	userID, _ := c.Get("user_id")
 
-	// Approve menu plan
-	if err := h.menuPlanningService.ApproveMenu(uint(id), userID.(uint)); err != nil {
+	// Approve menu plan with tenant-scoped DB
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.ApproveMenu(uint(id), userID.(uint)); err != nil {
 		log.Printf("ApproveMenuPlan: Service error: %v", err)
 		if err == services.ErrMenuPlanNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -439,8 +454,9 @@ func (h *MenuPlanningHandler) DuplicateMenuPlan(c *gin.Context) {
 	// Get user ID from context
 	userID, _ := c.Get("user_id")
 
-	// Duplicate menu plan
-	menuPlan, err := h.menuPlanningService.DuplicateMenuPlan(uint(id), weekStart, userID.(uint))
+	// Duplicate menu plan with tenant-scoped DB
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	menuPlan, err := scopedService.DuplicateMenuPlan(uint(id), weekStart, userID.(uint))
 	if err != nil {
 		if err == services.ErrMenuPlanNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -478,7 +494,8 @@ func (h *MenuPlanningHandler) GetDailyNutrition(c *gin.Context) {
 		return
 	}
 
-	dailyNutrition, err := h.menuPlanningService.CalculateDailyNutrition(uint(id))
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	dailyNutrition, err := scopedService.CalculateDailyNutrition(uint(id))
 	if err != nil {
 		if err == services.ErrMenuPlanNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -515,7 +532,8 @@ func (h *MenuPlanningHandler) GetIngredientRequirements(c *gin.Context) {
 		return
 	}
 
-	requirements, err := h.menuPlanningService.CalculateIngredientRequirements(uint(id))
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	requirements, err := scopedService.CalculateIngredientRequirements(uint(id))
 	if err != nil {
 		if err == services.ErrMenuPlanNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -608,8 +626,9 @@ func (h *MenuPlanningHandler) CreateMenuItem(c *gin.Context) {
 		SchoolAllocations: serviceAllocations,
 	}
 
-	// Call service to create menu item with allocations
-	menuItem, err := h.menuPlanningService.CreateMenuItemWithAllocations(uint(menuPlanID), input)
+	// Call service to create menu item with allocations (tenant-scoped)
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	menuItem, err := scopedService.CreateMenuItemWithAllocations(uint(menuPlanID), input)
 	if err != nil {
 		// Handle validation errors with 400 Bad Request
 		errMsg := err.Error()
@@ -707,8 +726,9 @@ func (h *MenuPlanningHandler) GetMenuItem(c *gin.Context) {
 		return
 	}
 
-	// Call service to get menu item with allocations
-	menuItem, err := h.menuPlanningService.GetMenuItemWithAllocations(uint(itemID))
+	// Call service to get menu item with allocations (tenant-scoped)
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	menuItem, err := scopedService.GetMenuItemWithAllocations(uint(itemID))
 	if err != nil {
 		// Check if it's a not found error
 		errMsg := err.Error()
@@ -741,7 +761,7 @@ func (h *MenuPlanningHandler) GetMenuItem(c *gin.Context) {
 	}
 
 	// Get school allocations with portion sizes grouped by school
-	allocationsDisplay, err := h.menuPlanningService.GetSchoolAllocationsWithPortionSizes(uint(itemID))
+	allocationsDisplay, err := scopedService.GetSchoolAllocationsWithPortionSizes(uint(itemID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -846,8 +866,9 @@ func (h *MenuPlanningHandler) UpdateMenuItem(c *gin.Context) {
 		SchoolAllocations: serviceAllocations,
 	}
 
-	// Call service to update menu item with allocations
-	menuItem, err := h.menuPlanningService.UpdateMenuItemWithAllocations(uint(itemID), input)
+	// Call service to update menu item with allocations (tenant-scoped)
+	scopedSvc := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	menuItem, err := scopedSvc.UpdateMenuItemWithAllocations(uint(itemID), input)
 	if err != nil {
 		log.Printf("UpdateMenuItem: Service error: %v", err)
 		// Handle validation errors with 400 Bad Request
@@ -895,7 +916,7 @@ func (h *MenuPlanningHandler) UpdateMenuItem(c *gin.Context) {
 	}
 
 	// Get school allocations with portion sizes grouped by school
-	allocationsDisplay, err := h.menuPlanningService.GetSchoolAllocationsWithPortionSizes(uint(itemID))
+	allocationsDisplay, err := scopedSvc.GetSchoolAllocationsWithPortionSizes(uint(itemID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -948,8 +969,9 @@ func (h *MenuPlanningHandler) DeleteMenuItem(c *gin.Context) {
 		return
 	}
 
-	// Call service to delete menu item
-	err = h.menuPlanningService.DeleteMenuItem(uint(menuPlanID), uint(itemID))
+	// Call service to delete menu item (tenant-scoped)
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	err = scopedService.DeleteMenuItem(uint(menuPlanID), uint(itemID))
 	if err != nil {
 		// Handle not found errors with 404
 		errMsg := err.Error()
@@ -1018,8 +1040,9 @@ func (h *MenuPlanningHandler) GenerateDeliveryRecords(c *gin.Context) {
 	// Get user ID from context
 	userID, _ := c.Get("user_id")
 
-	// Generate delivery records
-	recordsCreated, err := h.menuPlanningService.GenerateDeliveryRecordsForDate(date, userID.(uint))
+	// Generate delivery records (tenant-scoped)
+	scopedService := h.menuPlanningService.WithDB(getTenantScopedDB(c, h.db))
+	recordsCreated, err := scopedService.GenerateDeliveryRecordsForDate(date, userID.(uint))
 	if err != nil {
 		log.Printf("Error generating delivery records: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -255,7 +255,7 @@ import {
 import HStatCard from '@/components/horizon/HStatCard.vue'
 import KDSDatePicker from '@/components/KDSDatePicker.vue'
 import { getCookingToday, updateCookingStatus } from '@/services/kdsService'
-import { database } from '@/services/firebase'
+import { database, firebasePaths } from '@/services/firebase'
 import { ref as dbRef, onValue, off } from 'firebase/database'
 
 const recipes = ref([])
@@ -368,7 +368,7 @@ const finishCooking = async (recipe) => {
 const setupFirebaseListener = () => {
   cleanupFirebaseListener()
   const dateStr = selectedDate.value.toISOString().split('T')[0]
-  const cookingRef = dbRef(database, `/kds/cooking/${dateStr}`)
+  const cookingRef = dbRef(database, firebasePaths.kdsCooking(dateStr))
 
   firebaseListener = onValue(
     cookingRef,
@@ -401,7 +401,7 @@ const setupFirebaseListener = () => {
 const cleanupFirebaseListener = () => {
   if (firebaseListener) {
     const dateStr = selectedDate.value.toISOString().split('T')[0]
-    const cookingRef = dbRef(database, `/kds/cooking/${dateStr}`)
+    const cookingRef = dbRef(database, firebasePaths.kdsCooking(dateStr))
     off(cookingRef)
     firebaseListener = null
   }

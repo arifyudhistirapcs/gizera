@@ -8,6 +8,7 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/db"
+	fb "github.com/erp-sppg/backend/internal/firebase"
 	"github.com/erp-sppg/backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -166,7 +167,8 @@ func (s *PackingAllocationService) GetPackingAllocations(ctx context.Context, da
 
 	// Get cooking statuses from Firebase to filter only ready recipes
 	dateStr := startOfDay.Format("2006-01-02")
-	firebasePath := fmt.Sprintf("/kds/cooking/%s", dateStr)
+	sppgID := fb.GetSPPGID(ctx)
+	firebasePath := fb.KDSCookingPath(sppgID, dateStr)
 	var cookingData map[string]interface{}
 	err := s.dbClient.NewRef(firebasePath).Get(ctx, &cookingData)
 	if err != nil {
@@ -353,7 +355,7 @@ func (s *PackingAllocationService) GetPackingAllocations(ctx context.Context, da
 	}
 
 	// Get packing statuses from Firebase
-	packingPath := fmt.Sprintf("/kds/packing/%s", dateStr)
+	packingPath := fb.KDSPackingPath(sppgID, dateStr)
 	var packingData map[string]interface{}
 	err = s.dbClient.NewRef(packingPath).Get(ctx, &packingData)
 	if err != nil {
@@ -413,7 +415,8 @@ func (s *PackingAllocationService) UpdatePackingStatus(ctx context.Context, scho
 
 	// Update Firebase with new status
 	today := time.Now().Format("2006-01-02")
-	firebasePath := fmt.Sprintf("/kds/packing/%s/%d", today, schoolID)
+	sppgID := fb.GetSPPGID(ctx)
+	firebasePath := fb.KDSPackingSchoolPath(sppgID, today, schoolID)
 	
 	updateData := map[string]interface{}{
 		"school_id":   schoolID,
@@ -485,7 +488,8 @@ func (s *PackingAllocationService) UpdatePackingStatus(ctx context.Context, scho
 // checkAllSchoolsReady checks if all schools for today are ready and sends notification
 func (s *PackingAllocationService) checkAllSchoolsReady(ctx context.Context) error {
 	today := time.Now().Format("2006-01-02")
-	firebasePath := fmt.Sprintf("/kds/packing/%s", today)
+	sppgID := fb.GetSPPGID(ctx)
+	firebasePath := fb.KDSPackingPath(sppgID, today)
 	
 	var packingData map[string]interface{}
 	err := s.dbClient.NewRef(firebasePath).Get(ctx, &packingData)
@@ -529,7 +533,8 @@ func (s *PackingAllocationService) SyncPackingAllocationsToFirebase(ctx context.
 	}
 
 	dateStr := date.Format("2006-01-02")
-	firebasePath := fmt.Sprintf("/kds/packing/%s", dateStr)
+	sppgID := fb.GetSPPGID(ctx)
+	firebasePath := fb.KDSPackingPath(sppgID, dateStr)
 
 	// Convert to map for Firebase
 	firebaseData := make(map[string]interface{})

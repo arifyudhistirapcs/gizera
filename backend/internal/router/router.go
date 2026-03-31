@@ -67,6 +67,7 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 		protected := v1.Group("")
 		protected.Use(middleware.JWTAuth(cfg.JWTSecret))
 		protected.Use(middleware.SessionTimeoutMiddleware(cfg.SessionTimeoutMinutes))
+		protected.Use(middleware.TenantMiddleware(db))
 		protected.Use(middleware.AuditTrail(db))
 		if cfg.EnableCSRFProtection {
 			protected.Use(middleware.CSRFMiddleware())
@@ -265,6 +266,7 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 			schools := protected.Group("/schools")
 			{
 				schools.GET("", logisticsHandler.GetAllSchools)
+				schools.GET("/map-stats", logisticsHandler.GetSchoolMapStats)
 				schools.POST("", logisticsHandler.CreateSchool)
 				schools.GET("/:id", logisticsHandler.GetSchool)
 				schools.PUT("/:id", logisticsHandler.UpdateSchool)
@@ -442,11 +444,76 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 			}
 			{
 				dashboard.GET("/kepala-sppg", dashboardHandler.GetKepalaSSPGDashboard)
-				dashboard.GET("/kepala-yayasan", dashboardHandler.GetKepalaYayasanDashboard)
 				dashboard.GET("/kpi", dashboardHandler.GetKPIs)
 				dashboard.POST("/sync", dashboardHandler.SyncDashboardToFirebase)
 				dashboard.POST("/export", dashboardHandler.ExportDashboard)
 				dashboard.POST("/clear-firebase", dashboardHandler.ClearFirebaseKDSData)
+			}
+
+			// Aggregated Dashboard routes (multi-tenant)
+			auditService := services.NewAuditTrailService(db)
+			aggregatedDashboardService := services.NewAggregatedDashboardService(db)
+			aggregatedDashboardHandler := handlers.NewAggregatedDashboardHandler(aggregatedDashboardService)
+			{
+				// Kepala Yayasan aggregated dashboard
+				dashboard.GET("/kepala-yayasan",
+					middleware.RequirePermission("dashboard_yayasan"),
+					aggregatedDashboardHandler.GetAggregatedKepalaYayasanDashboard)
+				dashboard.GET("/kepala-yayasan/export",
+					middleware.RequirePermission("dashboard_yayasan"),
+					aggregatedDashboardHandler.ExportKepalaYayasanDashboard)
+
+				// Admin BGN aggregated dashboard
+				dashboard.GET("/admin-bgn",
+					middleware.RequirePermission("dashboard_bgn"),
+					aggregatedDashboardHandler.GetAdminBGNDashboard)
+				dashboard.GET("/admin-bgn/export",
+					middleware.RequirePermission("dashboard_bgn"),
+					aggregatedDashboardHandler.ExportAdminBGNDashboard)
+			}
+
+			// Organization management routes (Yayasan & SPPG CRUD)
+			yayasanService := services.NewYayasanService(db, auditService)
+			sppgService := services.NewSPPGService(db, auditService, yayasanService)
+			orgHandler := handlers.NewOrganizationHandler(yayasanService, sppgService)
+
+			organizations := protected.Group("/organizations")
+			organizations.Use(middleware.RequireRole("superadmin", "admin_bgn"))
+			{
+				// Yayasan routes
+				yayasan := organizations.Group("/yayasan")
+				{
+					yayasan.POST("", orgHandler.CreateYayasan)
+					yayasan.GET("", orgHandler.GetAllYayasan)
+					yayasan.GET("/:id", orgHandler.GetYayasanByID)
+					yayasan.PUT("/:id", orgHandler.UpdateYayasan)
+					yayasan.PATCH("/:id/status", orgHandler.SetYayasanStatus)
+				}
+
+				// SPPG routes
+				sppg := organizations.Group("/sppg")
+				{
+					sppg.POST("", orgHandler.CreateSPPG)
+					sppg.GET("", orgHandler.GetAllSPPG)
+					sppg.GET("/:id", orgHandler.GetSPPGByID)
+					sppg.PUT("/:id", orgHandler.UpdateSPPG)
+					sppg.PATCH("/:id/status", orgHandler.SetSPPGStatus)
+					sppg.PUT("/:id/transfer", orgHandler.TransferSPPG)
+				}
+			}
+
+			// User provisioning routes
+			provisioningService := services.NewProvisioningService(db, auditService)
+			provisioningHandler := handlers.NewProvisioningHandler(provisioningService, db)
+
+			users := protected.Group("/users")
+			users.Use(middleware.RequirePermission("user_provisioning"))
+			{
+				users.POST("", provisioningHandler.CreateUser)
+				users.GET("", provisioningHandler.GetUsers)
+				users.GET("/:id", provisioningHandler.GetUserByID)
+				users.PUT("/:id", provisioningHandler.UpdateUser)
+				users.PATCH("/:id/status", provisioningHandler.SetUserStatus)
 			}
 
 			// Notification routes
@@ -510,6 +577,49 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 				activityTracker.GET("/orders/:id/activity", activityTrackerHandler.GetActivityLog)
 				activityTracker.PUT("/orders/:id/status", activityTrackerHandler.UpdateOrderStatus)
 				activityTracker.POST("/orders/:id/stages/:stage/media", activityTrackerHandler.AttachStageMedia)
+			}
+
+			// Risk Assessment routes
+			snapshotService := services.NewSnapshotService(db, aggregatedDashboardService)
+			riskAssessmentService := services.NewRiskAssessmentService(db, snapshotService)
+			raHandler := handlers.NewRiskAssessmentHandler(riskAssessmentService)
+			riskAssessment := protected.Group("/risk-assessment")
+			{
+				// SOP Template write (superadmin only)
+				sopAdmin := riskAssessment.Group("")
+				sopAdmin.Use(middleware.RequireRole("superadmin"))
+				{
+					sopAdmin.POST("/sop-categories", raHandler.CreateSOPCategory)
+					sopAdmin.PUT("/sop-categories/:id", raHandler.UpdateSOPCategory)
+					sopAdmin.POST("/sop-checklist-items", raHandler.CreateSOPChecklistItem)
+					sopAdmin.PUT("/sop-checklist-items/:id", raHandler.UpdateSOPChecklistItem)
+					sopAdmin.PATCH("/sop-checklist-items/:id/status", raHandler.SetSOPChecklistItemStatus)
+				}
+
+				// SOP Template read (kepala_yayasan + superadmin)
+				riskAssessment.GET("/sop-categories", raHandler.GetSOPCategories)
+				riskAssessment.GET("/sop-checklist-items", raHandler.GetSOPChecklistItems)
+				riskAssessment.GET("/sppg-list",
+					middleware.RequireRole("kepala_yayasan", "superadmin"),
+					raHandler.GetSPPGList)
+
+				// Forms (kepala_yayasan + superadmin)
+				forms := riskAssessment.Group("/forms")
+				forms.Use(middleware.RequireRole("kepala_yayasan", "superadmin"))
+				{
+					forms.POST("", raHandler.CreateForm)
+					forms.GET("", raHandler.GetForms)
+					forms.GET("/:id", raHandler.GetForm)
+					forms.PUT("/:id", raHandler.UpdateDraft)
+					forms.POST("/:id/submit", raHandler.SubmitForm)
+					forms.POST("/:id/evidence", raHandler.UploadEvidence)
+					forms.DELETE("/:id", raHandler.DeleteForm)
+				}
+
+				// Stats
+				riskAssessment.GET("/stats",
+					middleware.RequireRole("kepala_yayasan", "superadmin"),
+					raHandler.GetStats)
 			}
 		}
 	}

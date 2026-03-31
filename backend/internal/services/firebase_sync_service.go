@@ -8,6 +8,7 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/db"
+	fb "github.com/erp-sppg/backend/internal/firebase"
 )
 
 // FirebaseSyncService handles real-time data synchronization with Firebase
@@ -85,21 +86,39 @@ func (s *FirebaseSyncService) UpdateField(ctx context.Context, path string, upda
 	return nil
 }
 
-// PushKDSCookingUpdate pushes cooking status update to Firebase
-func (s *FirebaseSyncService) PushKDSCookingUpdate(ctx context.Context, date string, recipeID uint, data interface{}) error {
-	path := fmt.Sprintf("/kds/cooking/%s/%d", date, recipeID)
+// PushKDSCookingUpdate pushes cooking status update to Firebase (tenant-aware)
+func (s *FirebaseSyncService) PushKDSCookingUpdate(ctx context.Context, sppgID uint, date string, recipeID uint, data interface{}) error {
+	path := fb.KDSCookingRecipePath(sppgID, date, recipeID)
 	return s.PushUpdateWithTimestamp(ctx, path, data)
 }
 
-// PushKDSPackingUpdate pushes packing status update to Firebase
-func (s *FirebaseSyncService) PushKDSPackingUpdate(ctx context.Context, date string, schoolID uint, data interface{}) error {
-	path := fmt.Sprintf("/kds/packing/%s/%d", date, schoolID)
+// PushKDSPackingUpdate pushes packing status update to Firebase (tenant-aware)
+func (s *FirebaseSyncService) PushKDSPackingUpdate(ctx context.Context, sppgID uint, date string, schoolID uint, data interface{}) error {
+	path := fb.KDSPackingSchoolPath(sppgID, date, schoolID)
 	return s.PushUpdateWithTimestamp(ctx, path, data)
 }
 
 // PushDashboardUpdate pushes dashboard data to Firebase
 func (s *FirebaseSyncService) PushDashboardUpdate(ctx context.Context, dashboardType string, data interface{}) error {
 	path := fmt.Sprintf("/dashboard/%s", dashboardType)
+	return s.PushUpdateWithTimestamp(ctx, path, data)
+}
+
+// PushDashboardKepalaSSPGUpdate pushes Kepala SPPG dashboard data to Firebase (tenant-aware)
+func (s *FirebaseSyncService) PushDashboardKepalaSSPGUpdate(ctx context.Context, sppgID uint, data interface{}) error {
+	path := fb.DashboardKepalaSSPGPath(sppgID)
+	return s.PushUpdateWithTimestamp(ctx, path, data)
+}
+
+// PushDashboardKepalaYayasanUpdate pushes Kepala Yayasan dashboard data to Firebase
+func (s *FirebaseSyncService) PushDashboardKepalaYayasanUpdate(ctx context.Context, yayasanID uint, data interface{}) error {
+	path := fb.DashboardKepalaYayasanPath(yayasanID)
+	return s.PushUpdateWithTimestamp(ctx, path, data)
+}
+
+// PushDashboardBGNUpdate pushes BGN dashboard data to Firebase
+func (s *FirebaseSyncService) PushDashboardBGNUpdate(ctx context.Context, data interface{}) error {
+	path := fb.DashboardBGNPath()
 	return s.PushUpdateWithTimestamp(ctx, path, data)
 }
 
@@ -115,6 +134,18 @@ func (s *FirebaseSyncService) PushDeliveryUpdate(ctx context.Context, taskID uin
 	return s.PushUpdateWithTimestamp(ctx, path, data)
 }
 
+// PushMonitoringUpdate pushes monitoring delivery data to Firebase (tenant-aware)
+func (s *FirebaseSyncService) PushMonitoringUpdate(ctx context.Context, sppgID uint, date string, recordID uint, data interface{}) error {
+	path := fb.MonitoringDeliveryRecordPath(sppgID, date, recordID)
+	return s.PushUpdateWithTimestamp(ctx, path, data)
+}
+
+// PushCleaningUpdate pushes cleaning record data to Firebase (tenant-aware)
+func (s *FirebaseSyncService) PushCleaningUpdate(ctx context.Context, sppgID uint, cleaningID uint, data interface{}) error {
+	path := fb.CleaningRecordPath(sppgID, cleaningID)
+	return s.PushUpdateWithTimestamp(ctx, path, data)
+}
+
 // HandleConflict resolves conflicts by using server data (server wins strategy)
 func (s *FirebaseSyncService) HandleConflict(ctx context.Context, path string, serverData interface{}) error {
 	// Server data always wins in conflict resolution
@@ -122,8 +153,9 @@ func (s *FirebaseSyncService) HandleConflict(ctx context.Context, path string, s
 }
 
 // ClearKDSData clears all KDS-related data from Firebase
+// Note: This clears the top-level paths which includes all tenant data
 func (s *FirebaseSyncService) ClearKDSData(ctx context.Context) error {
-	// List of paths to clear
+	// List of top-level paths to clear (clears all tenants)
 	paths := []string{
 		"/kds/cooking",
 		"/kds/packing",
@@ -131,11 +163,31 @@ func (s *FirebaseSyncService) ClearKDSData(ctx context.Context) error {
 		"/delivery_records",
 		"/monitoring",
 		"/activity_tracker",
+		"/cleaning",
 	}
 
 	for _, path := range paths {
 		if err := s.DeletePath(ctx, path); err != nil {
 			// Log error but continue with other paths
+			fmt.Printf("Peringatan: gagal menghapus Firebase path %s: %v\n", path, err)
+		}
+	}
+
+	return nil
+}
+
+// ClearKDSDataForSPPG clears KDS-related data for a specific SPPG tenant
+func (s *FirebaseSyncService) ClearKDSDataForSPPG(ctx context.Context, sppgID uint) error {
+	paths := []string{
+		fmt.Sprintf("/kds/cooking/%d", sppgID),
+		fmt.Sprintf("/kds/packing/%d", sppgID),
+		fmt.Sprintf("/monitoring/%d", sppgID),
+		fmt.Sprintf("/cleaning/%d", sppgID),
+		fb.DashboardKepalaSSPGPath(sppgID),
+	}
+
+	for _, path := range paths {
+		if err := s.DeletePath(ctx, path); err != nil {
 			fmt.Printf("Peringatan: gagal menghapus Firebase path %s: %v\n", path, err)
 		}
 	}

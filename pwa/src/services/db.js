@@ -52,6 +52,40 @@ db.version(5).stores({
   syncLog: '++id, type, action, status, timestamp, details'
 })
 
+// Version 7: Dashboard cache for offline support (multi-tenancy)
+db.version(7).stores({
+  // Delivery tasks cache with complete task information
+  deliveryTasks: '++id, serverId, taskDate, driverId, schoolId, status, routeOrder, portions, menuItems, cachedAt, lastUpdated',
+  
+  // Schools master data cache
+  schools: '++id, serverId, name, address, latitude, longitude, contactPerson, phoneNumber, studentCount, isActive, cachedAt',
+  
+  // e-POD data with enhanced tracking
+  epods: '++id, deliveryTaskId, serverId, latitude, longitude, accuracy, recipientName, omprengDropOff, omprengPickUp, completedAt, syncStatus, retryCount, lastAttempt, createdAt, lastSync',
+  
+  // Attendance records
+  attendance: '++id, employeeId, date, checkIn, checkOut, workHours, ssid, bssid, syncStatus, createdAt',
+  
+  // Legacy support
+  offlineUpdates: '++id, taskId, type, timestamp',
+  
+  // Media files storage
+  photos: '++id, taskId, epodId, photoData, timestamp, synced, syncedAt, photoUrl, fileSize',
+  signatures: '++id, taskId, epodId, signatureData, quality, timestamp, synced, syncedAt, signatureUrl, fileSize',
+  
+  // Enhanced sync queue with conflict resolution
+  syncQueue: '++id, type, data, status, retryCount, lastAttempt, createdAt, priority, errorMessage, conflictData',
+  
+  // Comprehensive sync logging
+  syncLog: '++id, type, action, status, timestamp, details, duration, dataSize',
+  
+  // Sync metadata and configuration
+  syncMeta: '++id, key, value, updatedAt',
+
+  // Dashboard cache for offline support (Yayasan & BGN dashboards)
+  dashboardCache: '++id, &cacheKey, data, cachedAt'
+})
+
 // Version 6: Enhanced offline sync schema for PWA requirements
 db.version(6).stores({
   // Delivery tasks cache with complete task information
@@ -81,6 +115,28 @@ db.version(6).stores({
   
   // Sync metadata and configuration
   syncMeta: '++id, key, value, updatedAt'
+})
+
+// Version 8: Risk Assessment offline support stores
+db.version(8).stores({
+  // Existing stores (carried forward)
+  deliveryTasks: '++id, serverId, taskDate, driverId, schoolId, status, routeOrder, portions, menuItems, cachedAt, lastUpdated',
+  schools: '++id, serverId, name, address, latitude, longitude, contactPerson, phoneNumber, studentCount, isActive, cachedAt',
+  epods: '++id, deliveryTaskId, serverId, latitude, longitude, accuracy, recipientName, omprengDropOff, omprengPickUp, completedAt, syncStatus, retryCount, lastAttempt, createdAt, lastSync',
+  attendance: '++id, employeeId, date, checkIn, checkOut, workHours, ssid, bssid, syncStatus, createdAt',
+  offlineUpdates: '++id, taskId, type, timestamp',
+  photos: '++id, taskId, epodId, photoData, timestamp, synced, syncedAt, photoUrl, fileSize',
+  signatures: '++id, taskId, epodId, signatureData, quality, timestamp, synced, syncedAt, signatureUrl, fileSize',
+  syncQueue: '++id, type, data, status, retryCount, lastAttempt, createdAt, priority, errorMessage, conflictData',
+  syncLog: '++id, type, action, status, timestamp, details, duration, dataSize',
+  syncMeta: '++id, key, value, updatedAt',
+  dashboardCache: '++id, &cacheKey, data, cachedAt',
+
+  // Risk Assessment draft forms saved locally
+  riskAssessmentDrafts: '++id, &formId, sppgId, status, syncStatus, updatedAt',
+
+  // Risk Assessment API response cache
+  riskAssessmentCache: '++id, &cacheKey, data, cachedAt'
 })
 
 // Storage service class for managing offline data
@@ -514,5 +570,63 @@ class OfflineStorageService {
 // Create storage service instance
 const storageService = new OfflineStorageService()
 
+// === Dashboard Cache Helpers (for offline support) ===
+
+/**
+ * Cache dashboard data to IndexedDB for offline access.
+ * @param {string} cacheKey - Unique key (e.g. 'yayasan_dashboard_all', 'bgn_dashboard_3_5')
+ * @param {Object} data - Dashboard data to cache
+ */
+async function cacheDashboardData(cacheKey, data) {
+  try {
+    const existing = await db.dashboardCache.where('cacheKey').equals(cacheKey).first()
+    const record = {
+      cacheKey,
+      data: JSON.stringify(data),
+      cachedAt: new Date().toISOString()
+    }
+    if (existing) {
+      await db.dashboardCache.update(existing.id, record)
+    } else {
+      await db.dashboardCache.add(record)
+    }
+  } catch (e) {
+    console.warn('[DB] Failed to cache dashboard data:', e)
+  }
+}
+
+/**
+ * Retrieve cached dashboard data from IndexedDB.
+ * @param {string} cacheKey - Unique key
+ * @returns {Object|null} Cached data or null
+ */
+async function getCachedDashboardData(cacheKey) {
+  try {
+    const record = await db.dashboardCache.where('cacheKey').equals(cacheKey).first()
+    if (record) {
+      return JSON.parse(record.data)
+    }
+  } catch (e) {
+    console.warn('[DB] Failed to get cached dashboard data:', e)
+  }
+  return null
+}
+
+/**
+ * Setup auto-sync: when coming back online, refresh dashboard data.
+ * Call this once at app startup.
+ * @param {Function} refreshCallback - Function to call when online again
+ */
+function setupOnlineSync(refreshCallback) {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('online', () => {
+      console.log('[DB] Back online — triggering dashboard sync')
+      if (typeof refreshCallback === 'function') {
+        refreshCallback()
+      }
+    })
+  }
+}
+
 export default db
-export { storageService }
+export { storageService, cacheDashboardData, getCachedDashboardData, setupOnlineSync }

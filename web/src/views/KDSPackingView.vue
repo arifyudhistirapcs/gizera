@@ -340,7 +340,7 @@ import HStatCard from '@/components/horizon/HStatCard.vue'
 import HKanbanCard from '@/components/horizon/HKanbanCard.vue'
 import KDSDatePicker from '@/components/KDSDatePicker.vue'
 import { getPackingToday, updatePackingStatus } from '@/services/kdsService'
-import { database } from '@/services/firebase'
+import { database, firebasePaths } from '@/services/firebase'
 import { ref as dbRef, onValue, off } from 'firebase/database'
 
 const schools = ref([])
@@ -446,7 +446,7 @@ const setupFirebaseListener = () => {
   cleanupFirebaseListener()
   
   const dateStr = selectedDate.value.toISOString().split('T')[0]
-  const packingRef = dbRef(database, `/kds/packing/${dateStr}`)
+  const packingRef = dbRef(database, firebasePaths.kdsPacking(dateStr))
   
   firebaseListener = onValue(
     packingRef,
@@ -481,7 +481,7 @@ const setupFirebaseListener = () => {
 
 // Setup Firebase listener for notifications
 const setupNotificationListener = () => {
-  const notificationRef = dbRef(database, '/notifications/logistics/packing_complete')
+  const notificationRef = dbRef(database, firebasePaths.notifications('logistics/packing_complete'))
   
   notificationListener = onValue(
     notificationRef,
@@ -512,7 +512,7 @@ const setupNotificationListener = () => {
 const cleanupFirebaseListener = () => {
   if (firebaseListener) {
     const dateStr = selectedDate.value.toISOString().split('T')[0]
-    const packingRef = dbRef(database, `/kds/packing/${dateStr}`)
+    const packingRef = dbRef(database, firebasePaths.kdsPacking(dateStr))
     off(packingRef)
     firebaseListener = null
   }
@@ -521,7 +521,7 @@ const cleanupFirebaseListener = () => {
 // Cleanup notification listener
 const cleanupNotificationListener = () => {
   if (notificationListener) {
-    const notificationRef = dbRef(database, '/notifications/logistics/packing_complete')
+    const notificationRef = dbRef(database, firebasePaths.notifications('logistics/packing_complete'))
     off(notificationRef)
     notificationListener = null
   }

@@ -9,6 +9,17 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!token.value)
   const schoolId = computed(() => user.value?.schoolId ?? null)
 
+  // Tenant context
+  const sppgId = computed(() => user.value?.sppg_id ?? null)
+  const yayasanId = computed(() => user.value?.yayasan_id ?? null)
+  const userRole = computed(() => user.value?.role?.toLowerCase() ?? null)
+
+  // Role checks
+  const isAdminBGN = computed(() => userRole.value === 'admin_bgn')
+  const isKepalaYayasan = computed(() => userRole.value === 'kepala_yayasan')
+  const isSuperadmin = computed(() => userRole.value === 'superadmin')
+  const isKepalaSPPG = computed(() => userRole.value === 'kepala_sppg')
+
   function setAuth(userData, authToken) {
     user.value = userData
     token.value = authToken
@@ -65,6 +76,13 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     isAuthenticated,
     schoolId,
+    sppgId,
+    yayasanId,
+    userRole,
+    isAdminBGN,
+    isKepalaYayasan,
+    isSuperadmin,
+    isKepalaSPPG,
     setAuth,
     clearAuth,
     login,

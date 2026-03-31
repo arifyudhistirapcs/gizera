@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	fb "github.com/erp-sppg/backend/internal/firebase"
 	"github.com/erp-sppg/backend/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -60,7 +61,7 @@ func parseDateParameter(c *gin.Context) (time.Time, error) {
 // GetCookingToday retrieves today's cooking menu
 // GET /api/v1/kds/cooking/today
 func (h *KDSHandler) GetCookingToday(c *gin.Context) {
-	ctx := c.Request.Context()
+	ctx := fb.InjectSPPGIDFromGin(c, c.Request.Context())
 
 	// Parse and validate date parameter
 	date, err := parseDateParameter(c)
@@ -94,7 +95,7 @@ func (h *KDSHandler) GetCookingToday(c *gin.Context) {
 // UpdateCookingStatus updates the cooking status of a recipe
 // PUT /api/v1/kds/cooking/:recipe_id/status
 func (h *KDSHandler) UpdateCookingStatus(c *gin.Context) {
-	ctx := c.Request.Context()
+	ctx := fb.InjectSPPGIDFromGin(c, c.Request.Context())
 
 	// Get recipe ID from URL
 	recipeIDStr := c.Param("recipe_id")
@@ -175,7 +176,7 @@ func (h *KDSHandler) UpdateCookingStatus(c *gin.Context) {
 // GetPackingToday retrieves today's packing allocations
 // GET /api/v1/kds/packing/today
 func (h *KDSHandler) GetPackingToday(c *gin.Context) {
-	ctx := c.Request.Context()
+	ctx := fb.InjectSPPGIDFromGin(c, c.Request.Context())
 
 	// Parse and validate date parameter
 	date, err := parseDateParameter(c)
@@ -209,7 +210,7 @@ func (h *KDSHandler) GetPackingToday(c *gin.Context) {
 // UpdatePackingStatus updates the packing status for a school
 // PUT /api/v1/kds/packing/:school_id/status
 func (h *KDSHandler) UpdatePackingStatus(c *gin.Context) {
-	ctx := c.Request.Context()
+	ctx := fb.InjectSPPGIDFromGin(c, c.Request.Context())
 
 	// Get school ID from URL
 	schoolIDStr := c.Param("school_id")
@@ -269,7 +270,7 @@ func (h *KDSHandler) UpdatePackingStatus(c *gin.Context) {
 // SyncCookingToFirebase manually syncs today's cooking menu to Firebase
 // POST /api/v1/kds/cooking/sync
 func (h *KDSHandler) SyncCookingToFirebase(c *gin.Context) {
-	ctx := c.Request.Context()
+	ctx := fb.InjectSPPGIDFromGin(c, c.Request.Context())
 
 	// Get current date for sync operation
 	date, err := parseDateParameter(c)
@@ -303,7 +304,7 @@ func (h *KDSHandler) SyncCookingToFirebase(c *gin.Context) {
 // SyncPackingToFirebase manually syncs today's packing allocations to Firebase
 // POST /api/v1/kds/packing/sync
 func (h *KDSHandler) SyncPackingToFirebase(c *gin.Context) {
-	ctx := c.Request.Context()
+	ctx := fb.InjectSPPGIDFromGin(c, c.Request.Context())
 
 	// Get current date for sync operation
 	date, err := parseDateParameter(c)

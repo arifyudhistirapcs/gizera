@@ -99,8 +99,9 @@ func (s *SupplierService) UpdateSupplier(id uint, updates *models.Supplier) erro
 		"phone_number":     updates.PhoneNumber,
 		"email":            updates.Email,
 		"address":          updates.Address,
+		"latitude":         updates.Latitude,
+		"longitude":        updates.Longitude,
 		"product_category": updates.ProductCategory,
-		"is_active":        updates.IsActive,
 		"updated_at":       time.Now(),
 	}).Error
 }
@@ -343,9 +344,12 @@ func (s *SupplierService) GetSupplierStats() (*SupplierStats, error) {
 	}
 
 	var topSupplierStats []SupplierOrderStats
-	if err := s.db.Model(&models.PurchaseOrder{}).
+	// Use NewDB session to avoid tenant scope adding ambiguous sppg_id
+	rawDB := s.db.Session(&gorm.Session{NewDB: true})
+	if err := rawDB.Table("purchase_orders").
 		Select("suppliers.id as supplier_id, suppliers.name as supplier_name, COUNT(purchase_orders.id) as order_count, COALESCE(SUM(purchase_orders.total_amount), 0) as total_amount").
 		Joins("JOIN suppliers ON suppliers.id = purchase_orders.supplier_id").
+		Where("purchase_orders.sppg_id = suppliers.sppg_id").
 		Where("purchase_orders.status IN ?", []string{"approved", "received"}).
 		Group("suppliers.id, suppliers.name").
 		Order("total_amount DESC, order_count DESC").

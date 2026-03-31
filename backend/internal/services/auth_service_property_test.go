@@ -24,7 +24,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	}
 
 	// Auto-migrate the schema
-	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(&models.Yayasan{}, &models.SPPG{}, &models.User{})
 	if err != nil {
 		t.Fatalf("Failed to migrate schema: %v", err)
 	}

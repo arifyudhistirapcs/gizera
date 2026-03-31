@@ -7,6 +7,7 @@ import (
 // School represents a school that receives food deliveries
 type School struct {
 	ID                   uint      `gorm:"primaryKey" json:"id"`
+	SPPGID               *uint     `gorm:"index" json:"sppg_id"`
 	Name                 string    `gorm:"size:200;not null;index" json:"name" validate:"required"`
 	Address              string    `gorm:"type:text" json:"address"`
 	Latitude             float64   `gorm:"not null" json:"latitude" validate:"required,min=-90,max=90"`
@@ -32,6 +33,7 @@ type School struct {
 // DeliveryTask represents a delivery assignment for a driver
 type DeliveryTask struct {
 	ID           uint               `gorm:"primaryKey" json:"id"`
+	SPPGID       *uint              `gorm:"index" json:"sppg_id"`
 	TaskDate     time.Time          `gorm:"index;not null" json:"task_date"`
 	DriverID     uint               `gorm:"index;not null" json:"driver_id"`
 	SchoolID     uint               `gorm:"index;not null" json:"school_id"`
@@ -74,6 +76,7 @@ type ElectronicPOD struct {
 // OmprengTracking tracks ompreng (food container) circulation
 type OmprengTracking struct {
 	ID         uint      `gorm:"primaryKey" json:"id"`
+	SPPGID     *uint     `gorm:"index" json:"sppg_id"`
 	SchoolID   uint      `gorm:"index;not null" json:"school_id"`
 	Date       time.Time `gorm:"index;not null" json:"date"`
 	DropOff    int       `gorm:"not null" json:"drop_off" validate:"gte=0"`
@@ -88,6 +91,7 @@ type OmprengTracking struct {
 // OmprengInventory tracks global ompreng inventory
 type OmprengInventory struct {
 	ID            uint      `gorm:"primaryKey" json:"id"`
+	SPPGID        *uint     `gorm:"index" json:"sppg_id"`
 	TotalOwned    int       `gorm:"not null" json:"total_owned" validate:"gte=0"`    // total ompreng owned by SPPG
 	AtKitchen     int       `gorm:"not null" json:"at_kitchen" validate:"gte=0"`     // currently at central kitchen
 	InCirculation int       `gorm:"not null" json:"in_circulation" validate:"gte=0"` // currently at schools
@@ -98,6 +102,7 @@ type OmprengInventory struct {
 // DeliveryRecord represents a delivery record tracking menu delivery and ompreng lifecycle
 type DeliveryRecord struct {
 	ID            uint      `gorm:"primaryKey" json:"id"`
+	SPPGID        *uint     `gorm:"index" json:"sppg_id"`
 	DeliveryDate  time.Time `gorm:"index;not null" json:"delivery_date"`
 	SchoolID      uint      `gorm:"index;not null" json:"school_id"`
 	DriverID      *uint     `gorm:"index" json:"driver_id"` // Nullable - driver assigned at stage 4
@@ -138,6 +143,7 @@ type StatusTransition struct {
 // OmprengCleaning represents ompreng cleaning tracking
 type OmprengCleaning struct {
 	ID               uint           `gorm:"primaryKey" json:"id"`
+	SPPGID           *uint          `gorm:"index" json:"sppg_id"`
 	DeliveryRecordID uint           `gorm:"index;not null" json:"delivery_record_id"`
 	OmprengCount     int            `gorm:"not null" json:"ompreng_count"`
 	CleaningStatus   string         `gorm:"size:30;not null" json:"cleaning_status"`
@@ -153,6 +159,7 @@ type OmprengCleaning struct {
 // PickupTask represents a pickup assignment for a driver to collect ompreng from one or more schools
 type PickupTask struct {
 	ID              uint             `gorm:"primaryKey" json:"id"`
+	SPPGID          *uint            `gorm:"index" json:"sppg_id"`
 	TaskDate        time.Time        `gorm:"index;not null" json:"task_date"`
 	DriverID        uint             `gorm:"index;not null" json:"driver_id"`
 	Status          string           `gorm:"size:20;not null;index" json:"status"` // active, completed, cancelled
@@ -174,6 +181,7 @@ type DailySummary struct {
 // DeliveryReview represents a review/rating from school for delivery service
 type DeliveryReview struct {
 	ID               uint           `gorm:"primaryKey" json:"id"`
+	SPPGID           *uint          `gorm:"index" json:"sppg_id"`
 	DeliveryRecordID uint           `gorm:"uniqueIndex;not null" json:"delivery_record_id"`
 	SchoolID         uint           `gorm:"index;not null" json:"school_id"`
 	ReviewerName     string         `gorm:"size:100" json:"reviewer_name"`

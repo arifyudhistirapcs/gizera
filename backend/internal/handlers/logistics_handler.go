@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/erp-sppg/backend/internal/middleware"
 	"github.com/erp-sppg/backend/internal/models"
 	"github.com/erp-sppg/backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ import (
 
 // LogisticsHandler handles logistics and distribution endpoints
 type LogisticsHandler struct {
+	db                     *gorm.DB
 	schoolService          *services.SchoolService
 	deliveryTaskService    *services.DeliveryTaskService
 	epodService            *services.EPODService
@@ -27,6 +29,7 @@ type LogisticsHandler struct {
 // NewLogisticsHandler creates a new logistics handler
 func NewLogisticsHandler(db *gorm.DB) *LogisticsHandler {
 	return &LogisticsHandler{
+		db:                     db,
 		schoolService:          services.NewSchoolService(db),
 		deliveryTaskService:    services.NewDeliveryTaskService(db),
 		epodService:            services.NewEPODService(db),
@@ -90,7 +93,13 @@ func (h *LogisticsHandler) CreateSchool(c *gin.Context) {
 		CooperationLetterURL: req.CooperationLetterURL,
 	}
 
-	if err := h.schoolService.CreateSchool(school); err != nil {
+	// Auto-inject sppg_id for SPPG-level roles
+	if sppgID, ok := middleware.GetTenantSPPGID(c); ok {
+		school.SPPGID = &sppgID
+	}
+
+	scopedService := h.schoolService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateSchool(school); err != nil {
 		if err == services.ErrDuplicateSchool {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success":    false,
@@ -127,7 +136,8 @@ func (h *LogisticsHandler) GetSchool(c *gin.Context) {
 		return
 	}
 
-	school, err := h.schoolService.GetSchoolByID(uint(id))
+	scopedService := h.schoolService.WithDB(getTenantScopedDB(c, h.db))
+	school, err := scopedService.GetSchoolByID(uint(id))
 	if err != nil {
 		if err == services.ErrSchoolNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -157,13 +167,14 @@ func (h *LogisticsHandler) GetAllSchools(c *gin.Context) {
 	activeOnly := c.DefaultQuery("active_only", "true") == "true"
 	query := c.Query("q")
 
+	scopedService := h.schoolService.WithDB(getTenantScopedDB(c, h.db))
 	var schools []models.School
 	var err error
 
 	if query != "" {
-		schools, err = h.schoolService.SearchSchools(query, activeOnly)
+		schools, err = scopedService.SearchSchools(query, activeOnly)
 	} else {
-		schools, err = h.schoolService.GetAllSchools(activeOnly)
+		schools, err = scopedService.GetAllSchools(activeOnly)
 	}
 
 	if err != nil {
@@ -224,7 +235,8 @@ func (h *LogisticsHandler) UpdateSchool(c *gin.Context) {
 		CooperationLetterURL: req.CooperationLetterURL,
 	}
 
-	if err := h.schoolService.UpdateSchool(uint(id), school); err != nil {
+	scopedService := h.schoolService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.UpdateSchool(uint(id), school); err != nil {
 		if err == services.ErrSchoolNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -269,7 +281,8 @@ func (h *LogisticsHandler) DeleteSchool(c *gin.Context) {
 		return
 	}
 
-	if err := h.schoolService.DeleteSchool(uint(id)); err != nil {
+	scopedService := h.schoolService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.DeleteSchool(uint(id)); err != nil {
 		if err == services.ErrSchoolNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -439,7 +452,8 @@ func (h *LogisticsHandler) GetDeliveryTask(c *gin.Context) {
 		return
 	}
 
-	task, err := h.deliveryTaskService.GetDeliveryTaskByID(uint(id))
+	scopedService := h.deliveryTaskService.WithDB(getTenantScopedDB(c, h.db))
+	task, err := scopedService.GetDeliveryTaskByID(uint(id))
 	if err != nil {
 		if err == services.ErrDeliveryTaskNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -484,7 +498,8 @@ func (h *LogisticsHandler) GetAllDeliveryTasks(c *gin.Context) {
 		}
 	}
 
-	tasks, err := h.deliveryTaskService.GetAllDeliveryTasks(driverID, status, date)
+	scopedService := h.deliveryTaskService.WithDB(getTenantScopedDB(c, h.db))
+	tasks, err := scopedService.GetAllDeliveryTasks(driverID, status, date)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -512,7 +527,8 @@ func (h *LogisticsHandler) GetDriverTasksToday(c *gin.Context) {
 		return
 	}
 
-	tasks, err := h.deliveryTaskService.GetDriverTasksForToday(uint(driverID))
+	scopedService := h.deliveryTaskService.WithDB(getTenantScopedDB(c, h.db))
+	tasks, err := scopedService.GetDriverTasksForToday(uint(driverID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -556,7 +572,8 @@ func (h *LogisticsHandler) UpdateDeliveryTaskStatus(c *gin.Context) {
 		return
 	}
 
-	if err := h.deliveryTaskService.UpdateDeliveryTaskStatus(uint(id), req.Status); err != nil {
+	scopedService := h.deliveryTaskService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.UpdateDeliveryTaskStatus(uint(id), req.Status); err != nil {
 		if err == services.ErrDeliveryTaskNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -678,7 +695,8 @@ func (h *LogisticsHandler) DeleteDeliveryTask(c *gin.Context) {
 		return
 	}
 
-	if err := h.deliveryTaskService.DeleteDeliveryTask(uint(id)); err != nil {
+	scopedService := h.deliveryTaskService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.DeleteDeliveryTask(uint(id)); err != nil {
 		if err == services.ErrDeliveryTaskNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -724,7 +742,8 @@ func (h *LogisticsHandler) GetReadyOrders(c *gin.Context) {
 		return
 	}
 
-	orders, err := h.deliveryTaskService.GetReadyOrders(date)
+	scopedService := h.deliveryTaskService.WithDB(getTenantScopedDB(c, h.db))
+	orders, err := scopedService.GetReadyOrders(date)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -762,7 +781,8 @@ func (h *LogisticsHandler) GetAvailableDrivers(c *gin.Context) {
 		return
 	}
 
-	drivers, err := h.deliveryTaskService.GetAvailableDrivers(date)
+	scopedService := h.deliveryTaskService.WithDB(getTenantScopedDB(c, h.db))
+	drivers, err := scopedService.GetAvailableDrivers(date)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -1458,5 +1478,81 @@ func (h *LogisticsHandler) DeleteCooperationLetter(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "File berhasil dihapus",
+	})
+}
+
+// SchoolMapStat represents per-school delivery and review statistics for the map
+type SchoolMapStat struct {
+	SchoolID       uint    `json:"school_id"`
+	PortionsSmall  int     `json:"portions_small"`
+	PortionsLarge  int     `json:"portions_large"`
+	TotalDelivered int     `json:"total_delivered"`
+	TotalReviews   int     `json:"total_reviews"`
+	AvgRating      float64 `json:"avg_rating"`
+}
+
+// GetSchoolMapStats returns per-school delivery and review stats (all-time, completed deliveries only)
+// GET /api/v1/schools/map-stats
+func (h *LogisticsHandler) GetSchoolMapStats(c *gin.Context) {
+	scopedDB := getTenantScopedDB(c, h.db)
+
+	// Aggregate delivery_records per school (only completed: current_status in received/completed stages)
+	type deliveryStat struct {
+		SchoolID      uint `gorm:"column:school_id"`
+		PortionsSmall int  `gorm:"column:portions_small"`
+		PortionsLarge int  `gorm:"column:portions_large"`
+		TotalPortions int  `gorm:"column:total_portions"`
+	}
+	var deliveryStats []deliveryStat
+	scopedDB.Model(&models.DeliveryRecord{}).
+		Select("school_id, COALESCE(SUM(portions_small), 0) as portions_small, COALESCE(SUM(portions_large), 0) as portions_large, COALESCE(SUM(portions), 0) as total_portions").
+		Where("current_stage >= 8"). // stage 8+ means delivered/received
+		Group("school_id").
+		Find(&deliveryStats)
+
+	// Aggregate reviews per school
+	type reviewStat struct {
+		SchoolID     uint    `gorm:"column:school_id"`
+		TotalReviews int     `gorm:"column:total_reviews"`
+		AvgRating    float64 `gorm:"column:avg_rating"`
+	}
+	var reviewStats []reviewStat
+	scopedDB.Model(&models.DeliveryReview{}).
+		Select("school_id, COUNT(*) as total_reviews, COALESCE(AVG(overall_rating), 0) as avg_rating").
+		Group("school_id").
+		Find(&reviewStats)
+
+	// Merge into map
+	statsMap := make(map[uint]*SchoolMapStat)
+	for _, d := range deliveryStats {
+		statsMap[d.SchoolID] = &SchoolMapStat{
+			SchoolID:       d.SchoolID,
+			PortionsSmall:  d.PortionsSmall,
+			PortionsLarge:  d.PortionsLarge,
+			TotalDelivered: d.TotalPortions,
+		}
+	}
+	for _, r := range reviewStats {
+		if s, ok := statsMap[r.SchoolID]; ok {
+			s.TotalReviews = r.TotalReviews
+			s.AvgRating = r.AvgRating
+		} else {
+			statsMap[r.SchoolID] = &SchoolMapStat{
+				SchoolID:     r.SchoolID,
+				TotalReviews: r.TotalReviews,
+				AvgRating:    r.AvgRating,
+			}
+		}
+	}
+
+	// Convert to slice
+	result := make([]SchoolMapStat, 0, len(statsMap))
+	for _, s := range statsMap {
+		result = append(result, *s)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    result,
 	})
 }

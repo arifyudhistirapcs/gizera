@@ -145,11 +145,15 @@ const handleLogin = async () => {
     // Redirect based on user role
     const user = authStore.user
     if (user) {
-      // Redirect to appropriate dashboard based on role
       switch (user.role) {
-        case 'kepala_sppg':
+        case 'superadmin':
+          router.push('/yayasan')
+          break
+        case 'admin_bgn':
+          router.push('/dashboard-bgn')
+          break
         case 'kepala_yayasan':
-          router.push('/dashboard')
+          router.push('/dashboard-yayasan')
           break
         case 'ahli_gizi':
           router.push('/menu-planning')

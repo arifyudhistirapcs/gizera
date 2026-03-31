@@ -10,6 +10,7 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/db"
+	fb "github.com/erp-sppg/backend/internal/firebase"
 	"github.com/erp-sppg/backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -165,7 +166,8 @@ func (s *KDSService) GetTodayMenu(ctx context.Context, date time.Time) ([]Recipe
 
 	// Get current statuses from Firebase
 	dateStr := normalizedDate.Format("2006-01-02")
-	firebasePath := fmt.Sprintf("/kds/cooking/%s", dateStr)
+	sppgID := fb.GetSPPGID(ctx)
+	firebasePath := fb.KDSCookingPath(sppgID, dateStr)
 	var firebaseData map[string]interface{}
 	err = s.dbClient.NewRef(firebasePath).Get(ctx, &firebaseData)
 	if err != nil {
@@ -503,7 +505,8 @@ func (s *KDSService) UpdateRecipeStatus(ctx context.Context, recipeID uint, stat
 
 	// Update Firebase with new status
 	dateStr := menuItem.Date.Format("2006-01-02")
-	firebasePath := fmt.Sprintf("/kds/cooking/%s/%d", dateStr, recipeID)
+	sppgID := fb.GetSPPGID(ctx)
+	firebasePath := fb.KDSCookingRecipePath(sppgID, dateStr, recipeID)
 	
 	// Transform school allocations with portion size grouping
 	// Group allocations by school
@@ -840,7 +843,8 @@ func (s *KDSService) SyncTodayMenuToFirebase(ctx context.Context, date time.Time
 
 	normalizedDate := normalizeDate(date)
 	dateStr := normalizedDate.Format("2006-01-02")
-	firebasePath := fmt.Sprintf("/kds/cooking/%s", dateStr)
+	sppgID := fb.GetSPPGID(ctx)
+	firebasePath := fb.KDSCookingPath(sppgID, dateStr)
 
 	// Convert to map for Firebase
 	firebaseData := make(map[string]interface{})

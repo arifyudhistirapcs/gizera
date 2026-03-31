@@ -199,7 +199,7 @@
       :confirm-loading="submitting"
       @ok="handleSubmit"
       @cancel="handleCancel"
-      width="600px"
+      width="650px"
     >
       <a-form
         ref="formRef"
@@ -234,6 +234,13 @@
 
         <a-form-item label="Alamat" name="address">
           <a-textarea v-model:value="formData.address" :rows="3" placeholder="Alamat lengkap supplier" />
+        </a-form-item>
+
+        <a-form-item label="Lokasi">
+          <LocationPicker
+            v-model:latitude="formData.latitude"
+            v-model:longitude="formData.longitude"
+          />
         </a-form-item>
 
         <a-form-item label="Status" name="is_active">
@@ -330,6 +337,7 @@ import {
   StarOutlined
 } from '@ant-design/icons-vue'
 import supplierService from '@/services/supplierService'
+import LocationPicker from '@/components/LocationPicker.vue'
 
 const loading = ref(false)
 const loadingStats = ref(false)
@@ -366,6 +374,8 @@ const formData = reactive({
   phone_number: '',
   email: '',
   address: '',
+  latitude: 0,
+  longitude: 0,
   is_active: true
 })
 
@@ -516,6 +526,8 @@ const editSupplier = (supplier) => {
     phone_number: supplier.phone_number,
     email: supplier.email,
     address: supplier.address,
+    latitude: supplier.latitude || 0,
+    longitude: supplier.longitude || 0,
     is_active: supplier.is_active
   })
   modalVisible.value = true
@@ -597,6 +609,8 @@ const resetForm = () => {
     phone_number: '',
     email: '',
     address: '',
+    latitude: 0,
+    longitude: 0,
     is_active: true
   })
   formRef.value?.resetFields()

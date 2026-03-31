@@ -24,6 +24,7 @@
     "googleapis": "^171.4.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0"
+    "@types/node": "^20.10.0",
+    "exceljs": "^4.4.0"
   }
 }

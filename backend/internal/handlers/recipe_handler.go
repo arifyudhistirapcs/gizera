@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/erp-sppg/backend/internal/middleware"
 	"github.com/erp-sppg/backend/internal/models"
 	"github.com/erp-sppg/backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ import (
 
 // RecipeHandler handles recipe endpoints
 type RecipeHandler struct {
+	db               *gorm.DB
 	recipeService    *services.RecipeService
 	inventoryService *services.InventoryService
 }
@@ -25,6 +27,7 @@ type RecipeHandler struct {
 // NewRecipeHandler creates a new recipe handler
 func NewRecipeHandler(db *gorm.DB) *RecipeHandler {
 	return &RecipeHandler{
+		db:               db,
 		recipeService:    services.NewRecipeService(db),
 		inventoryService: services.NewInventoryService(db),
 	}
@@ -77,6 +80,11 @@ func (h *RecipeHandler) CreateRecipe(c *gin.Context) {
 		IsActive:     req.IsActive,
 	}
 
+	// Auto-inject sppg_id for SPPG-level roles
+	if sppgID, ok := middleware.GetTenantSPPGID(c); ok {
+		recipe.SPPGID = &sppgID
+	}
+
 	// Create recipe items (semi-finished goods)
 	var items []models.RecipeItem
 	for _, item := range req.Items {
@@ -86,8 +94,9 @@ func (h *RecipeHandler) CreateRecipe(c *gin.Context) {
 		})
 	}
 
-	// Create recipe
-	if err := h.recipeService.CreateRecipe(recipe, items, userID.(uint)); err != nil {
+	// Create recipe with tenant-scoped DB
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateRecipe(recipe, items, userID.(uint)); err != nil {
 		if err == services.ErrInsufficientNutrition {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success":    false,
@@ -133,7 +142,8 @@ func (h *RecipeHandler) GetRecipe(c *gin.Context) {
 		return
 	}
 
-	recipe, err := h.recipeService.GetRecipeByID(uint(id))
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	recipe, err := scopedService.GetRecipeByID(uint(id))
 	if err != nil {
 		if err == services.ErrRecipeNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -164,13 +174,14 @@ func (h *RecipeHandler) GetAllRecipes(c *gin.Context) {
 	query := c.Query("q")
 	category := c.Query("category")
 
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
 	var recipes []models.Recipe
 	var err error
 
 	if query != "" || category != "" {
-		recipes, err = h.recipeService.SearchRecipes(query, category, activeOnly)
+		recipes, err = scopedService.SearchRecipes(query, category, activeOnly)
 	} else {
-		recipes, err = h.recipeService.GetAllRecipes(activeOnly)
+		recipes, err = scopedService.GetAllRecipes(activeOnly)
 	}
 
 	if err != nil {
@@ -232,8 +243,9 @@ func (h *RecipeHandler) UpdateRecipe(c *gin.Context) {
 		})
 	}
 
-	// Update recipe
-	if err := h.recipeService.UpdateRecipe(uint(id), recipe, items, userID.(uint)); err != nil {
+	// Update recipe with tenant-scoped DB
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.UpdateRecipe(uint(id), recipe, items, userID.(uint)); err != nil {
 		if err == services.ErrRecipeNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -278,7 +290,8 @@ func (h *RecipeHandler) DeleteRecipe(c *gin.Context) {
 		return
 	}
 
-	if err := h.recipeService.DeleteRecipe(uint(id)); err != nil {
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.DeleteRecipe(uint(id)); err != nil {
 		if err == services.ErrRecipeNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -314,7 +327,8 @@ func (h *RecipeHandler) GetRecipeNutrition(c *gin.Context) {
 		return
 	}
 
-	recipe, err := h.recipeService.GetRecipeByID(uint(id))
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	recipe, err := scopedService.GetRecipeByID(uint(id))
 	if err != nil {
 		if err == services.ErrRecipeNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -359,7 +373,8 @@ func (h *RecipeHandler) GetRecipeHistory(c *gin.Context) {
 		return
 	}
 
-	history, err := h.recipeService.GetRecipeHistory(uint(id))
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	history, err := scopedService.GetRecipeHistory(uint(id))
 	if err != nil {
 		if err == services.ErrRecipeNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -388,7 +403,8 @@ func (h *RecipeHandler) GetRecipeHistory(c *gin.Context) {
 func (h *RecipeHandler) GetAllIngredients(c *gin.Context) {
 	search := c.Query("search")
 	
-	ingredients, err := h.recipeService.GetAllIngredients(search)
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	ingredients, err := scopedService.GetAllIngredients(search)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -438,7 +454,13 @@ func (h *RecipeHandler) CreateIngredient(c *gin.Context) {
 		FatPer100g:      req.FatPer100g,
 	}
 
-	if err := h.recipeService.CreateIngredient(ingredient); err != nil {
+	// Auto-inject sppg_id for SPPG-level roles
+	if sppgID, ok := middleware.GetTenantSPPGID(c); ok {
+		ingredient.SPPGID = &sppgID
+	}
+
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateIngredient(ingredient); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
 			"error_code": "INTERNAL_ERROR",
@@ -448,7 +470,8 @@ func (h *RecipeHandler) CreateIngredient(c *gin.Context) {
 	}
 
 	// Initialize inventory for the new ingredient
-	if err := h.inventoryService.InitializeInventoryForIngredient(ingredient.ID); err != nil {
+	scopedInventory := h.inventoryService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedInventory.InitializeInventoryForIngredient(ingredient.ID); err != nil {
 		// Log error but don't fail the request
 		// The inventory can be initialized later
 		c.JSON(http.StatusCreated, gin.H{
@@ -468,7 +491,8 @@ func (h *RecipeHandler) CreateIngredient(c *gin.Context) {
 
 // GenerateIngredientCode generates a unique code for new ingredient
 func (h *RecipeHandler) GenerateIngredientCode(c *gin.Context) {
-	code, err := h.recipeService.GenerateIngredientCode()
+	scopedService := h.recipeService.WithDB(getTenantScopedDB(c, h.db))
+	code, err := scopedService.GenerateIngredientCode()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,

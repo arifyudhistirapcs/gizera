@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	firebase "firebase.google.com/go/v4"
+	fb "github.com/erp-sppg/backend/internal/firebase"
 	"github.com/erp-sppg/backend/internal/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -39,7 +41,7 @@ func NewDashboardHandler(db *gorm.DB, firebaseApp *firebase.App) (*DashboardHand
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/dashboard/kepala-sppg [get]
 func (h *DashboardHandler) GetKepalaSSPGDashboard(c *gin.Context) {
-	ctx := context.Background()
+	ctx := fb.InjectSPPGIDFromGin(c, context.Background())
 
 	dashboard, err := h.dashboardService.GetKepalaSSPGDashboard(ctx)
 	if err != nil {
@@ -71,7 +73,7 @@ func (h *DashboardHandler) GetKepalaSSPGDashboard(c *gin.Context) {
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/dashboard/kepala-yayasan [get]
 func (h *DashboardHandler) GetKepalaYayasanDashboard(c *gin.Context) {
-	ctx := context.Background()
+	ctx := fb.InjectSPPGIDFromGin(c, context.Background())
 
 	// Parse date range (default to current month)
 	now := time.Now()
@@ -143,7 +145,7 @@ func (h *DashboardHandler) GetKepalaYayasanDashboard(c *gin.Context) {
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/dashboard/kpi [get]
 func (h *DashboardHandler) GetKPIs(c *gin.Context) {
-	ctx := context.Background()
+	ctx := fb.InjectSPPGIDFromGin(c, context.Background())
 
 	dashboard, err := h.dashboardService.GetKepalaSSPGDashboard(ctx)
 	if err != nil {
@@ -176,7 +178,7 @@ func (h *DashboardHandler) GetKPIs(c *gin.Context) {
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/dashboard/sync [post]
 func (h *DashboardHandler) SyncDashboardToFirebase(c *gin.Context) {
-	ctx := context.Background()
+	ctx := fb.InjectSPPGIDFromGin(c, context.Background())
 
 	dashboardType := c.Query("type")
 	if dashboardType == "" {
@@ -191,7 +193,14 @@ func (h *DashboardHandler) SyncDashboardToFirebase(c *gin.Context) {
 	var err error
 	switch dashboardType {
 	case "kepala_sppg":
-		err = h.dashboardService.SyncKepalaSSPGDashboardToFirebase(ctx)
+		// Get sppg_id from context for tenant-aware Firebase path
+		var sppgID uint
+		if sppgIDVal, exists := c.Get("sppg_id"); exists {
+			if id, ok := sppgIDVal.(uint); ok {
+				sppgID = id
+			}
+		}
+		err = h.dashboardService.SyncKepalaSSPGDashboardToFirebase(ctx, sppgID)
 
 	case "kepala_yayasan":
 		// Parse date range (default to current month)
@@ -223,7 +232,15 @@ func (h *DashboardHandler) SyncDashboardToFirebase(c *gin.Context) {
 			}
 		}
 
-		err = h.dashboardService.SyncKepalaYayasanDashboardToFirebase(ctx, startDate, endDate)
+		// Get yayasan_id from context for tenant-aware Firebase path
+		var yayasanID uint
+		if yayasanIDVal, exists := c.Get("yayasan_id"); exists {
+			if id, ok := yayasanIDVal.(uint); ok {
+				yayasanID = id
+			}
+		}
+
+		err = h.dashboardService.SyncKepalaYayasanDashboardToFirebase(ctx, yayasanID, startDate, endDate)
 
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -270,7 +287,7 @@ type ExportDashboardRequest struct {
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/dashboard/export [post]
 func (h *DashboardHandler) ExportDashboard(c *gin.Context) {
-	ctx := context.Background()
+	ctx := fb.InjectSPPGIDFromGin(c, context.Background())
 
 	var req ExportDashboardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -364,7 +381,7 @@ func (h *DashboardHandler) ExportDashboard(c *gin.Context) {
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/dashboard/clear-firebase [post]
 func (h *DashboardHandler) ClearFirebaseKDSData(c *gin.Context) {
-	ctx := context.Background()
+	ctx := fb.InjectSPPGIDFromGin(c, context.Background())
 
 	if err := h.dashboardService.ClearFirebaseKDSData(ctx); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -379,5 +396,273 @@ func (h *DashboardHandler) ClearFirebaseKDSData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Data KDS di Firebase berhasil dihapus",
+	})
+}
+
+// =====================================================================
+// AggregatedDashboardHandler — multi-tenant aggregated dashboards
+// =====================================================================
+
+// AggregatedDashboardHandler handles aggregated dashboard endpoints
+// for Kepala Yayasan (cross-SPPG) and Admin BGN (national).
+type AggregatedDashboardHandler struct {
+	aggregatedService *services.AggregatedDashboardService
+}
+
+// NewAggregatedDashboardHandler creates a new AggregatedDashboardHandler.
+func NewAggregatedDashboardHandler(aggregatedService *services.AggregatedDashboardService) *AggregatedDashboardHandler {
+	return &AggregatedDashboardHandler{
+		aggregatedService: aggregatedService,
+	}
+}
+
+// parseDateRange parses start_date and end_date query params.
+// Defaults to current month if not provided.
+func parseDateRange(c *gin.Context) (time.Time, time.Time, bool) {
+	now := time.Now()
+	startDate := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+	endDate := now
+
+	if s := c.Query("start_date"); s != "" {
+		parsed, err := time.Parse("2006-01-02", s)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_DATE",
+				"message":    "Format start_date tidak valid (gunakan YYYY-MM-DD)",
+			})
+			return time.Time{}, time.Time{}, false
+		}
+		startDate = parsed
+	}
+
+	if s := c.Query("end_date"); s != "" {
+		parsed, err := time.Parse("2006-01-02", s)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_DATE",
+				"message":    "Format end_date tidak valid (gunakan YYYY-MM-DD)",
+			})
+			return time.Time{}, time.Time{}, false
+		}
+		endDate = parsed
+	}
+
+	if endDate.Before(startDate) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_DATE_RANGE",
+			"message":    "Tanggal akhir harus setelah tanggal awal",
+		})
+		return time.Time{}, time.Time{}, false
+	}
+
+	return startDate, endDate, true
+}
+
+// parseOptionalUintQuery parses an optional uint query parameter.
+// Returns nil if the param is absent or empty.
+func parseOptionalUintQuery(c *gin.Context, param string) (*uint, bool) {
+	s := c.Query(param)
+	if s == "" {
+		return nil, true
+	}
+	v, err := strconv.ParseUint(s, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_PARAM",
+			"message":    fmt.Sprintf("Parameter %s tidak valid", param),
+		})
+		return nil, false
+	}
+	u := uint(v)
+	return &u, true
+}
+
+// GetAggregatedKepalaYayasanDashboard handles GET /api/v1/dashboard/kepala-yayasan
+// Query params: start_date, end_date, sppg_id (optional drill-down), yayasan_id (optional, for superadmin/admin_bgn)
+// For kepala_yayasan: yayasan_id is extracted from JWT context.
+// For superadmin/admin_bgn: yayasan_id can be passed as query param.
+func (h *AggregatedDashboardHandler) GetAggregatedKepalaYayasanDashboard(c *gin.Context) {
+	startDate, endDate, ok := parseDateRange(c)
+	if !ok {
+		return
+	}
+
+	sppgID, ok := parseOptionalUintQuery(c, "sppg_id")
+	if !ok {
+		return
+	}
+
+	// Determine yayasan_id: from JWT context first, then from query param (for superadmin/admin_bgn)
+	var yayasanID uint
+	yayasanIDVal, exists := c.Get("yayasan_id")
+	if exists && yayasanIDVal != nil {
+		if id, ok := yayasanIDVal.(uint); ok && id > 0 {
+			yayasanID = id
+		}
+	}
+
+	// If not in context (superadmin/admin_bgn), try query param
+	if yayasanID == 0 {
+		if qp, ok := parseOptionalUintQuery(c, "yayasan_id"); ok && qp != nil {
+			yayasanID = *qp
+		}
+	}
+
+	// If still no yayasan_id, return error
+	if yayasanID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "MISSING_YAYASAN",
+			"message":    "Yayasan ID diperlukan. Gunakan query parameter ?yayasan_id=",
+		})
+		return
+	}
+
+	dashboard, err := h.aggregatedService.GetKepalaYayasanDashboard(yayasanID, startDate, endDate, sppgID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    "Terjadi kesalahan saat mengambil data dashboard",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"data":       dashboard,
+		"start_date": startDate.Format("2006-01-02"),
+		"end_date":   endDate.Format("2006-01-02"),
+	})
+}
+
+// GetAdminBGNDashboard handles GET /api/v1/dashboard/admin-bgn
+// Query params: start_date, end_date, yayasan_id (optional), sppg_id (optional)
+func (h *AggregatedDashboardHandler) GetAdminBGNDashboard(c *gin.Context) {
+	startDate, endDate, ok := parseDateRange(c)
+	if !ok {
+		return
+	}
+
+	yayasanID, ok := parseOptionalUintQuery(c, "yayasan_id")
+	if !ok {
+		return
+	}
+
+	sppgID, ok := parseOptionalUintQuery(c, "sppg_id")
+	if !ok {
+		return
+	}
+
+	dashboard, err := h.aggregatedService.GetAdminBGNDashboard(startDate, endDate, yayasanID, sppgID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    "Terjadi kesalahan saat mengambil data dashboard",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"data":       dashboard,
+		"start_date": startDate.Format("2006-01-02"),
+		"end_date":   endDate.Format("2006-01-02"),
+	})
+}
+
+// ExportKepalaYayasanDashboard handles GET /api/v1/dashboard/kepala-yayasan/export
+// Returns the same data as the dashboard endpoint (frontend handles CSV/PDF).
+func (h *AggregatedDashboardHandler) ExportKepalaYayasanDashboard(c *gin.Context) {
+	startDate, endDate, ok := parseDateRange(c)
+	if !ok {
+		return
+	}
+
+	sppgID, ok := parseOptionalUintQuery(c, "sppg_id")
+	if !ok {
+		return
+	}
+
+	// Determine yayasan_id: from JWT context first, then from query param
+	var yayasanID uint
+	yayasanIDVal, exists := c.Get("yayasan_id")
+	if exists && yayasanIDVal != nil {
+		if id, ok := yayasanIDVal.(uint); ok && id > 0 {
+			yayasanID = id
+		}
+	}
+	if yayasanID == 0 {
+		if qp, ok := parseOptionalUintQuery(c, "yayasan_id"); ok && qp != nil {
+			yayasanID = *qp
+		}
+	}
+	if yayasanID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "MISSING_YAYASAN",
+			"message":    "Yayasan ID diperlukan. Gunakan query parameter ?yayasan_id=",
+		})
+		return
+	}
+
+	dashboard, err := h.aggregatedService.GetKepalaYayasanDashboard(yayasanID, startDate, endDate, sppgID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    "Terjadi kesalahan saat mengekspor data dashboard",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"data":       dashboard,
+		"start_date": startDate.Format("2006-01-02"),
+		"end_date":   endDate.Format("2006-01-02"),
+		"export":     true,
+	})
+}
+
+// ExportAdminBGNDashboard handles GET /api/v1/dashboard/admin-bgn/export
+// Returns the same data as the dashboard endpoint (frontend handles CSV/PDF).
+func (h *AggregatedDashboardHandler) ExportAdminBGNDashboard(c *gin.Context) {
+	startDate, endDate, ok := parseDateRange(c)
+	if !ok {
+		return
+	}
+
+	yayasanID, ok := parseOptionalUintQuery(c, "yayasan_id")
+	if !ok {
+		return
+	}
+
+	sppgID, ok := parseOptionalUintQuery(c, "sppg_id")
+	if !ok {
+		return
+	}
+
+	dashboard, err := h.aggregatedService.GetAdminBGNDashboard(startDate, endDate, yayasanID, sppgID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": "INTERNAL_ERROR",
+			"message":    "Terjadi kesalahan saat mengekspor data dashboard",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"data":       dashboard,
+		"start_date": startDate.Format("2006-01-02"),
+		"end_date":   endDate.Format("2006-01-02"),
+		"export":     true,
 	})
 }

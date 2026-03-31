@@ -200,12 +200,14 @@ let database = null
 let dbRef = null
 let onValue = null
 let off = null
+let firebasePathsModule = null
 
 const initFirebase = async () => {
   try {
     const firebaseModule = await import('@/services/firebase')
     const firebaseDatabase = await import('firebase/database')
     database = firebaseModule.database
+    firebasePathsModule = firebaseModule.firebasePaths
     dbRef = firebaseDatabase.ref
     onValue = firebaseDatabase.onValue
     off = firebaseDatabase.off
@@ -335,7 +337,8 @@ const setupFirebaseListener = () => {
   }
   try {
     cleanupFirebaseListener()
-    const cleaningRef = dbRef(database, '/cleaning/pending')
+    const cleaningPath = firebasePathsModule ? firebasePathsModule.cleaningPending() : '/cleaning/pending'
+    const cleaningRef = dbRef(database, cleaningPath)
     firebaseListener = onValue(
       cleaningRef,
       (snapshot) => {
@@ -367,7 +370,8 @@ const setupFirebaseListener = () => {
 const cleanupFirebaseListener = () => {
   if (firebaseListener && database && dbRef && off) {
     try {
-      const cleaningRef = dbRef(database, '/cleaning/pending')
+      const cleaningPath = firebasePathsModule ? firebasePathsModule.cleaningPending() : '/cleaning/pending'
+      const cleaningRef = dbRef(database, cleaningPath)
       off(cleaningRef)
       firebaseListener = null
     } catch (error) { /* ignore */ }

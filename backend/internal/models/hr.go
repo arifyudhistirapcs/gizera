@@ -7,6 +7,7 @@ import (
 // Employee represents an employee in the organization
 type Employee struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
+	SPPGID      *uint     `gorm:"index" json:"sppg_id"`
 	UserID      uint      `gorm:"uniqueIndex;not null" json:"user_id"` // links to User table
 	NIK         string    `gorm:"uniqueIndex;size:20;not null" json:"nik" validate:"required"`
 	FullName    string    `gorm:"size:100;not null;index" json:"full_name" validate:"required"`
@@ -23,6 +24,7 @@ type Employee struct {
 // Attendance represents employee attendance records
 type Attendance struct {
 	ID         uint       `gorm:"primaryKey" json:"id"`
+	SPPGID     *uint      `gorm:"index" json:"sppg_id"`
 	EmployeeID uint       `gorm:"index;not null" json:"employee_id"`
 	Date       time.Time  `gorm:"index;not null" json:"date"`
 	CheckIn    time.Time  `gorm:"not null" json:"check_in"`
@@ -37,6 +39,7 @@ type Attendance struct {
 // WiFiConfig represents authorized Wi-Fi networks for attendance
 type WiFiConfig struct {
 	ID         uint      `gorm:"primaryKey" json:"id"`
+	SPPGID     *uint     `gorm:"index" json:"sppg_id"`
 	SSID       string    `gorm:"column:ss_id;size:100;not null;index" json:"ssid" validate:"required"`
 	BSSID      string    `gorm:"column:bss_id;size:100;not null;index" json:"bssid" validate:"required"`
 	Location   string    `gorm:"size:200" json:"location"`
@@ -55,6 +58,7 @@ func (WiFiConfig) TableName() string {
 // GPSConfig represents authorized GPS locations for attendance
 type GPSConfig struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
+	SPPGID      *uint     `gorm:"index" json:"sppg_id"`
 	Name        string    `gorm:"size:100;not null" json:"name" validate:"required"`
 	Latitude    float64   `gorm:"not null" json:"latitude" validate:"required"`
 	Longitude   float64   `gorm:"not null" json:"longitude" validate:"required"`

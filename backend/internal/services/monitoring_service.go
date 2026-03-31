@@ -10,6 +10,7 @@ import (
 	"firebase.google.com/go/v4/db"
 	"gorm.io/gorm"
 
+	fb "github.com/erp-sppg/backend/internal/firebase"
 	"github.com/erp-sppg/backend/internal/models"
 )
 
@@ -374,8 +375,14 @@ func (s *MonitoringService) syncToFirebase(record *models.DeliveryRecord) error 
 	// Format date as YYYY-MM-DD for Firebase path
 	dateStr := record.DeliveryDate.Format("2006-01-02")
 
-	// Construct Firebase path: /monitoring/deliveries/{date}/record_{id}
-	firebasePath := fmt.Sprintf("/monitoring/deliveries/%s/record_%d", dateStr, record.ID)
+	// Get sppg_id from the record for tenant-aware path
+	var sppgID uint
+	if record.SPPGID != nil {
+		sppgID = *record.SPPGID
+	}
+
+	// Construct Firebase path: /monitoring/{sppg_id}/{date}/record_{id}
+	firebasePath := fb.MonitoringDeliveryRecordPath(sppgID, dateStr, record.ID)
 
 	// Prepare data for Firebase
 	// Note: We need to preload associations if they're not already loaded

@@ -15,6 +15,7 @@ import (
 
 // HRMHandler handles Human Resource Management endpoints
 type HRMHandler struct {
+	db                *gorm.DB
 	employeeService   *services.EmployeeService
 	attendanceService *services.AttendanceService
 	auditService      *services.AuditTrailService
@@ -24,6 +25,7 @@ type HRMHandler struct {
 func NewHRMHandler(db *gorm.DB, authService *services.AuthService) *HRMHandler {
 	employeeService := services.NewEmployeeService(db, authService)
 	return &HRMHandler{
+		db:                db,
 		employeeService:   employeeService,
 		attendanceService: services.NewAttendanceService(db, employeeService),
 		auditService:      services.NewAuditTrailService(db),
@@ -143,7 +145,8 @@ func (h *HRMHandler) GetEmployees(c *gin.Context) {
 		isActive = &val
 	}
 
-	employees, err := h.employeeService.GetAllEmployees(isActive, position)
+	scopedService := h.employeeService.WithDB(getTenantScopedDB(c, h.db))
+	employees, err := scopedService.GetAllEmployees(isActive, position)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -171,7 +174,8 @@ func (h *HRMHandler) GetEmployeeByID(c *gin.Context) {
 		return
 	}
 
-	employee, err := h.employeeService.GetEmployeeByID(uint(id))
+	scopedService := h.employeeService.WithDB(getTenantScopedDB(c, h.db))
+	employee, err := scopedService.GetEmployeeByID(uint(id))
 	if err != nil {
 		if err == services.ErrEmployeeNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -217,7 +221,8 @@ func (h *HRMHandler) UpdateEmployee(c *gin.Context) {
 		return
 	}
 
-	employee, err := h.employeeService.UpdateEmployee(uint(id), updates)
+	scopedService := h.employeeService.WithDB(getTenantScopedDB(c, h.db))
+	employee, err := scopedService.UpdateEmployee(uint(id), updates)
 	if err != nil {
 		if err == services.ErrEmployeeNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -274,7 +279,8 @@ func (h *HRMHandler) DeactivateEmployee(c *gin.Context) {
 		return
 	}
 
-	if err := h.employeeService.DeactivateEmployee(uint(id)); err != nil {
+	scopedService := h.employeeService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.DeactivateEmployee(uint(id)); err != nil {
 		if err == services.ErrEmployeeNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -303,7 +309,8 @@ func (h *HRMHandler) DeactivateEmployee(c *gin.Context) {
 
 // GetEmployeeStats retrieves employee statistics
 func (h *HRMHandler) GetEmployeeStats(c *gin.Context) {
-	stats, err := h.employeeService.GetEmployeeStats()
+	scopedService := h.employeeService.WithDB(getTenantScopedDB(c, h.db))
+	stats, err := scopedService.GetEmployeeStats()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,

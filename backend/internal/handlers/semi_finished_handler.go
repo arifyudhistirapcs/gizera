@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/erp-sppg/backend/internal/middleware"
 	"github.com/erp-sppg/backend/internal/models"
 	"github.com/erp-sppg/backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -12,12 +13,14 @@ import (
 
 // SemiFinishedHandler handles semi-finished goods endpoints
 type SemiFinishedHandler struct {
+	db      *gorm.DB
 	service *services.SemiFinishedService
 }
 
 // NewSemiFinishedHandler creates a new semi-finished handler
 func NewSemiFinishedHandler(db *gorm.DB) *SemiFinishedHandler {
 	return &SemiFinishedHandler{
+		db:      db,
 		service: services.NewSemiFinishedService(db),
 	}
 }
@@ -55,7 +58,8 @@ type SemiFinishedRecipeIngredientRequest struct {
 func (h *SemiFinishedHandler) GetAllSemiFinishedGoods(c *gin.Context) {
 	activeOnly := c.DefaultQuery("active_only", "true") == "true"
 
-	goods, err := h.service.GetAllSemiFinishedGoods(activeOnly)
+	scopedService := h.service.WithDB(getTenantScopedDB(c, h.db))
+	goods, err := scopedService.GetAllSemiFinishedGoods(activeOnly)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -83,7 +87,8 @@ func (h *SemiFinishedHandler) GetSemiFinishedGoods(c *gin.Context) {
 		return
 	}
 
-	goods, err := h.service.GetSemiFinishedGoods(uint(id))
+	scopedService := h.service.WithDB(getTenantScopedDB(c, h.db))
+	goods, err := scopedService.GetSemiFinishedGoods(uint(id))
 	if err != nil {
 		if err == services.ErrSemiFinishedGoodsNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -154,8 +159,14 @@ func (h *SemiFinishedHandler) CreateSemiFinishedGoods(c *gin.Context) {
 		})
 	}
 
+	// Auto-inject sppg_id for SPPG-level roles
+	if sppgID, ok := middleware.GetTenantSPPGID(c); ok {
+		goods.SPPGID = &sppgID
+	}
+
 	// Create semi-finished goods
-	if err := h.service.CreateSemiFinishedGoods(goods, recipe, ingredients, userID.(uint)); err != nil {
+	scopedService := h.service.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateSemiFinishedGoods(goods, recipe, ingredients, userID.(uint)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
 			"error_code": "INTERNAL_ERROR",
@@ -225,7 +236,8 @@ func (h *SemiFinishedHandler) UpdateSemiFinishedGoods(c *gin.Context) {
 		})
 	}
 
-	if err := h.service.UpdateSemiFinishedGoods(uint(id), goods, recipe, ingredients, userID.(uint)); err != nil {
+	scopedService := h.service.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.UpdateSemiFinishedGoods(uint(id), goods, recipe, ingredients, userID.(uint)); err != nil {
 		if err == services.ErrSemiFinishedGoodsNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -261,7 +273,8 @@ func (h *SemiFinishedHandler) DeleteSemiFinishedGoods(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteSemiFinishedGoods(uint(id)); err != nil {
+	scopedService := h.service.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.DeleteSemiFinishedGoods(uint(id)); err != nil {
 		if err == services.ErrSemiFinishedGoodsNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -317,7 +330,8 @@ func (h *SemiFinishedHandler) ProduceSemiFinishedGoods(c *gin.Context) {
 	// Get user ID from context
 	userID, _ := c.Get("user_id")
 
-	if err := h.service.ProduceSemiFinishedGoods(uint(id), req.Quantity, userID.(uint), req.Notes); err != nil {
+	scopedService := h.service.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.ProduceSemiFinishedGoods(uint(id), req.Quantity, userID.(uint), req.Notes); err != nil {
 		if err == services.ErrInsufficientStock {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success":    false,
@@ -343,7 +357,8 @@ func (h *SemiFinishedHandler) ProduceSemiFinishedGoods(c *gin.Context) {
 
 // GetSemiFinishedInventory retrieves semi-finished goods inventory
 func (h *SemiFinishedHandler) GetSemiFinishedInventory(c *gin.Context) {
-	inventory, err := h.service.GetSemiFinishedInventory()
+	scopedService := h.service.WithDB(getTenantScopedDB(c, h.db))
+	inventory, err := scopedService.GetSemiFinishedInventory()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,

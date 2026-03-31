@@ -1,9 +1,11 @@
 package database
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/erp-sppg/backend/internal/models"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -17,6 +19,11 @@ func Migrate(db *gorm.DB) error {
 	}
 
 	log.Println("Database migration completed successfully")
+
+	// Run multi-tenant migration
+	if err := MigrateMultiTenant(db); err != nil {
+		return err
+	}
 
 	// Add portion size quantity columns
 	if err := AddPortionSizeQuantityColumns(db); err != nil {
@@ -468,5 +475,160 @@ func AddSemiFinishedMovementIndexes(db *gorm.DB) error {
 	
 	log.Println("Semi-Finished Movement indexes added successfully")
 	
+	return nil
+}
+
+// MigrateMultiTenant migrates existing single-tenant data to multi-tenant structure.
+// It creates default Yayasan and SPPG, populates sppg_id on all operational records,
+// assigns tenant info to SPPG-level users, creates a default superadmin account,
+// adds indexes on sppg_id columns, and validates no NULL sppg_id remains.
+// The entire operation is wrapped in a transaction for rollback on failure.
+func MigrateMultiTenant(db *gorm.DB) error {
+	log.Println("Starting multi-tenant migration...")
+
+	// Operational tables that need sppg_id populated
+	operationalTables := []string{
+		"recipes", "ingredients", "semi_finished_goods", "menu_plans",
+		"suppliers", "purchase_orders", "goods_receipts",
+		"inventory_items", "inventory_movements", "stok_opname_forms",
+		"schools", "delivery_tasks", "delivery_records",
+		"pickup_tasks", "delivery_reviews",
+		"employees", "attendances", "wi_fi_configs", "gps_configs",
+		"kitchen_assets", "cash_flow_entries", "budget_targets",
+		"ompreng_trackings", "ompreng_inventories", "ompreng_cleanings",
+		"notifications",
+	}
+
+	// SPPG-level roles whose users need sppg_id and yayasan_id populated
+	sppgRoles := []string{
+		"kepala_sppg", "akuntan", "ahli_gizi", "pengadaan",
+		"chef", "packing", "driver", "asisten_lapangan", "kebersihan",
+	}
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		// Step 1: Create default Yayasan (idempotent)
+		var yayasan models.Yayasan
+		result := tx.Where("kode = ?", "YYS-0001").First(&yayasan)
+		if result.Error != nil {
+			if result.Error == gorm.ErrRecordNotFound {
+				yayasan = models.Yayasan{
+					Kode:     "YYS-0001",
+					Nama:     "Yayasan Default",
+					IsActive: true,
+				}
+				if err := tx.Create(&yayasan).Error; err != nil {
+					return fmt.Errorf("failed to create default Yayasan: %w", err)
+				}
+				log.Printf("Created default Yayasan (ID=%d, Kode=YYS-0001)", yayasan.ID)
+			} else {
+				return fmt.Errorf("failed to query default Yayasan: %w", result.Error)
+			}
+		} else {
+			log.Printf("Default Yayasan already exists (ID=%d)", yayasan.ID)
+		}
+
+		// Step 2: Create default SPPG (idempotent)
+		var sppg models.SPPG
+		result = tx.Where("kode = ?", "SPPG-0001").First(&sppg)
+		if result.Error != nil {
+			if result.Error == gorm.ErrRecordNotFound {
+				sppg = models.SPPG{
+					Kode:      "SPPG-0001",
+					Nama:      "SPPG Default",
+					YayasanID: yayasan.ID,
+					IsActive:  true,
+				}
+				if err := tx.Create(&sppg).Error; err != nil {
+					return fmt.Errorf("failed to create default SPPG: %w", err)
+				}
+				log.Printf("Created default SPPG (ID=%d, Kode=SPPG-0001, YayasanID=%d)", sppg.ID, yayasan.ID)
+			} else {
+				return fmt.Errorf("failed to query default SPPG: %w", result.Error)
+			}
+		} else {
+			log.Printf("Default SPPG already exists (ID=%d)", sppg.ID)
+		}
+
+		// Step 3: Populate sppg_id on all operational tables where it is NULL
+		for _, table := range operationalTables {
+			res := tx.Exec(fmt.Sprintf("UPDATE %s SET sppg_id = ? WHERE sppg_id IS NULL", table), sppg.ID)
+			if res.Error != nil {
+				return fmt.Errorf("failed to update sppg_id on %s: %w", table, res.Error)
+			}
+			if res.RowsAffected > 0 {
+				log.Printf("Updated %d records in %s with default sppg_id=%d", res.RowsAffected, table, sppg.ID)
+			}
+		}
+
+		// Step 4: Populate sppg_id and yayasan_id on SPPG-level users where NULL
+		res := tx.Exec(
+			"UPDATE users SET sppg_id = ?, yayasan_id = ? WHERE role IN ? AND sppg_id IS NULL",
+			sppg.ID, yayasan.ID, sppgRoles,
+		)
+		if res.Error != nil {
+			return fmt.Errorf("failed to update SPPG-level users: %w", res.Error)
+		}
+		if res.RowsAffected > 0 {
+			log.Printf("Updated %d SPPG-level users with default sppg_id=%d, yayasan_id=%d", res.RowsAffected, sppg.ID, yayasan.ID)
+		}
+
+		// Step 5: Create default superadmin account (idempotent)
+		var existingSA models.User
+		result = tx.Where("nik = ?", "SA001").First(&existingSA)
+		if result.Error != nil {
+			if result.Error == gorm.ErrRecordNotFound {
+				hash, err := bcrypt.GenerateFromPassword([]byte("superadmin123"), bcrypt.DefaultCost)
+				if err != nil {
+					return fmt.Errorf("failed to hash superadmin password: %w", err)
+				}
+				superadmin := models.User{
+					NIK:          "SA001",
+					Email:        "superadmin@system.local",
+					PasswordHash: string(hash),
+					FullName:     "Superadmin",
+					Role:         "superadmin",
+					IsActive:     true,
+				}
+				if err := tx.Create(&superadmin).Error; err != nil {
+					return fmt.Errorf("failed to create superadmin account: %w", err)
+				}
+				log.Printf("Created default superadmin account (ID=%d, NIK=SA001)", superadmin.ID)
+			} else {
+				return fmt.Errorf("failed to query superadmin account: %w", result.Error)
+			}
+		} else {
+			log.Println("Default superadmin account already exists")
+		}
+
+		// Step 6: Add indexes on sppg_id columns
+		for _, table := range operationalTables {
+			idxName := fmt.Sprintf("idx_%s_sppg_id", table)
+			if err := tx.Exec(fmt.Sprintf("CREATE INDEX IF NOT EXISTS %s ON %s(sppg_id)", idxName, table)).Error; err != nil {
+				log.Printf("Warning: Failed to create index %s: %v", idxName, err)
+			}
+		}
+		log.Println("sppg_id indexes created on operational tables")
+
+		// Step 7: Validate no NULL sppg_id on operational tables
+		for _, table := range operationalTables {
+			var count int64
+			if err := tx.Raw(fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE sppg_id IS NULL", table)).Scan(&count).Error; err != nil {
+				return fmt.Errorf("failed to validate sppg_id on %s: %w", table, err)
+			}
+			if count > 0 {
+				return fmt.Errorf("validation failed: %d records in %s still have NULL sppg_id", count, table)
+			}
+		}
+		log.Println("Validation passed: no NULL sppg_id in operational tables")
+
+		return nil
+	})
+
+	if err != nil {
+		log.Printf("Multi-tenant migration failed (rolled back): %v", err)
+		return fmt.Errorf("multi-tenant migration failed: %w", err)
+	}
+
+	log.Println("Multi-tenant migration completed successfully")
 	return nil
 }

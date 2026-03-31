@@ -1,5 +1,13 @@
 <template>
   <div class="dashboard-sspg">
+    <!-- Peta Sebaran Sekolah & Supplier -->
+    <div class="map-section" style="margin-bottom: 20px">
+      <div class="h-card" style="padding: 20px">
+        <h3 class="section-title" style="margin-bottom: 16px">Peta Sebaran Sekolah & Supplier</h3>
+        <OrganizationMap :markers="sppgMapMarkers" :height="400" />
+      </div>
+    </div>
+
     <!-- KPI Stats Row -->
     <div class="kpi-section">
       <div class="section-header">
@@ -354,9 +362,11 @@ import { getKepalaSSPGDashboard } from '@/services/dashboardService'
 import reviewService from '@/services/reviewService'
 import supplierService from '@/services/supplierService'
 import cashFlowService from '@/services/cashFlowService'
-import { database } from '@/services/firebase'
+import { database, firebasePaths } from '@/services/firebase'
 import { ref as dbRef, onValue, off } from 'firebase/database'
 import dayjs from 'dayjs'
+import OrganizationMap from '@/components/OrganizationMap.vue'
+import api from '@/services/api'
 
 const router = useRouter()
 const dashboard = ref(null)
@@ -665,7 +675,7 @@ const loadDashboardData = async () => {
 
 const setupFirebaseListeners = () => {
   try {
-    const dashRef = dbRef(database, '/dashboard/kepala_sppg')
+    const dashRef = dbRef(database, firebasePaths.dashboardKepalaSPPG())
     dashboardListener = onValue(dashRef, (snapshot) => {
       const data = snapshot.val()
       if (data) {
@@ -682,7 +692,7 @@ const setupFirebaseListeners = () => {
 
 const cleanupFirebaseListeners = () => {
   if (dashboardListener) {
-    try { off(dbRef(database, '/dashboard/kepala_sppg')) } catch (e) { /* ignore */ }
+    try { off(dbRef(database, firebasePaths.dashboardKepalaSPPG())) } catch (e) { /* ignore */ }
     dashboardListener = null
   }
 }
@@ -694,11 +704,92 @@ const getStatusType = (status) => {
   return 'default'
 }
 
+// Map data for schools and suppliers
+const schoolsList = ref([])
+const suppliersList = ref([])
+
+// School delivery/review stats cache
+const schoolStats = ref({})
+
+const sppgMapMarkers = computed(() => {
+  const markers = []
+  schoolsList.value.forEach(s => {
+    if (s.latitude !== 0 || s.longitude !== 0) {
+      const stats = schoolStats.value[s.id]
+      markers.push({
+        id: `school-${s.id}`,
+        name: s.name,
+        kode: s.npsn || '',
+        type: 'Sekolah',
+        latitude: s.latitude,
+        longitude: s.longitude,
+        details: `${s.category || ''} • ${s.student_count || 0} siswa`,
+        stats: stats ? {
+          portionsSmall: stats.portions_small,
+          portionsLarge: stats.portions_large,
+          totalDelivered: stats.total_delivered,
+          rating: stats.avg_rating
+        } : {
+          portionsSmall: s.student_count_grade_1_3 || 0,
+          portionsLarge: (s.student_count_grade_4_6 || 0) + (s.category !== 'SD' ? (s.student_count || 0) : 0),
+          totalDelivered: 0,
+          rating: 0
+        }
+      })
+    }
+  })
+  suppliersList.value.forEach(s => {
+    if (s.latitude !== 0 || s.longitude !== 0) {
+      markers.push({
+        id: `supplier-${s.id}`,
+        name: s.name,
+        kode: s.product_category || '',
+        type: 'Supplier',
+        latitude: s.latitude,
+        longitude: s.longitude,
+        details: s.contact_person ? `CP: ${s.contact_person}` : '',
+        stats: null
+      })
+    }
+  })
+  return markers
+})
+
+const loadMapData = async () => {
+  try {
+    const [schoolsRes, suppliersRes] = await Promise.all([
+      api.get('/schools'),
+      api.get('/suppliers')
+    ])
+    schoolsList.value = schoolsRes.data?.schools || schoolsRes.data?.data || []
+    suppliersList.value = suppliersRes.data?.suppliers || suppliersRes.data?.data || []
+
+    // Fetch per-school delivery + review stats (all-time, completed only)
+    try {
+      const statsRes = await api.get('/schools/map-stats')
+      const statsArr = statsRes.data?.data || []
+      const result = {}
+      statsArr.forEach(s => {
+        result[s.school_id] = {
+          portions_small: s.portions_small || 0,
+          portions_large: s.portions_large || 0,
+          total_delivered: s.total_delivered || 0,
+          avg_rating: s.avg_rating || 0
+        }
+      })
+      schoolStats.value = result
+    } catch (e) { /* stats optional */ }
+  } catch (e) {
+    // silent — map is optional
+  }
+}
+
 onMounted(() => {
   setDefaultCashFlowDateRange()
   loadDashboardData()
   loadCashFlowSummary()
   setupFirebaseListeners()
+  loadMapData()
 })
 
 onUnmounted(() => {

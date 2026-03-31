@@ -3,6 +3,24 @@ import { useAuthStore } from '@/stores/auth'
 import { message } from 'ant-design-vue'
 import MainLayout from '@/layouts/MainLayout.vue'
 
+/**
+ * Returns the default landing route for a given role after login.
+ * Requirement 17.6: Superadmin → Yayasan, Admin BGN → Dashboard BGN,
+ * Kepala Yayasan → Dashboard Yayasan, others → dashboard.
+ */
+function getDefaultRouteForRole(role) {
+  switch (role) {
+    case 'superadmin':
+      return '/yayasan'
+    case 'admin_bgn':
+      return '/dashboard-bgn'
+    case 'kepala_yayasan':
+      return '/dashboard-yayasan'
+    default:
+      return '/dashboard'
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -19,15 +37,22 @@ const router = createRouter({
       children: [
         {
           path: '',
-          redirect: '/dashboard'
+          redirect: () => {
+            try {
+              const authStore = useAuthStore()
+              if (authStore.user?.role) {
+                return getDefaultRouteForRole(authStore.user.role)
+              }
+            } catch (e) { /* store not ready */ }
+            return '/dashboard'
+          }
         },
         {
           path: 'dashboard',
           name: 'dashboard',
           component: () => import('@/views/DashboardView.vue'),
           meta: {
-            requiresAuth: true,
-            roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan', 'ahli_gizi', 'pengadaan']
+            requiresAuth: true
           }
         },
         {
@@ -40,6 +65,63 @@ const router = createRouter({
             title: 'Dashboard'
           }
         },
+        // --- New multi-tenancy routes ---
+        {
+          path: 'yayasan',
+          name: 'yayasan',
+          component: () => import('@/views/YayasanListView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['superadmin', 'admin_bgn'],
+            requiredModule: 'manajemen_yayasan',
+            title: 'Manajemen Yayasan'
+          }
+        },
+        {
+          path: 'sppg',
+          name: 'sppg',
+          component: () => import('@/views/SPPGListView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['superadmin', 'admin_bgn'],
+            requiredModule: 'manajemen_sppg',
+            title: 'Manajemen SPPG'
+          }
+        },
+        {
+          path: 'users',
+          name: 'users',
+          component: () => import('@/views/UserManagementView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['superadmin', 'kepala_yayasan', 'kepala_sppg'],
+            requiredModule: 'manajemen_user',
+            title: 'Manajemen User'
+          }
+        },
+        {
+          path: 'dashboard-bgn',
+          name: 'dashboard-bgn',
+          component: () => import('@/views/DashboardBGNView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['superadmin', 'admin_bgn'],
+            requiredModule: 'dashboard_bgn',
+            title: 'Dashboard BGN'
+          }
+        },
+        {
+          path: 'dashboard-yayasan',
+          name: 'dashboard-yayasan',
+          component: () => import('@/views/DashboardKepalaYayasanView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['superadmin', 'admin_bgn', 'kepala_yayasan'],
+            requiredModule: 'dashboard_yayasan',
+            title: 'Dashboard Yayasan'
+          }
+        },
+        // --- End new multi-tenancy routes ---
         {
           path: 'dashboard/kepala-yayasan',
           name: 'dashboard-kepala-yayasan',
@@ -356,7 +438,7 @@ const router = createRouter({
           component: () => import('@/views/AuditTrailView.vue'),
           meta: {
             requiresAuth: true,
-            roles: ['kepala_sppg'],
+            roles: ['superadmin', 'admin_bgn', 'kepala_yayasan', 'kepala_sppg'],
             title: 'Audit Trail'
           }
         },
@@ -366,7 +448,7 @@ const router = createRouter({
           component: () => import('@/views/SystemConfigView.vue'),
           meta: {
             requiresAuth: true,
-            roles: ['kepala_sppg'],
+            roles: ['superadmin', 'kepala_sppg'],
             title: 'Konfigurasi Sistem'
           }
         },
@@ -399,13 +481,42 @@ const router = createRouter({
             roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan'],
             title: 'Ulasan & Rating'
           }
+        },
+        // --- Risk Assessment routes ---
+        {
+          path: 'risk-assessment',
+          name: 'risk-assessment',
+          component: () => import('@/views/RiskAssessmentListView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['kepala_yayasan', 'superadmin'],
+            title: 'Risk Assessment'
+          }
+        },
+        {
+          path: 'risk-assessment/:id',
+          name: 'risk-assessment-detail',
+          component: () => import('@/views/RiskAssessmentDetailView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['kepala_yayasan', 'superadmin'],
+            title: 'Detail Risk Assessment'
+          }
         }
       ]
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      redirect: '/dashboard'
+      redirect: () => {
+        try {
+          const authStore = useAuthStore()
+          if (authStore.isAuthenticated && authStore.user?.role) {
+            return getDefaultRouteForRole(authStore.user.role)
+          }
+        } catch (e) { /* store not ready */ }
+        return '/login'
+      }
     }
   ]
 })
@@ -416,6 +527,17 @@ const hasRequiredRole = (userRole, requiredRoles) => {
     return true
   }
   return requiredRoles.includes(userRole)
+}
+
+// Check if user has access to the required module
+const hasRequiredModule = (userModules, requiredModule) => {
+  if (!requiredModule) {
+    return true
+  }
+  if (!Array.isArray(userModules) || userModules.length === 0) {
+    return false
+  }
+  return userModules.includes(requiredModule)
 }
 
 // Navigation guard
@@ -442,19 +564,41 @@ router.beforeEach(async (to, from, next) => {
       }
     }
 
+    const userRole = authStore.user?.role
+
+    // Check role-based access
     if (to.meta.roles) {
-      const userRole = authStore.user?.role
       if (!hasRequiredRole(userRole, to.meta.roles)) {
         message.error('Anda tidak memiliki akses ke halaman ini')
-        next('/dashboard')
+        if (from.name) {
+          next(false)
+        } else {
+          next(getDefaultRouteForRole(userRole))
+        }
+        return
+      }
+    }
+
+    // Check module-based access
+    if (to.meta.requiredModule) {
+      if (!hasRequiredModule(authStore.modules, to.meta.requiredModule)) {
+        message.error('Anda tidak memiliki akses ke modul ini')
+        if (from.name) {
+          next(false)
+        } else {
+          next(getDefaultRouteForRole(userRole))
+        }
         return
       }
     }
 
     next()
   } else {
+    // For non-auth routes (e.g. /login), redirect authenticated users to their default page
     if (to.path === '/login' && authStore.isAuthenticated) {
-      next('/dashboard')
+      const userRole = authStore.user?.role
+      // Ignore ?redirect query param — always use role-based default
+      next(getDefaultRouteForRole(userRole))
     } else {
       next()
     }

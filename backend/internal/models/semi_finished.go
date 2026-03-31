@@ -8,6 +8,7 @@ import (
 // Examples: Nasi, Ayam Goreng, Sambal
 type SemiFinishedGoods struct {
 	ID                      uint      `gorm:"primaryKey" json:"id"`
+	SPPGID                  *uint     `gorm:"index" json:"sppg_id"`
 	Name                    string    `gorm:"size:100;not null;index" json:"name" validate:"required"`
 	Unit                    string    `gorm:"size:20;not null" json:"unit" validate:"required"` // kg, liter, pcs, etc.
 	Category                string    `gorm:"size:50;index" json:"category"` // nasi, lauk, sambal, etc.

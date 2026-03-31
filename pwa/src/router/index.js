@@ -10,6 +10,8 @@ const TASK_ALLOWED_ROLES = ['driver', 'asisten_lapangan']
  */
 function getDefaultRoute(role) {
   const roleStr = role?.toLowerCase()
+  if (roleStr === 'admin_bgn' || roleStr === 'superadmin') return '/dashboard-bgn'
+  if (roleStr === 'kepala_yayasan') return '/dashboard-yayasan'
   if (roleStr === 'kepala_sppg') return '/dashboard'
   if (roleStr === 'ahli_gizi') return '/menu-planning'
   if (roleStr === 'sekolah') return '/school-monitoring'
@@ -43,6 +45,38 @@ const router = createRouter({
           name: 'dashboard',
           component: () => import('@/views/DashboardView.vue'),
           meta: { roles: ['kepala_sppg'] }
+        },
+        // Dashboard Yayasan routes
+        {
+          path: 'dashboard-yayasan',
+          name: 'dashboard-yayasan',
+          component: () => import('@/views/DashboardYayasanView.vue'),
+          meta: { roles: ['kepala_yayasan'] }
+        },
+        {
+          path: 'dashboard-yayasan/:sppg_id',
+          name: 'dashboard-yayasan-sppg',
+          component: () => import('@/views/DashboardYayasanView.vue'),
+          meta: { roles: ['kepala_yayasan'] }
+        },
+        // Dashboard BGN routes
+        {
+          path: 'dashboard-bgn',
+          name: 'dashboard-bgn',
+          component: () => import('@/views/DashboardBGNView.vue'),
+          meta: { roles: ['admin_bgn', 'superadmin'] }
+        },
+        {
+          path: 'dashboard-bgn/:yayasan_id',
+          name: 'dashboard-bgn-yayasan',
+          component: () => import('@/views/DashboardBGNView.vue'),
+          meta: { roles: ['admin_bgn', 'superadmin'] }
+        },
+        {
+          path: 'dashboard-bgn/:yayasan_id/:sppg_id',
+          name: 'dashboard-bgn-sppg',
+          component: () => import('@/views/DashboardBGNView.vue'),
+          meta: { roles: ['admin_bgn', 'superadmin'] }
         },
         {
           path: 'monitoring',
@@ -107,6 +141,19 @@ const router = createRouter({
           path: 'profile',
           name: 'profile',
           component: () => import('@/views/ProfileView.vue')
+        },
+        // Risk Assessment routes (kepala_yayasan)
+        {
+          path: 'risk-assessment',
+          name: 'risk-assessment',
+          component: () => import('@/views/RiskAssessmentSelectView.vue'),
+          meta: { roles: ['kepala_yayasan'] }
+        },
+        {
+          path: 'risk-assessment/:id',
+          name: 'risk-assessment-form',
+          component: () => import('@/views/RiskAssessmentFormView.vue'),
+          meta: { roles: ['kepala_yayasan'] }
         }
       ]
     }

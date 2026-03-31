@@ -42,6 +42,36 @@ func (s *AuditTrailService) RecordAction(userID uint, action, entity, entityID s
 		OldValue:  string(oldJSON),
 		NewValue:  string(newJSON),
 		IPAddress: ipAddress,
+		Level:     "info",
+	}
+
+	return s.db.Create(&auditEntry).Error
+}
+
+// RecordActionWithTenant records a user action in the audit trail with tenant context.
+func (s *AuditTrailService) RecordActionWithTenant(userID uint, action, entity, entityID string, oldValue, newValue interface{}, ipAddress string, sppgID, yayasanID *uint) error {
+	oldJSON, err := json.Marshal(oldValue)
+	if err != nil {
+		oldJSON = []byte("{}")
+	}
+
+	newJSON, err := json.Marshal(newValue)
+	if err != nil {
+		newJSON = []byte("{}")
+	}
+
+	auditEntry := models.AuditTrail{
+		UserID:    userID,
+		Timestamp: time.Now(),
+		Action:    action,
+		Entity:    entity,
+		EntityID:  entityID,
+		OldValue:  string(oldJSON),
+		NewValue:  string(newJSON),
+		IPAddress: ipAddress,
+		SPPGID:    sppgID,
+		YayasanID: yayasanID,
+		Level:     "info",
 	}
 
 	return s.db.Create(&auditEntry).Error
@@ -89,6 +119,20 @@ func (s *AuditTrailService) GetAuditTrail(filters map[string]interface{}, limit,
 
 	if endDate, ok := filters["end_date"].(time.Time); ok {
 		query = query.Where("timestamp <= ?", endDate)
+	}
+
+	// Tenant scoping filters
+	if sppgID, ok := filters["sppg_id"].(uint); ok && sppgID > 0 {
+		query = query.Where("sppg_id = ?", sppgID)
+	}
+
+	if yayasanID, ok := filters["yayasan_id"].(uint); ok && yayasanID > 0 {
+		query = query.Where("yayasan_id = ?", yayasanID)
+	}
+
+	// Filter by sppg_ids (for kepala_yayasan scope)
+	if sppgIDs, ok := filters["sppg_ids"].([]uint); ok && len(sppgIDs) > 0 {
+		query = query.Where("sppg_id IN ? OR sppg_id IS NULL", sppgIDs)
 	}
 
 	// Get total count

@@ -259,82 +259,12 @@
 
         <a-divider>Koordinat GPS</a-divider>
 
-        <a-alert
-          message="Cara Mendapatkan Koordinat GPS"
-          type="info"
-          show-icon
-          style="margin-bottom: 16px"
-        >
-          <template #description>
-            <ol style="margin: 8px 0 0 0; padding-left: 20px;">
-              <li>Buka Google Maps di browser</li>
-              <li>Cari lokasi sekolah atau klik pada peta</li>
-              <li>Klik kanan pada lokasi yang tepat</li>
-              <li>Pilih koordinat yang muncul (contoh: -6.200000, 106.816666)</li>
-              <li>Masukkan nilai Latitude (angka pertama) dan Longitude (angka kedua)</li>
-            </ol>
-          </template>
-        </a-alert>
-
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item label="Latitude" name="latitude">
-              <a-input-number
-                v-model:value="formData.latitude"
-                :min="-90"
-                :max="90"
-                :precision="6"
-                :step="0.000001"
-                style="width: 100%"
-                placeholder="-6.200000"
-                size="large"
-              />
-              <div class="form-help">
-                Rentang: -90 sampai 90 (contoh: -6.200000 untuk Jakarta)
-              </div>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="Longitude" name="longitude">
-              <a-input-number
-                v-model:value="formData.longitude"
-                :min="-180"
-                :max="180"
-                :precision="6"
-                :step="0.000001"
-                style="width: 100%"
-                placeholder="106.816666"
-                size="large"
-              />
-              <div class="form-help">
-                Rentang: -180 sampai 180 (contoh: 106.816666 untuk Jakarta)
-              </div>
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter="24" v-if="formData.latitude && formData.longitude">
-          <a-col :span="24">
-            <a-card size="small" title="Pratinjau Lokasi">
-              <a-space>
-                <a-button 
-                  type="primary" 
-                  @click="openMapsPreview"
-                >
-                  <template #icon><EnvironmentOutlined /></template>
-                  Lihat di Google Maps
-                </a-button>
-                <a-button @click="copyCoordinates">
-                  <template #icon><CopyOutlined /></template>
-                  Salin Koordinat
-                </a-button>
-              </a-space>
-              <div style="margin-top: 8px; color: #666;">
-                Koordinat: {{ formData.latitude }}, {{ formData.longitude }}
-              </div>
-            </a-card>
-          </a-col>
-        </a-row>
+        <a-form-item label="Lokasi Sekolah">
+          <LocationPicker
+            v-model:latitude="formData.latitude"
+            v-model:longitude="formData.longitude"
+          />
+        </a-form-item>
 
         <a-divider>Informasi Kontak</a-divider>
 
@@ -438,6 +368,7 @@ import { message } from 'ant-design-vue'
 import { EnvironmentOutlined, CopyOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import schoolService from '@/services/schoolService'
 import axios from 'axios'
+import LocationPicker from '@/components/LocationPicker.vue'
 
 const router = useRouter()
 const route = useRoute()

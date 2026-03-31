@@ -7,11 +7,14 @@ import (
 // Supplier represents a vendor that supplies ingredients
 type Supplier struct {
 	ID              uint      `gorm:"primaryKey" json:"id"`
+	SPPGID          *uint     `gorm:"index" json:"sppg_id"`
 	Name            string    `gorm:"size:200;not null;index" json:"name" validate:"required"`
 	ContactPerson   string    `gorm:"size:100" json:"contact_person"`
 	PhoneNumber     string    `gorm:"size:20" json:"phone_number"`
 	Email           string    `gorm:"size:100" json:"email" validate:"omitempty,email"`
 	Address         string    `gorm:"type:text" json:"address"`
+	Latitude        float64   `gorm:"default:0" json:"latitude"`
+	Longitude       float64   `gorm:"default:0" json:"longitude"`
 	ProductCategory string    `gorm:"size:100;index" json:"product_category"`
 	IsActive        bool      `gorm:"default:true;index" json:"is_active"`
 	OnTimeDelivery  float64   `gorm:"default:0" json:"on_time_delivery"` // percentage
@@ -23,6 +26,7 @@ type Supplier struct {
 // PurchaseOrder represents an order placed with a supplier
 type PurchaseOrder struct {
 	ID               uint                `gorm:"primaryKey" json:"id"`
+	SPPGID           *uint               `gorm:"index" json:"sppg_id"`
 	PONumber         string              `gorm:"uniqueIndex;size:50;not null" json:"po_number" validate:"required"`
 	SupplierID       uint                `gorm:"index;not null" json:"supplier_id"`
 	OrderDate        time.Time           `gorm:"index;not null" json:"order_date"`
@@ -55,6 +59,7 @@ type PurchaseOrderItem struct {
 // GoodsReceipt represents the receipt of goods from a supplier
 type GoodsReceipt struct {
 	ID            uint               `gorm:"primaryKey" json:"id"`
+	SPPGID        *uint              `gorm:"index" json:"sppg_id"`
 	GRNNumber     string             `gorm:"uniqueIndex;size:50;not null" json:"grn_number" validate:"required"`
 	POID          uint               `gorm:"index;not null" json:"po_id"`
 	ReceiptDate   time.Time          `gorm:"index;not null" json:"receipt_date"`
@@ -83,6 +88,7 @@ type GoodsReceiptItem struct {
 // InventoryItem represents current stock levels for an ingredient
 type InventoryItem struct {
 	ID           uint       `gorm:"primaryKey" json:"id"`
+	SPPGID       *uint      `gorm:"index" json:"sppg_id"`
 	IngredientID uint       `gorm:"uniqueIndex;not null" json:"ingredient_id"`
 	Quantity     float64    `gorm:"not null" json:"quantity"`
 	MinThreshold float64    `gorm:"not null" json:"min_threshold"`
@@ -93,6 +99,7 @@ type InventoryItem struct {
 // InventoryMovement tracks all inventory changes
 type InventoryMovement struct {
 	ID           uint       `gorm:"primaryKey" json:"id"`
+	SPPGID       *uint      `gorm:"index" json:"sppg_id"`
 	IngredientID uint       `gorm:"index;not null" json:"ingredient_id"`
 	MovementType string     `gorm:"size:20;not null;index" json:"movement_type" validate:"required,oneof=in out adjustment"` // in, out, adjustment
 	Quantity     float64    `gorm:"not null" json:"quantity"`
@@ -107,6 +114,7 @@ type InventoryMovement struct {
 // StokOpnameForm represents a physical inventory count form
 type StokOpnameForm struct {
 	ID              uint              `gorm:"primaryKey" json:"id"`
+	SPPGID          *uint             `gorm:"index" json:"sppg_id"`
 	FormNumber      string            `gorm:"uniqueIndex;size:50;not null" json:"form_number" validate:"required"`
 	CreatedBy       uint              `gorm:"not null;index" json:"created_by"`
 	CreatedAt       time.Time         `gorm:"index;not null" json:"created_at"`

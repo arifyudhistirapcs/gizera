@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/erp-sppg/backend/internal/middleware"
 	"github.com/erp-sppg/backend/internal/models"
 	"github.com/erp-sppg/backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,7 @@ import (
 
 // FinancialHandler handles financial endpoints
 type FinancialHandler struct {
+	db                     *gorm.DB
 	assetService           *services.AssetService
 	cashFlowService        *services.CashFlowService
 	financialReportService *services.FinancialReportService
@@ -21,6 +23,7 @@ type FinancialHandler struct {
 // NewFinancialHandler creates a new financial handler
 func NewFinancialHandler(db *gorm.DB) *FinancialHandler {
 	return &FinancialHandler{
+		db:                     db,
 		assetService:           services.NewAssetService(db),
 		cashFlowService:        services.NewCashFlowService(db),
 		financialReportService: services.NewFinancialReportService(db),
@@ -76,7 +79,13 @@ func (h *FinancialHandler) CreateAsset(c *gin.Context) {
 		Location:         req.Location,
 	}
 
-	if err := h.assetService.CreateAsset(asset); err != nil {
+	// Auto-inject sppg_id for SPPG-level roles
+	if sppgID, ok := middleware.GetTenantSPPGID(c); ok {
+		asset.SPPGID = &sppgID
+	}
+
+	scopedService := h.assetService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateAsset(asset); err != nil {
 		if err == services.ErrDuplicateAssetCode {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success":    false,
@@ -113,7 +122,8 @@ func (h *FinancialHandler) GetAsset(c *gin.Context) {
 		return
 	}
 
-	asset, err := h.assetService.GetAssetByID(uint(id))
+	scopedService := h.assetService.WithDB(getTenantScopedDB(c, h.db))
+	asset, err := scopedService.GetAssetByID(uint(id))
 	if err != nil {
 		if err == services.ErrAssetNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -144,13 +154,14 @@ func (h *FinancialHandler) GetAllAssets(c *gin.Context) {
 	query := c.Query("q")
 	condition := c.Query("condition")
 
+	scopedService := h.assetService.WithDB(getTenantScopedDB(c, h.db))
 	var assets []models.KitchenAsset
 	var err error
 
 	if query != "" || condition != "" {
-		assets, err = h.assetService.SearchAssets(query, category, condition)
+		assets, err = scopedService.SearchAssets(query, category, condition)
 	} else {
-		assets, err = h.assetService.GetAllAssets(category)
+		assets, err = scopedService.GetAllAssets(category)
 	}
 
 	if err != nil {
@@ -213,7 +224,8 @@ func (h *FinancialHandler) UpdateAsset(c *gin.Context) {
 		Location:         req.Location,
 	}
 
-	if err := h.assetService.UpdateAsset(uint(id), asset); err != nil {
+	scopedService := h.assetService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.UpdateAsset(uint(id), asset); err != nil {
 		if err == services.ErrAssetNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -258,7 +270,8 @@ func (h *FinancialHandler) DeleteAsset(c *gin.Context) {
 		return
 	}
 
-	if err := h.assetService.DeleteAsset(uint(id)); err != nil {
+	scopedService := h.assetService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.DeleteAsset(uint(id)); err != nil {
 		if err == services.ErrAssetNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -331,7 +344,8 @@ func (h *FinancialHandler) AddMaintenance(c *gin.Context) {
 		PerformedBy:     req.PerformedBy,
 	}
 
-	if err := h.assetService.AddMaintenanceRecord(uint(id), maintenance); err != nil {
+	scopedService := h.assetService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.AddMaintenanceRecord(uint(id), maintenance); err != nil {
 		if err == services.ErrAssetNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -358,7 +372,8 @@ func (h *FinancialHandler) AddMaintenance(c *gin.Context) {
 
 // GetAssetReport retrieves asset report
 func (h *FinancialHandler) GetAssetReport(c *gin.Context) {
-	report, err := h.assetService.GenerateAssetReport()
+	scopedService := h.assetService.WithDB(getTenantScopedDB(c, h.db))
+	report, err := scopedService.GenerateAssetReport()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -393,7 +408,8 @@ func (h *FinancialHandler) GetDepreciationSchedule(c *gin.Context) {
 		}
 	}
 
-	schedule, err := h.assetService.GetDepreciationSchedule(uint(id), years)
+	scopedService := h.assetService.WithDB(getTenantScopedDB(c, h.db))
+	schedule, err := scopedService.GetDepreciationSchedule(uint(id), years)
 	if err != nil {
 		if err == services.ErrAssetNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -473,7 +489,13 @@ func (h *FinancialHandler) CreateCashFlow(c *gin.Context) {
 		CreatedBy:   userID.(uint),
 	}
 
-	if err := h.cashFlowService.CreateCashFlowEntry(entry); err != nil {
+	// Auto-inject sppg_id for SPPG-level roles
+	if sppgID, ok := middleware.GetTenantSPPGID(c); ok {
+		entry.SPPGID = &sppgID
+	}
+
+	scopedService := h.cashFlowService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateCashFlowEntry(entry); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success":    false,
 			"error_code": "CREATE_CASH_FLOW_ERROR",
@@ -506,7 +528,8 @@ func (h *FinancialHandler) GetAllCashFlow(c *gin.Context) {
 		}
 	}
 
-	entries, err := h.cashFlowService.GetAllCashFlowEntries(category, entryType, startDate, endDate)
+	scopedService := h.cashFlowService.WithDB(getTenantScopedDB(c, h.db))
+	entries, err := scopedService.GetAllCashFlowEntries(category, entryType, startDate, endDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -556,7 +579,8 @@ func (h *FinancialHandler) GetCashFlowSummary(c *gin.Context) {
 		return
 	}
 
-	summary, err := h.cashFlowService.GetCashFlowSummary(startDate, endDate)
+	scopedService := h.cashFlowService.WithDB(getTenantScopedDB(c, h.db))
+	summary, err := scopedService.GetCashFlowSummary(startDate, endDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -613,7 +637,8 @@ func (h *FinancialHandler) GetFinancialReport(c *gin.Context) {
 	includeAssets := c.DefaultQuery("include_assets", "false") == "true"
 	includeTrend := c.DefaultQuery("include_trend", "false") == "true"
 
-	report, err := h.financialReportService.GenerateFinancialReport(
+	scopedService := h.financialReportService.WithDB(getTenantScopedDB(c, h.db))
+	report, err := scopedService.GenerateFinancialReport(
 		startDate,
 		endDate,
 		includeBudget,
@@ -687,7 +712,8 @@ func (h *FinancialHandler) ExportFinancialReport(c *gin.Context) {
 		IncludeCharts: req.IncludeCharts,
 	}
 
-	data, filename, err := h.financialReportService.ExportFinancialReport(startDate, endDate, options)
+	scopedService := h.financialReportService.WithDB(getTenantScopedDB(c, h.db))
+	data, filename, err := scopedService.ExportFinancialReport(startDate, endDate, options)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,

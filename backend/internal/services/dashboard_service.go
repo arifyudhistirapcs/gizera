@@ -9,6 +9,7 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/db"
+	fb "github.com/erp-sppg/backend/internal/firebase"
 	"gorm.io/gorm"
 )
 
@@ -603,7 +604,8 @@ func (s *DashboardService) getCleaningStatus(ctx context.Context) (*CleaningStat
 	// Also check Firebase for any additional data (in case database is not synced)
 	if s.dbClient != nil {
 		log.Printf("Dashboard: Checking Firebase for cleaning data...")
-		cleaningPath := "/cleaning/pending"
+		sppgID := fb.GetSPPGID(ctx)
+		cleaningPath := fb.CleaningPendingPath(sppgID)
 		var cleaningRecords map[string]interface{}
 		err := s.dbClient.NewRef(cleaningPath).Get(ctx, &cleaningRecords)
 		
@@ -1351,7 +1353,7 @@ func (s *DashboardService) getMonthlyTrend(ctx context.Context, startDate, endDa
 }
 
 // SyncKepalaSSPGDashboardToFirebase syncs Kepala SPPG dashboard to Firebase
-func (s *DashboardService) SyncKepalaSSPGDashboardToFirebase(ctx context.Context) error {
+func (s *DashboardService) SyncKepalaSSPGDashboardToFirebase(ctx context.Context, sppgID uint) error {
 	if s.dbClient == nil {
 		return fmt.Errorf("Firebase client tidak tersedia")
 	}
@@ -1361,7 +1363,7 @@ func (s *DashboardService) SyncKepalaSSPGDashboardToFirebase(ctx context.Context
 		return err
 	}
 
-	firebasePath := "/dashboard/kepala_sppg"
+	firebasePath := fb.DashboardKepalaSSPGPath(sppgID)
 	err = s.dbClient.NewRef(firebasePath).Set(ctx, dashboard)
 	if err != nil {
 		return fmt.Errorf("gagal sync dashboard ke Firebase: %w", err)
@@ -1371,7 +1373,7 @@ func (s *DashboardService) SyncKepalaSSPGDashboardToFirebase(ctx context.Context
 }
 
 // SyncKepalaYayasanDashboardToFirebase syncs Kepala Yayasan dashboard to Firebase
-func (s *DashboardService) SyncKepalaYayasanDashboardToFirebase(ctx context.Context, startDate, endDate time.Time) error {
+func (s *DashboardService) SyncKepalaYayasanDashboardToFirebase(ctx context.Context, yayasanID uint, startDate, endDate time.Time) error {
 	if s.dbClient == nil {
 		return fmt.Errorf("Firebase client tidak tersedia")
 	}
@@ -1381,7 +1383,7 @@ func (s *DashboardService) SyncKepalaYayasanDashboardToFirebase(ctx context.Cont
 		return err
 	}
 
-	firebasePath := "/dashboard/kepala_yayasan"
+	firebasePath := fb.DashboardKepalaYayasanPath(yayasanID)
 	err = s.dbClient.NewRef(firebasePath).Set(ctx, dashboard)
 	if err != nil {
 		return fmt.Errorf("gagal sync dashboard ke Firebase: %w", err)

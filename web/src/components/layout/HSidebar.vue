@@ -82,6 +82,18 @@
       </template>
     </nav>
 
+    <!-- User Info -->
+    <div v-if="!isCollapsed" class="user-info">
+      <UserOutlined class="user-info__avatar" />
+      <div class="user-info__details">
+        <div class="user-info__name">{{ authStore.user?.full_name || 'User' }}</div>
+        <div class="user-info__role">{{ userRoleLabel }}</div>
+      </div>
+    </div>
+    <div v-else class="user-info user-info--collapsed">
+      <UserOutlined class="user-info__avatar" />
+    </div>
+
     <!-- Logout Button -->
     <button
       class="logout-button"
@@ -98,6 +110,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePermissions } from '@/composables/usePermissions'
+import { getRoleLabel } from '@/utils/permissions'
 import { useBreakpoint } from '@/composables/useBreakpoint'
 import { useDarkMode } from '@/composables/useDarkMode'
 import { useAuthStore } from '@/stores/auth'
@@ -131,7 +144,10 @@ import {
   MenuUnfoldOutlined,
   FireOutlined,
   ClearOutlined,
-  StarOutlined
+  StarOutlined,
+  GlobalOutlined,
+  FundOutlined,
+  SafetyCertificateOutlined
 } from '@ant-design/icons-vue'
 
 /**
@@ -171,42 +187,93 @@ const { isMobile } = useBreakpoint()
 const { isDark } = useDarkMode()
 const authStore = useAuthStore()
 
+// User role label for sidebar display
+const userRoleLabel = computed(() => getRoleLabel(authStore.user?.role || ''))
+
 // Local collapsed state
 const isCollapsed = ref(props.collapsed)
 
 // Expanded groups tracking
 const expandedGroups = ref([])
 
+// Roles that should NOT see operational modules (KDS, Menu Planning, PO, Cooking, Packing, Attendance)
+const NON_OPERATIONAL_ROLES = ['superadmin', 'admin_bgn', 'kepala_yayasan']
+
 /**
- * Menu structure sesuai requirements
+ * Multi-tenant management menu items — shown based on modules from auth store
  */
-const menuItems = [
+const multiTenantMenuItems = [
+  {
+    key: 'dashboard-bgn',
+    label: 'Dashboard BGN',
+    icon: GlobalOutlined,
+    route: '/dashboard-bgn',
+    module: 'dashboard_bgn'
+  },
+  {
+    key: 'dashboard-yayasan',
+    label: 'Dashboard Yayasan',
+    icon: FundOutlined,
+    route: '/dashboard-yayasan',
+    module: 'dashboard_yayasan'
+  },
+  {
+    key: 'manajemen-yayasan',
+    label: 'Manajemen Yayasan',
+    icon: BankOutlined,
+    route: '/yayasan',
+    module: 'manajemen_yayasan'
+  },
+  {
+    key: 'manajemen-sppg',
+    label: 'Manajemen SPPG',
+    icon: ShopOutlined,
+    route: '/sppg',
+    module: 'manajemen_sppg'
+  },
+  {
+    key: 'manajemen-user',
+    label: 'Manajemen User',
+    icon: TeamOutlined,
+    route: '/users',
+    module: 'manajemen_user'
+  }
+]
+
+/**
+ * Operational menu items — hidden from superadmin, admin_bgn, kepala_yayasan
+ */
+const operationalMenuItems = [
   {
     key: 'dashboard',
     label: 'Dashboard',
     icon: HomeOutlined,
     route: '/dashboard',
-    roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan', 'ahli_gizi', 'pengadaan']
+    roles: ['kepala_sppg', 'akuntan', 'ahli_gizi', 'pengadaan'],
+    operational: true
   },
   {
     key: 'monitoring',
     label: 'Monitoring Aktivitas',
     icon: MonitorOutlined,
     route: '/monitoring-activity',
-    roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan', 'ahli_gizi', 'pengadaan', 'chef', 'packing', 'driver', 'asisten_lapangan']
+    roles: ['kepala_sppg', 'akuntan', 'ahli_gizi', 'pengadaan', 'chef', 'packing', 'driver', 'asisten_lapangan'],
+    operational: true
   },
   {
     key: 'reviews',
     label: 'Ulasan & Rating',
     icon: StarOutlined,
     route: '/reviews',
-    roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan']
+    roles: ['kepala_sppg', 'akuntan'],
+    operational: true
   },
   {
     key: 'display',
     label: 'Display / KDS',
     icon: DashboardOutlined,
     roles: ['kepala_sppg', 'ahli_gizi', 'chef', 'packing', 'kebersihan'],
+    operational: true,
     children: [
       {
         key: 'kds-cooking',
@@ -236,6 +303,7 @@ const menuItems = [
     label: 'Menu & Komponen',
     icon: FileTextOutlined,
     roles: ['kepala_sppg', 'ahli_gizi', 'chef'],
+    operational: true,
     children: [
       {
         key: 'menu-planning',
@@ -265,6 +333,7 @@ const menuItems = [
     label: 'Supply Chain',
     icon: ShoppingOutlined,
     roles: ['kepala_sppg', 'pengadaan'],
+    operational: true,
     children: [
       {
         key: 'suppliers',
@@ -301,6 +370,7 @@ const menuItems = [
     label: 'Logistik',
     icon: CarOutlined,
     roles: ['kepala_sppg', 'driver', 'asisten'],
+    operational: true,
     children: [
       {
         key: 'schools',
@@ -323,6 +393,7 @@ const menuItems = [
     label: 'SDM',
     icon: TeamOutlined,
     roles: ['kepala_sppg', 'akuntan'],
+    operational: true,
     children: [
       {
         key: 'employees',
@@ -352,6 +423,7 @@ const menuItems = [
     label: 'Keuangan',
     icon: DollarOutlined,
     roles: ['kepala_sppg', 'akuntan'],
+    operational: true,
     children: [
       {
         key: 'assets',
@@ -377,34 +449,59 @@ const menuItems = [
     ]
   },
   {
+    key: 'risk-assessment',
+    label: 'Risk Assessment',
+    icon: SafetyCertificateOutlined,
+    route: '/risk-assessment',
+    roles: ['kepala_yayasan', 'superadmin']
+  },
+  {
     key: 'system',
     label: 'Sistem',
     icon: SettingOutlined,
-    roles: ['kepala_sppg'],
+    roles: ['kepala_sppg', 'superadmin'],
     children: [
       {
         key: 'audit-trail',
         label: 'Audit Trail',
         icon: AuditOutlined,
         route: '/audit-trail',
-        roles: ['kepala_sppg']
+        roles: ['kepala_sppg', 'superadmin']
       },
       {
         key: 'system-config',
         label: 'Konfigurasi',
         icon: ControlOutlined,
         route: '/system-config',
-        roles: ['kepala_sppg']
+        roles: ['kepala_sppg', 'superadmin']
       }
     ]
   }
 ]
 
 /**
- * Filter menu items berdasarkan role user
+ * Filter menu items berdasarkan role user dan modules dari auth store
+ * - Multi-tenant items: shown based on `modules` array from auth store
+ * - Operational items: hidden from superadmin, admin_bgn, kepala_yayasan (Req 17.4)
+ * - SPPG-level roles: see operational items as before (Req 17.5)
  */
 const filteredMenuItems = computed(() => {
-  return menuItems.filter(item => {
+  const userModules = authStore.modules || []
+  const userRole = authStore.role || ''
+  const isNonOperational = NON_OPERATIONAL_ROLES.includes(userRole)
+
+  // 1. Filter multi-tenant menu items based on modules
+  const tenantItems = multiTenantMenuItems.filter(item => {
+    return userModules.includes(item.module)
+  })
+
+  // 2. Filter operational menu items
+  const opItems = operationalMenuItems.filter(item => {
+    // Hide operational modules from non-operational roles (Req 17.4)
+    if (item.operational && isNonOperational) {
+      return false
+    }
+
     // Check if user has required role
     if (item.roles && !isAnyRole(item.roles)) {
       return false
@@ -415,13 +512,16 @@ const filteredMenuItems = computed(() => {
       item.children = item.children.filter(child => {
         return !child.roles || isAnyRole(child.roles)
       })
-      
+
       // Hide parent jika tidak ada children yang visible
       return item.children.length > 0
     }
 
     return true
   })
+
+  // Multi-tenant items first, then operational items
+  return [...tenantItems, ...opItems]
 })
 
 /**
@@ -485,8 +585,8 @@ const handleLogout = async () => {
  * Auto-expand active group
  */
 watch(() => route.path, () => {
-  // Find and expand group containing active route
-  menuItems.forEach(item => {
+  // Find and expand group containing active route (only operational items have children)
+  operationalMenuItems.forEach(item => {
     if (item.children && isGroupActive(item)) {
       if (!expandedGroups.value.includes(item.key)) {
         expandedGroups.value.push(item.key)
@@ -781,6 +881,65 @@ watch(() => props.collapsed, (newValue) => {
 .submenu-leave-from {
   opacity: 1;
   max-height: 500px;
+}
+
+/* User Info */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  margin: 0 12px;
+  border-top: 1px solid var(--h-border-color, #E9EDF7);
+}
+
+.dark .user-info {
+  border-top-color: #1B254B;
+}
+
+.user-info--collapsed {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.user-info__avatar {
+  font-size: 20px;
+  color: #5A4372;
+  flex-shrink: 0;
+}
+
+.dark .user-info__avatar {
+  color: #B68FE8;
+}
+
+.user-info__details {
+  min-width: 0;
+  flex: 1;
+}
+
+.user-info__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--h-text-primary, #322837);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dark .user-info__name {
+  color: #F8FDEA;
+}
+
+.user-info__role {
+  font-size: 11px;
+  color: var(--h-text-secondary, #74788C);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dark .user-info__role {
+  color: #ACA9B0;
 }
 
 /* Logout Button */

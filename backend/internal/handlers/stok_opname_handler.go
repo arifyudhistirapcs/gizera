@@ -13,14 +13,21 @@ import (
 
 // StokOpnameHandler handles stok opname endpoints
 type StokOpnameHandler struct {
+	db                *gorm.DB
 	stokOpnameService services.StokOpnameService
 }
 
 // NewStokOpnameHandler creates a new stok opname handler
 func NewStokOpnameHandler(db *gorm.DB, inventoryService *services.InventoryService, notificationService *services.NotificationService) *StokOpnameHandler {
 	return &StokOpnameHandler{
+		db:                db,
 		stokOpnameService: services.NewStokOpnameService(db, inventoryService, notificationService),
 	}
+}
+
+// scopedStokOpname returns a tenant-scoped stok opname service
+func (h *StokOpnameHandler) scopedStokOpname(c *gin.Context) services.StokOpnameService {
+	return h.stokOpnameService.WithDB(getTenantScopedDB(c, h.db))
 }
 
 // CreateFormRequest represents create form request
@@ -76,7 +83,7 @@ func (h *StokOpnameHandler) CreateForm(c *gin.Context) {
 	}
 
 	// Create form
-	form, err := h.stokOpnameService.CreateForm(userID.(uint), req.Notes)
+	form, err := h.scopedStokOpname(c).CreateForm(userID.(uint), req.Notes)
 	if err != nil {
 		log.Printf("CreateForm: Service error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -132,7 +139,7 @@ func (h *StokOpnameHandler) GetAllForms(c *gin.Context) {
 	filters.PageSize = pageSize
 
 	// Get forms
-	forms, totalCount, err := h.stokOpnameService.GetAllForms(filters)
+	forms, totalCount, err := h.scopedStokOpname(c).GetAllForms(filters)
 	if err != nil {
 		log.Printf("GetAllForms: Service error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -167,7 +174,7 @@ func (h *StokOpnameHandler) GetForm(c *gin.Context) {
 		return
 	}
 
-	form, err := h.stokOpnameService.GetForm(uint(id))
+	form, err := h.scopedStokOpname(c).GetForm(uint(id))
 	if err != nil {
 		if err == services.ErrFormNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -216,7 +223,7 @@ func (h *StokOpnameHandler) UpdateFormNotes(c *gin.Context) {
 		return
 	}
 
-	err = h.stokOpnameService.UpdateFormNotes(uint(id), req.Notes)
+	err = h.scopedStokOpname(c).UpdateFormNotes(uint(id), req.Notes)
 	if err != nil {
 		if err == services.ErrFormNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -263,7 +270,7 @@ func (h *StokOpnameHandler) DeleteForm(c *gin.Context) {
 		return
 	}
 
-	err = h.stokOpnameService.DeleteForm(uint(id))
+	err = h.scopedStokOpname(c).DeleteForm(uint(id))
 	if err != nil {
 		if err == services.ErrFormNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -321,7 +328,7 @@ func (h *StokOpnameHandler) AddItem(c *gin.Context) {
 		return
 	}
 
-	err = h.stokOpnameService.AddItem(uint(formID), req.IngredientID, req.PhysicalCount, req.Notes)
+	err = h.scopedStokOpname(c).AddItem(uint(formID), req.IngredientID, req.PhysicalCount, req.Notes)
 	if err != nil {
 		if err == services.ErrFormNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -388,7 +395,7 @@ func (h *StokOpnameHandler) UpdateItem(c *gin.Context) {
 		return
 	}
 
-	err = h.stokOpnameService.UpdateItem(uint(itemID), req.PhysicalCount, req.Notes)
+	err = h.scopedStokOpname(c).UpdateItem(uint(itemID), req.PhysicalCount, req.Notes)
 	if err != nil {
 		if err == services.ErrItemNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -435,7 +442,7 @@ func (h *StokOpnameHandler) RemoveItem(c *gin.Context) {
 		return
 	}
 
-	err = h.stokOpnameService.RemoveItem(uint(itemID))
+	err = h.scopedStokOpname(c).RemoveItem(uint(itemID))
 	if err != nil {
 		if err == services.ErrItemNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -482,7 +489,7 @@ func (h *StokOpnameHandler) SubmitForApproval(c *gin.Context) {
 		return
 	}
 
-	err = h.stokOpnameService.SubmitForApproval(uint(formID))
+	err = h.scopedStokOpname(c).SubmitForApproval(uint(formID))
 	if err != nil {
 		if err == services.ErrFormNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -549,7 +556,7 @@ func (h *StokOpnameHandler) ApproveForm(c *gin.Context) {
 		return
 	}
 
-	err = h.stokOpnameService.ApproveForm(uint(formID), userID.(uint))
+	err = h.scopedStokOpname(c).ApproveForm(uint(formID), userID.(uint))
 	if err != nil {
 		if err == services.ErrFormNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -627,7 +634,7 @@ func (h *StokOpnameHandler) RejectForm(c *gin.Context) {
 		return
 	}
 
-	err = h.stokOpnameService.RejectForm(uint(formID), userID.(uint), req.Reason)
+	err = h.scopedStokOpname(c).RejectForm(uint(formID), userID.(uint), req.Reason)
 	if err != nil {
 		if err == services.ErrFormNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -694,7 +701,7 @@ func (h *StokOpnameHandler) ExportForm(c *gin.Context) {
 	}
 
 	// Export form
-	fileBytes, err := h.stokOpnameService.ExportForm(uint(formID), format, exporterName)
+	fileBytes, err := h.scopedStokOpname(c).ExportForm(uint(formID), format, exporterName)
 	if err != nil {
 		if err == services.ErrFormNotFound {
 			c.JSON(http.StatusNotFound, gin.H{

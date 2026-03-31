@@ -296,40 +296,12 @@
           </a-col>
         </a-row>
 
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="Latitude" name="latitude">
-              <a-input-number
-                v-model:value="formData.latitude"
-                :min="-90"
-                :max="90"
-                :precision="6"
-                style="width: 100%"
-                placeholder="-6.200000"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="Longitude" name="longitude">
-              <a-input-number
-                v-model:value="formData.longitude"
-                :min="-180"
-                :max="180"
-                :precision="6"
-                style="width: 100%"
-                placeholder="106.816666"
-              />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-alert
-          message="Tips GPS Coordinates"
-          description="Anda dapat mendapatkan koordinat GPS dari Google Maps dengan klik kanan pada lokasi sekolah dan pilih koordinat yang muncul."
-          type="info"
-          show-icon
-          style="margin-bottom: 16px"
-        />
+        <a-form-item label="Lokasi Sekolah">
+          <LocationPicker
+            v-model:latitude="formData.latitude"
+            v-model:longitude="formData.longitude"
+          />
+        </a-form-item>
 
         <a-row :gutter="16">
           <a-col :span="12">
@@ -481,6 +453,7 @@ import { message } from 'ant-design-vue'
 import { PlusOutlined, EnvironmentOutlined, CopyOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import schoolService from '@/services/schoolService'
 import axios from 'axios'
+import LocationPicker from '@/components/LocationPicker.vue'
 
 const loading = ref(false)
 const submitting = ref(false)

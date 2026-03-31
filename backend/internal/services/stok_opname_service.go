@@ -45,6 +45,9 @@ type StokOpnameService interface {
 
 	// Reporting
 	ExportForm(formID uint, format string, exporterName string) ([]byte, error)
+
+	// Tenant scoping
+	WithDB(db *gorm.DB) StokOpnameService
 }
 
 // FormFilters defines filters for querying stok opname forms

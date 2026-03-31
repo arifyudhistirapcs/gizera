@@ -18,12 +18,14 @@ import (
 
 // ReviewHandler handles delivery review endpoints
 type ReviewHandler struct {
+	db            *gorm.DB
 	reviewService *services.ReviewService
 }
 
 // NewReviewHandler creates a new review handler
 func NewReviewHandler(db *gorm.DB) *ReviewHandler {
 	return &ReviewHandler{
+		db:            db,
 		reviewService: services.NewReviewService(db),
 	}
 }
@@ -116,7 +118,8 @@ func (h *ReviewHandler) CreateReview(c *gin.Context) {
 		PhotoURL:                 photoURL,
 	}
 
-	if err := h.reviewService.CreateReview(review); err != nil {
+	scopedService := h.reviewService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateReview(review); err != nil {
 		if err == services.ErrReviewAlreadyExists {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success":    false,
@@ -161,7 +164,8 @@ func (h *ReviewHandler) GetReview(c *gin.Context) {
 		return
 	}
 
-	review, err := h.reviewService.GetReviewByID(uint(id))
+	scopedService := h.reviewService.WithDB(getTenantScopedDB(c, h.db))
+	review, err := scopedService.GetReviewByID(uint(id))
 	if err != nil {
 		if err == services.ErrReviewNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -198,7 +202,8 @@ func (h *ReviewHandler) GetReviewByDeliveryRecord(c *gin.Context) {
 		return
 	}
 
-	review, err := h.reviewService.GetReviewByDeliveryRecordID(uint(deliveryRecordID))
+	scopedService := h.reviewService.WithDB(getTenantScopedDB(c, h.db))
+	review, err := scopedService.GetReviewByDeliveryRecordID(uint(deliveryRecordID))
 	if err != nil {
 		if err == services.ErrReviewNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -259,7 +264,8 @@ func (h *ReviewHandler) GetAllReviews(c *gin.Context) {
 		}
 	}
 
-	reviews, total, err := h.reviewService.GetAllReviews(schoolID, startDate, endDate, limit, offset)
+	scopedService := h.reviewService.WithDB(getTenantScopedDB(c, h.db))
+	reviews, total, err := scopedService.GetAllReviews(schoolID, startDate, endDate, limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -301,7 +307,8 @@ func (h *ReviewHandler) GetReviewSummary(c *gin.Context) {
 		}
 	}
 
-	summary, err := h.reviewService.GetReviewSummary(schoolID, startDate, endDate)
+	scopedService := h.reviewService.WithDB(getTenantScopedDB(c, h.db))
+	summary, err := scopedService.GetReviewSummary(schoolID, startDate, endDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -329,7 +336,8 @@ func (h *ReviewHandler) CheckReviewExists(c *gin.Context) {
 		return
 	}
 
-	exists, err := h.reviewService.HasReviewForDeliveryRecord(uint(deliveryRecordID))
+	scopedService := h.reviewService.WithDB(getTenantScopedDB(c, h.db))
+	exists, err := scopedService.HasReviewForDeliveryRecord(uint(deliveryRecordID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,

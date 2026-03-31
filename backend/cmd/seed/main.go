@@ -51,6 +51,7 @@ func main() {
 	seedNotifications(db)
 	seedAuditTrails(db)
 	seedWiFiConfig(db)
+	SeedSOPCategories(db)
 
 	log.Println("Database seeding completed successfully!")
 }

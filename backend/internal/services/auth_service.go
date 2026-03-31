@@ -19,8 +19,10 @@ var (
 
 // JWTClaims represents the claims in the JWT token
 type JWTClaims struct {
-	UserID uint   `json:"user_id"`
-	Role   string `json:"role"`
+	UserID    uint   `json:"user_id"`
+	Role      string `json:"role"`
+	SPPGID    *uint  `json:"sppg_id,omitempty"`
+	YayasanID *uint  `json:"yayasan_id,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -42,8 +44,8 @@ func NewAuthService(db *gorm.DB, jwtSecret string) *AuthService {
 func (s *AuthService) Login(identifier, password string) (*models.User, string, error) {
 	var user models.User
 
-	// Find user by NIK or Email
-	result := s.db.Where("nik = ? OR email = ?", identifier, identifier).First(&user)
+	// Find user by NIK or Email, preload SPPG and Yayasan relations
+	result := s.db.Preload("SPPG").Preload("Yayasan").Where("nik = ? OR email = ?", identifier, identifier).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, "", ErrInvalidCredentials
@@ -61,8 +63,8 @@ func (s *AuthService) Login(identifier, password string) (*models.User, string, 
 		return nil, "", ErrInvalidCredentials
 	}
 
-	// Generate JWT token
-	token, err := s.GenerateToken(user.ID, user.Role)
+	// Generate JWT token with tenant info
+	token, err := s.GenerateToken(user.ID, user.Role, user.SPPGID, user.YayasanID)
 	if err != nil {
 		return nil, "", err
 	}
@@ -71,10 +73,12 @@ func (s *AuthService) Login(identifier, password string) (*models.User, string, 
 }
 
 // GenerateToken creates a new JWT token for a user
-func (s *AuthService) GenerateToken(userID uint, role string) (string, error) {
+func (s *AuthService) GenerateToken(userID uint, role string, sppgID *uint, yayasanID *uint) (string, error) {
 	claims := JWTClaims{
-		UserID: userID,
-		Role:   role,
+		UserID:    userID,
+		Role:      role,
+		SPPGID:    sppgID,
+		YayasanID: yayasanID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -127,8 +131,8 @@ func (s *AuthService) RefreshToken(tokenString string) (string, error) {
 		return "", ErrUserInactive
 	}
 
-	// Generate new token
-	return s.GenerateToken(user.ID, user.Role)
+	// Generate new token preserving tenant claims
+	return s.GenerateToken(user.ID, user.Role, claims.SPPGID, claims.YayasanID)
 }
 
 // HashPassword hashes a password using bcrypt
@@ -143,7 +147,7 @@ func (s *AuthService) HashPassword(password string) (string, error) {
 // GetUserByID retrieves a user by ID
 func (s *AuthService) GetUserByID(userID uint) (*models.User, error) {
 	var user models.User
-	result := s.db.First(&user, userID)
+	result := s.db.Preload("SPPG").Preload("Yayasan").First(&user, userID)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, ErrUserNotFound

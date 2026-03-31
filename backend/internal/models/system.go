@@ -19,6 +19,7 @@ type SystemConfig struct {
 // Notification represents system notifications for users
 type Notification struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
+	SPPGID    *uint     `gorm:"index" json:"sppg_id"`
 	UserID    uint      `gorm:"index;not null" json:"user_id"`
 	Type      string    `gorm:"size:50;not null;index" json:"type" validate:"required"` // low_stock, po_approval, delivery_complete, etc.
 	Title     string    `gorm:"size:200;not null" json:"title" validate:"required"`

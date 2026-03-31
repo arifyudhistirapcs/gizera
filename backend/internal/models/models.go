@@ -3,6 +3,10 @@ package models
 // AllModels returns a slice of all model types for migration
 func AllModels() []interface{} {
 	return []interface{}{
+		// Organization
+		&Yayasan{},
+		&SPPG{},
+
 		// User & Authentication
 		&User{},
 		&AuditTrail{},
@@ -61,5 +65,13 @@ func AllModels() []interface{} {
 		// System Configuration
 		&SystemConfig{},
 		&Notification{},
+
+		// Risk Assessment
+		&SOPCategory{},
+		&SOPChecklistItem{},
+		&RiskAssessmentForm{},
+		&RiskAssessmentItem{},
+		&RiskAssessmentCategoryScore{},
+		&SPPGOperationalSnapshot{},
 	}
 }

@@ -7,6 +7,7 @@ import (
 // Ingredient represents a raw material used in recipes
 type Ingredient struct {
 	ID              uint      `gorm:"primaryKey" json:"id"`
+	SPPGID          *uint     `gorm:"index" json:"sppg_id"`
 	Code            string    `gorm:"size:20;index;default:''" json:"code"` // Auto-generated: B-XXXX
 	Name            string    `gorm:"size:100;not null;index" json:"name" validate:"required"`
 	Category        string    `gorm:"size:50;index" json:"category"` // Kategori: Sayuran, Daging, Bumbu, dll
@@ -23,6 +24,7 @@ type Ingredient struct {
 // Example: "Paket Ayam Goreng" consists of Nasi, Ayam Goreng, and Sambal
 type Recipe struct {
 	ID                   uint                    `gorm:"primaryKey" json:"id"`
+	SPPGID               *uint                   `gorm:"index" json:"sppg_id"`
 	Name                 string                  `gorm:"size:200;not null;index" json:"name" validate:"required"`
 	Category             string                  `gorm:"size:50;index" json:"category"`
 	PhotoURL             string                  `gorm:"size:500" json:"photo_url"`
@@ -60,6 +62,7 @@ type RecipeItem struct {
 // MenuPlan represents a weekly menu plan
 type MenuPlan struct {
 	ID         uint       `gorm:"primaryKey" json:"id"`
+	SPPGID     *uint      `gorm:"index" json:"sppg_id"`
 	WeekStart  time.Time  `gorm:"index;not null" json:"week_start"`
 	WeekEnd    time.Time  `gorm:"not null" json:"week_end"`
 	Status     string     `gorm:"size:20;not null;index" json:"status" validate:"required,oneof=draft approved"` // draft, approved

@@ -1,37 +1,41 @@
 <template>
   <div class="bottom-navigation-wrapper">
     <div class="bottom-navigation">
-      <!-- Left Items -->
-      <div
-        v-for="(item, index) in leftItems"
-        :key="item.name"
-        :class="['nav-item', { 'nav-item--active': isActive(item) }]"
-        @click="onNavClick(item)"
-      >
-        <van-icon
-          :name="isActive(item) ? item.activeIcon : item.icon"
-          :color="isActive(item) ? activeColor : inactiveColor"
-          size="22"
-        />
-        <span class="nav-item__label">{{ item.label }}</span>
+      <!-- Left half -->
+      <div class="nav-half nav-half--left">
+        <div
+          v-for="item in leftItems"
+          :key="item.name"
+          :class="['nav-item', { 'nav-item--active': isActive(item) }]"
+          @click="onNavClick(item)"
+        >
+          <van-icon
+            :name="isActive(item) ? item.activeIcon : item.icon"
+            :color="isActive(item) ? activeColor : inactiveColor"
+            size="22"
+          />
+          <span class="nav-item__label">{{ item.label }}</span>
+        </div>
       </div>
 
-      <!-- Center Attendance Button (Floating) -->
+      <!-- Center spacer for floating button -->
       <div class="nav-center-spacer"></div>
 
-      <!-- Right Items -->
-      <div
-        v-for="(item, index) in rightItems"
-        :key="item.name"
-        :class="['nav-item', { 'nav-item--active': isActive(item) }]"
-        @click="onNavClick(item)"
-      >
-        <van-icon
-          :name="isActive(item) ? item.activeIcon : item.icon"
-          :color="isActive(item) ? activeColor : inactiveColor"
-          size="22"
-        />
-        <span class="nav-item__label">{{ item.label }}</span>
+      <!-- Right half -->
+      <div class="nav-half nav-half--right">
+        <div
+          v-for="item in rightItems"
+          :key="item.name"
+          :class="['nav-item', { 'nav-item--active': isActive(item) }]"
+          @click="onNavClick(item)"
+        >
+          <van-icon
+            :name="isActive(item) ? item.activeIcon : item.icon"
+            :color="isActive(item) ? activeColor : inactiveColor"
+            size="22"
+          />
+          <span class="nav-item__label">{{ item.label }}</span>
+        </div>
       </div>
     </div>
 
@@ -63,9 +67,11 @@ const inactiveColor = '#ACA9B0'
 
 const NAV_CONFIG = {
   dashboard: { name: 'dashboard', label: 'Home', icon: 'wap-home-o', activeIcon: 'wap-home', route: '/dashboard' },
+  dashboardYayasan: { name: 'dashboardYayasan', label: 'Home', icon: 'wap-home-o', activeIcon: 'wap-home', route: '/dashboard-yayasan' },
   monitoring: { name: 'monitoring', label: 'Monitoring', icon: 'search', activeIcon: 'search', route: '/monitoring' },
   menu: { name: 'menu', label: 'Menu', icon: 'notes-o', activeIcon: 'notes-o', route: '/menu-planning' },
   tasks: { name: 'tasks', label: 'Tugas', icon: 'todo-list-o', activeIcon: 'todo-list-o', route: '/tasks' },
+  riskAssessment: { name: 'riskAssessment', label: 'Audit', icon: 'shield-o', activeIcon: 'shield-o', route: '/risk-assessment' },
   attendance: { name: 'attendance', label: 'Absensi', icon: 'clock-o', activeIcon: 'clock', route: '/attendance' },
   profile: { name: 'profile', label: 'Profil', icon: 'user-o', activeIcon: 'user-o', route: '/profile' },
   schoolMonitoring: { name: 'schoolMonitoring', label: 'Monitoring', icon: 'eye-o', activeIcon: 'eye', route: '/school-monitoring' }
@@ -80,6 +86,9 @@ const ROLE_NAV_MAP = {
   ],
   kepala_sppg: [
     { left: ['dashboard', 'monitoring'], center: 'attendance', right: ['menu', 'profile'] }
+  ],
+  kepala_yayasan: [
+    { left: ['dashboardYayasan', 'riskAssessment'], center: 'attendance', right: ['profile'] }
   ],
   ahli_gizi: [
     { left: ['menu'], center: 'attendance', right: ['profile'] }
@@ -162,13 +171,18 @@ onMounted(() => {
   border-radius: 24px 24px 0 0;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  padding: 0 16px;
+  padding: 0;
   pointer-events: auto;
 }
 
-.nav-item {
+.nav-half {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -176,7 +190,7 @@ onMounted(() => {
   gap: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 8px 0;
+  padding: 8px 12px;
 }
 
 .nav-item__label {
@@ -196,7 +210,7 @@ onMounted(() => {
 }
 
 .nav-center-spacer {
-  width: 64px;
+  width: 80px;
   flex-shrink: 0;
 }
 

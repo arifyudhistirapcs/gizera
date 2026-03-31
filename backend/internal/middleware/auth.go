@@ -54,6 +54,14 @@ func JWTAuth(jwtSecret string) gin.HandlerFunc {
 		c.Set("user_id", claims.UserID)
 		c.Set("user_role", claims.Role)
 
+		// Set tenant context from JWT claims
+		if claims.SPPGID != nil {
+			c.Set("sppg_id", *claims.SPPGID)
+		}
+		if claims.YayasanID != nil {
+			c.Set("yayasan_id", *claims.YayasanID)
+		}
+
 		c.Next()
 	}
 }
@@ -107,22 +115,34 @@ func NewPermissionChecker() *PermissionChecker {
 	}
 
 	// Define permissions based on requirements
-	pc.permissions["dashboard_executive"] = []string{"kepala_sppg", "kepala_yayasan"}
-	pc.permissions["financial_reports"] = []string{"kepala_sppg", "kepala_yayasan", "akuntan"}
+	pc.permissions["dashboard_executive"] = []string{"superadmin", "admin_bgn", "kepala_sppg", "kepala_yayasan"}
+	pc.permissions["financial_reports"] = []string{"superadmin", "admin_bgn", "kepala_yayasan", "kepala_sppg", "akuntan"}
 	pc.permissions["menu_planning"] = []string{"kepala_sppg", "ahli_gizi"}
 	pc.permissions["recipe_management"] = []string{"kepala_sppg", "ahli_gizi"}
 	pc.permissions["kitchen_display"] = []string{"kepala_sppg", "ahli_gizi", "chef", "packing"}
 	pc.permissions["procurement"] = []string{"kepala_sppg", "pengadaan"}
-	pc.permissions["inventory"] = []string{"kepala_sppg", "akuntan", "pengadaan"}
+	pc.permissions["inventory"] = []string{"superadmin", "admin_bgn", "kepala_yayasan", "kepala_sppg", "akuntan", "pengadaan"}
 	pc.permissions["delivery_tasks"] = []string{"kepala_sppg", "driver", "asisten_lapangan"}
 	pc.permissions["attendance"] = []string{"kepala_sppg", "akuntan", "ahli_gizi", "pengadaan", "chef", "packing", "driver", "asisten_lapangan"}
 	pc.permissions["hrm_management"] = []string{"kepala_sppg", "akuntan"}
-	
+
 	// Logistics monitoring permissions - all roles except kebersihan
-	pc.permissions["monitoring"] = []string{"kepala_sppg", "kepala_yayasan", "akuntan", "ahli_gizi", "pengadaan", "chef", "packing", "driver", "asisten_lapangan"}
-	
+	pc.permissions["monitoring"] = []string{"superadmin", "admin_bgn", "kepala_sppg", "kepala_yayasan", "akuntan", "ahli_gizi", "pengadaan", "chef", "packing", "driver", "asisten_lapangan"}
+
 	// Cleaning module permissions - kebersihan role only (plus admin override)
 	pc.permissions["cleaning"] = []string{"kebersihan", "kepala_sppg", "kepala_yayasan"}
+
+	// Organization management — superadmin and admin_bgn only
+	pc.permissions["manage_organizations"] = []string{"superadmin", "admin_bgn"}
+
+	// Dashboard BGN — superadmin and admin_bgn only
+	pc.permissions["dashboard_bgn"] = []string{"superadmin", "admin_bgn"}
+
+	// Dashboard Yayasan — superadmin, admin_bgn, and kepala_yayasan
+	pc.permissions["dashboard_yayasan"] = []string{"superadmin", "admin_bgn", "kepala_yayasan"}
+
+	// User provisioning — superadmin, kepala_yayasan, kepala_sppg
+	pc.permissions["user_provisioning"] = []string{"superadmin", "kepala_yayasan", "kepala_sppg"}
 
 	return pc
 }

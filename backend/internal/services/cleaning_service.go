@@ -10,6 +10,7 @@ import (
 	"firebase.google.com/go/v4/db"
 	"gorm.io/gorm"
 
+	fb "github.com/erp-sppg/backend/internal/firebase"
 	"github.com/erp-sppg/backend/internal/models"
 )
 
@@ -325,10 +326,6 @@ func (s *CleaningService) CompleteCleaning(cleaningID uint, userID uint) error {
 //
 // Requirements: 7.1
 func (s *CleaningService) SyncToFirebase(cleaning *models.OmprengCleaning) error {
-	// Construct Firebase path: /cleaning/pending/{cleaning_id}
-	firebasePath := fmt.Sprintf("/cleaning/pending/cleaning_%d", cleaning.ID)
-
-	// Prepare data for Firebase
 	// Preload associations if not already loaded
 	var fullCleaning models.OmprengCleaning
 	if err := s.db.
@@ -336,6 +333,15 @@ func (s *CleaningService) SyncToFirebase(cleaning *models.OmprengCleaning) error
 		First(&fullCleaning, cleaning.ID).Error; err != nil {
 		return err
 	}
+
+	// Get sppg_id from the cleaning record for tenant-aware path
+	var sppgID uint
+	if fullCleaning.SPPGID != nil {
+		sppgID = *fullCleaning.SPPGID
+	}
+
+	// Construct Firebase path: /cleaning/{sppg_id}/pending/cleaning_{id}
+	firebasePath := fb.CleaningRecordPath(sppgID, cleaning.ID)
 
 	// Format data for Firebase
 	data := map[string]interface{}{

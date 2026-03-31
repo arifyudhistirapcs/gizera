@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/erp-sppg/backend/internal/middleware"
 	"github.com/erp-sppg/backend/internal/models"
 	"github.com/erp-sppg/backend/internal/services"
 	"github.com/gin-gonic/gin"
@@ -49,6 +50,8 @@ type CreateSupplierRequest struct {
 	PhoneNumber     string  `json:"phone_number"`
 	Email           string  `json:"email" binding:"omitempty,email"`
 	Address         string  `json:"address"`
+	Latitude        float64 `json:"latitude"`
+	Longitude       float64 `json:"longitude"`
 	ProductCategory string  `json:"product_category"`
 }
 
@@ -71,10 +74,18 @@ func (h *SupplyChainHandler) CreateSupplier(c *gin.Context) {
 		PhoneNumber:     req.PhoneNumber,
 		Email:           req.Email,
 		Address:         req.Address,
+		Latitude:        req.Latitude,
+		Longitude:       req.Longitude,
 		ProductCategory: req.ProductCategory,
 	}
 
-	if err := h.supplierService.CreateSupplier(supplier); err != nil {
+	// Auto-inject sppg_id for SPPG-level roles
+	if sppgID, ok := middleware.GetTenantSPPGID(c); ok {
+		supplier.SPPGID = &sppgID
+	}
+
+	scopedService := h.supplierService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateSupplier(supplier); err != nil {
 		if err == services.ErrDuplicateSupplier {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success":    false,
@@ -111,7 +122,8 @@ func (h *SupplyChainHandler) GetSupplier(c *gin.Context) {
 		return
 	}
 
-	supplier, err := h.supplierService.GetSupplierByID(uint(id))
+	scopedService := h.supplierService.WithDB(getTenantScopedDB(c, h.db))
+	supplier, err := scopedService.GetSupplierByID(uint(id))
 	if err != nil {
 		if err == services.ErrSupplierNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -142,13 +154,14 @@ func (h *SupplyChainHandler) GetAllSuppliers(c *gin.Context) {
 	query := c.Query("q")
 	productCategory := c.Query("product_category")
 
+	scopedService := h.supplierService.WithDB(getTenantScopedDB(c, h.db))
 	var suppliers []models.Supplier
 	var err error
 
 	if query != "" || productCategory != "" {
-		suppliers, err = h.supplierService.SearchSuppliers(query, productCategory, activeOnly)
+		suppliers, err = scopedService.SearchSuppliers(query, productCategory, activeOnly)
 	} else {
-		suppliers, err = h.supplierService.GetAllSuppliers(activeOnly)
+		suppliers, err = scopedService.GetAllSuppliers(activeOnly)
 	}
 
 	if err != nil {
@@ -195,10 +208,13 @@ func (h *SupplyChainHandler) UpdateSupplier(c *gin.Context) {
 		PhoneNumber:     req.PhoneNumber,
 		Email:           req.Email,
 		Address:         req.Address,
+		Latitude:        req.Latitude,
+		Longitude:       req.Longitude,
 		ProductCategory: req.ProductCategory,
 	}
 
-	if err := h.supplierService.UpdateSupplier(uint(id), supplier); err != nil {
+	scopedService := h.supplierService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.UpdateSupplier(uint(id), supplier); err != nil {
 		if err == services.ErrSupplierNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -243,7 +259,8 @@ func (h *SupplyChainHandler) GetSupplierPerformance(c *gin.Context) {
 		return
 	}
 
-	performance, err := h.supplierService.GetSupplierPerformance(uint(id))
+	scopedService := h.supplierService.WithDB(getTenantScopedDB(c, h.db))
+	performance, err := scopedService.GetSupplierPerformance(uint(id))
 	if err != nil {
 		if err == services.ErrSupplierNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -270,7 +287,8 @@ func (h *SupplyChainHandler) GetSupplierPerformance(c *gin.Context) {
 
 // GetSupplierStats retrieves supplier statistics
 func (h *SupplyChainHandler) GetSupplierStats(c *gin.Context) {
-	stats, err := h.supplierService.GetSupplierStats()
+	scopedService := h.supplierService.WithDB(getTenantScopedDB(c, h.db))
+	stats, err := scopedService.GetSupplierStats()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -349,7 +367,8 @@ func (h *SupplyChainHandler) CreatePurchaseOrder(c *gin.Context) {
 		})
 	}
 
-	if err := h.purchaseOrderService.CreatePurchaseOrder(po, items, userID.(uint)); err != nil {
+	scopedService := h.purchaseOrderService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreatePurchaseOrder(po, items, userID.(uint)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success":    false,
 			"error_code": "CREATE_PO_ERROR",
@@ -377,7 +396,8 @@ func (h *SupplyChainHandler) GetPurchaseOrder(c *gin.Context) {
 		return
 	}
 
-	po, err := h.purchaseOrderService.GetPurchaseOrderByID(uint(id))
+	scopedService := h.purchaseOrderService.WithDB(getTenantScopedDB(c, h.db))
+	po, err := scopedService.GetPurchaseOrderByID(uint(id))
 	if err != nil {
 		if err == services.ErrPONotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -406,7 +426,8 @@ func (h *SupplyChainHandler) GetPurchaseOrder(c *gin.Context) {
 func (h *SupplyChainHandler) GetAllPurchaseOrders(c *gin.Context) {
 	status := c.Query("status")
 
-	pos, err := h.purchaseOrderService.GetAllPurchaseOrders(status)
+	scopedService := h.purchaseOrderService.WithDB(getTenantScopedDB(c, h.db))
+	pos, err := scopedService.GetAllPurchaseOrders(status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -470,7 +491,8 @@ func (h *SupplyChainHandler) UpdatePurchaseOrder(c *gin.Context) {
 		})
 	}
 
-	if err := h.purchaseOrderService.UpdatePurchaseOrder(uint(id), po, items); err != nil {
+	scopedService := h.purchaseOrderService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.UpdatePurchaseOrder(uint(id), po, items); err != nil {
 		if err == services.ErrPONotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -509,7 +531,8 @@ func (h *SupplyChainHandler) ApprovePurchaseOrder(c *gin.Context) {
 	// Get user ID from context
 	userID, _ := c.Get("user_id")
 
-	if err := h.purchaseOrderService.ApprovePurchaseOrder(uint(id), userID.(uint)); err != nil {
+	scopedService := h.purchaseOrderService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.ApprovePurchaseOrder(uint(id), userID.(uint)); err != nil {
 		if err == services.ErrPONotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
@@ -605,7 +628,8 @@ func (h *SupplyChainHandler) CreateGoodsReceipt(c *gin.Context) {
 		items = append(items, grnItem)
 	}
 
-	if err := h.goodsReceiptService.CreateGoodsReceipt(grn, items, userID.(uint)); err != nil {
+	scopedService := h.goodsReceiptService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.CreateGoodsReceipt(grn, items, userID.(uint)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success":    false,
 			"error_code": "CREATE_GRN_ERROR",
@@ -634,7 +658,8 @@ func (h *SupplyChainHandler) CreateGoodsReceipt(c *gin.Context) {
 
 // GetAllGoodsReceipts retrieves all goods receipts
 func (h *SupplyChainHandler) GetAllGoodsReceipts(c *gin.Context) {
-	grns, err := h.goodsReceiptService.GetAllGoodsReceipts()
+	scopedService := h.goodsReceiptService.WithDB(getTenantScopedDB(c, h.db))
+	grns, err := scopedService.GetAllGoodsReceipts()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -683,7 +708,8 @@ func (h *SupplyChainHandler) GetGoodsReceipt(c *gin.Context) {
 		return
 	}
 
-	grn, err := h.goodsReceiptService.GetGoodsReceiptByID(uint(id))
+	scopedService := h.goodsReceiptService.WithDB(getTenantScopedDB(c, h.db))
+	grn, err := scopedService.GetGoodsReceiptByID(uint(id))
 	if err != nil {
 		if err == services.ErrGRNNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -804,7 +830,8 @@ func (h *SupplyChainHandler) UploadInvoicePhoto(c *gin.Context) {
 
 // GetInventory retrieves all inventory items
 func (h *SupplyChainHandler) GetInventory(c *gin.Context) {
-	items, err := h.inventoryService.GetAllInventory()
+	scopedService := h.inventoryService.WithDB(getTenantScopedDB(c, h.db))
+	items, err := scopedService.GetAllInventory()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -832,7 +859,8 @@ func (h *SupplyChainHandler) GetInventoryByIngredient(c *gin.Context) {
 		return
 	}
 
-	inventory, err := h.inventoryService.GetInventoryByIngredient(uint(ingredientID))
+	scopedService := h.inventoryService.WithDB(getTenantScopedDB(c, h.db))
+	inventory, err := scopedService.GetInventoryByIngredient(uint(ingredientID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -850,7 +878,8 @@ func (h *SupplyChainHandler) GetInventoryByIngredient(c *gin.Context) {
 
 // GetInventoryAlerts retrieves low stock alerts
 func (h *SupplyChainHandler) GetInventoryAlerts(c *gin.Context) {
-	alerts, err := h.inventoryService.CheckLowStock()
+	scopedService := h.inventoryService.WithDB(getTenantScopedDB(c, h.db))
+	alerts, err := scopedService.CheckLowStock()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -891,7 +920,8 @@ func (h *SupplyChainHandler) GetInventoryMovements(c *gin.Context) {
 		}
 	}
 
-	movements, err := h.inventoryService.GetMovements(ingredientID, movementType, startDate, endDate)
+	scopedService := h.inventoryService.WithDB(getTenantScopedDB(c, h.db))
+	movements, err := scopedService.GetMovements(ingredientID, movementType, startDate, endDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -909,7 +939,8 @@ func (h *SupplyChainHandler) GetInventoryMovements(c *gin.Context) {
 
 // InitializeInventory initializes inventory records for all ingredients that don't have one
 func (h *SupplyChainHandler) InitializeInventory(c *gin.Context) {
-	if err := h.inventoryService.InitializeInventoryForAllIngredients(); err != nil {
+	scopedService := h.inventoryService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.InitializeInventoryForAllIngredients(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
 			"error_code": "INITIALIZE_ERROR",
@@ -936,7 +967,8 @@ func (h *SupplyChainHandler) InitializeInventoryItem(c *gin.Context) {
 		return
 	}
 
-	if err := h.inventoryService.InitializeInventoryForIngredient(uint(ingredientID)); err != nil {
+	scopedService := h.inventoryService.WithDB(getTenantScopedDB(c, h.db))
+	if err := scopedService.InitializeInventoryForIngredient(uint(ingredientID)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
 			"error_code": "INITIALIZE_ERROR",

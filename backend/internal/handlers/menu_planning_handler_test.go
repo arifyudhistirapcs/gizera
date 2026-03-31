@@ -19,19 +19,15 @@ import (
 
 // setupTestDB creates an in-memory SQLite database for testing
 func setupTestDB(t *testing.T) *gorm.DB {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	if err != nil {
 		t.Fatalf("Failed to connect to test database: %v", err)
 	}
 
 	// Auto-migrate all models
-	err = db.AutoMigrate(
-		&models.School{},
-		&models.Recipe{},
-		&models.MenuPlan{},
-		&models.MenuItem{},
-		&models.MenuItemSchoolAllocation{},
-	)
+	err = db.AutoMigrate(models.AllModels()...)
 	if err != nil {
 		t.Fatalf("Failed to migrate test database: %v", err)
 	}
@@ -93,6 +89,7 @@ func TestUpdateMenuItem_ValidUpdate(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("PUT", fmt.Sprintf("/api/v1/menu-plans/%d/items/%d", menuPlan.ID, menuItem.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -172,6 +169,7 @@ func TestUpdateMenuItem_InvalidSum(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("PUT", fmt.Sprintf("/api/v1/menu-plans/%d/items/%d", menuPlan.ID, menuItem.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -229,6 +227,7 @@ func TestUpdateMenuItem_NonExistentMenuItem(t *testing.T) {
 	// Create test request with non-existent item_id
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("PUT", fmt.Sprintf("/api/v1/menu-plans/%d/items/999", menuPlan.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -291,6 +290,7 @@ func TestGetMenuItem_Success(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("GET", fmt.Sprintf("/api/v1/menu-plans/%d/items/%d", menuPlan.ID, menuItem.ID), nil)
 	c.Params = gin.Params{
 		{Key: "id", Value: fmt.Sprintf("%d", menuPlan.ID)},
@@ -356,6 +356,7 @@ func TestGetMenuItem_NotFound(t *testing.T) {
 	// Create test request with non-existent item_id
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("GET", fmt.Sprintf("/api/v1/menu-plans/%d/items/999", menuPlan.ID), nil)
 	c.Params = gin.Params{
 		{Key: "id", Value: fmt.Sprintf("%d", menuPlan.ID)},
@@ -421,6 +422,7 @@ func TestGetMenuItem_WrongMenuPlan(t *testing.T) {
 	// Try to get menu item using menuPlan2 ID (wrong menu plan)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("GET", fmt.Sprintf("/api/v1/menu-plans/%d/items/%d", menuPlan2.ID, menuItem.ID), nil)
 	c.Params = gin.Params{
 		{Key: "id", Value: fmt.Sprintf("%d", menuPlan2.ID)},
@@ -483,6 +485,7 @@ func TestCreateMenuItem_ValidRequest_SDSchool(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("POST", fmt.Sprintf("/api/v1/menu-plans/%d/items", menuPlan.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -570,6 +573,7 @@ func TestCreateMenuItem_ValidRequest_SMPSchool(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("POST", fmt.Sprintf("/api/v1/menu-plans/%d/items", menuPlan.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -652,6 +656,7 @@ func TestCreateMenuItem_ValidRequest_MultipleSchools(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("POST", fmt.Sprintf("/api/v1/menu-plans/%d/items", menuPlan.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -725,6 +730,7 @@ func TestCreateMenuItem_InvalidSum(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("POST", fmt.Sprintf("/api/v1/menu-plans/%d/items", menuPlan.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -785,6 +791,7 @@ func TestCreateMenuItem_SMPWithSmallPortions(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("POST", fmt.Sprintf("/api/v1/menu-plans/%d/items", menuPlan.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -835,6 +842,7 @@ func TestCreateMenuItem_EmptyAllocations(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("POST", fmt.Sprintf("/api/v1/menu-plans/%d/items", menuPlan.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -895,6 +903,7 @@ func TestCreateMenuItem_NegativePortions(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("POST", fmt.Sprintf("/api/v1/menu-plans/%d/items", menuPlan.ID), bytes.NewBuffer(reqBody))
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Params = gin.Params{
@@ -965,6 +974,7 @@ func TestGetMenuItem_WithPortionSizes(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("GET", fmt.Sprintf("/api/v1/menu-plans/%d/items/%d", menuPlan.ID, menuItem.ID), nil)
 	c.Params = gin.Params{
 		{Key: "id", Value: fmt.Sprintf("%d", menuPlan.ID)},
@@ -1063,6 +1073,7 @@ func TestGetMenuItem_AlphabeticalOrder(t *testing.T) {
 	// Create test request
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("GET", fmt.Sprintf("/api/v1/menu-plans/%d/items/%d", menuPlan.ID, menuItem.ID), nil)
 	c.Params = gin.Params{
 		{Key: "id", Value: fmt.Sprintf("%d", menuPlan.ID)},
@@ -1113,6 +1124,7 @@ func TestGetMenuItem_NotFound_WithPortionSizes(t *testing.T) {
 	// Create test request with non-existent item ID
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
+	c.Set("user_role", "superadmin")
 	c.Request = httptest.NewRequest("GET", fmt.Sprintf("/api/v1/menu-plans/%d/items/99999", menuPlan.ID), nil)
 	c.Params = gin.Params{
 		{Key: "id", Value: fmt.Sprintf("%d", menuPlan.ID)},

@@ -1,0 +1,35 @@
+{
+  "id": "bug-002-1736956800001",
+  "testCaseId": "auth-002",
+  "module": "authentication",
+  "severity": "medium",
+  "title": "Error message tidak terdeteksi saat login dengan username invalid",
+  "description": "Saat login dengan username yang tidak valid, test tidak dapat menemukan error message yang ditampilkan.",
+  "reproductionSteps": [
+    "1. Buka halaman login http://localhost:5173/login",
+    "2. Masukkan username invalid: invaliduser123",
+    "3. Masukkan password: anypassword",
+    "4. Klik tombol 'Masuk'",
+    "5. Cek keberadaan error message"
+  ],
+  "expectedBehavior": "Error message harus ditampilkan dengan selector yang dapat dideteksi oleh test",
+  "actualBehavior": "Test tidak menemukan error message dengan selector: '.error, .alert, [role=\"alert\"], .van-toast'",
+  "screenshots": [],
+  "errorMessages": [
+    "Error: expect(received).toBeGreaterThan(expected)",
+    "Expected: > 0",
+    "Received: 0",
+    "const errorMessage = await page.locator('.error, .alert, [role=\"alert\"], .van-toast').count();"
+  ],
+  "environment": {
+    "pwaUrl": "http://localhost:5173",
+    "backendUrl": "https://king-conglomeratic-kristopher.ngrok-free.dev/api/v1",
+    "browser": "chromium",
+    "timestamp": "2025-01-15T10:00:00.001Z"
+  },
+  "status": "fixed",
+  "fixApplied": true,
+  "rootCause": "Web menggunakan Ant Design Vue yang menampilkan error dengan 'message.error()' atau form validation. Selector yang digunakan tidak sesuai dengan komponen Ant Design. Error mungkin ditampilkan sebagai notification atau dalam form item dengan class '.ant-form-item-explain-error'.",
+  "proposedFix": "Update selector untuk mencari: '.ant-message-error, .ant-form-item-explain-error, .ant-notification-notice-error' atau tunggu beberapa detik untuk error message muncul dengan timeout yang lebih lama.",
+  "fixDetails": "Updated selector in authentication.spec.js line 92 from '.error, .alert, [role=\"alert\"], .van-toast' to '.ant-message-error, .ant-form-item-explain-error, .ant-notification-notice-error'"
+}

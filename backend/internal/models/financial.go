@@ -7,6 +7,7 @@ import (
 // KitchenAsset represents kitchen equipment and assets
 type KitchenAsset struct {
 	ID                 uint                `gorm:"primaryKey" json:"id"`
+	SPPGID             *uint               `gorm:"index" json:"sppg_id"`
 	AssetCode          string              `gorm:"uniqueIndex;size:50;not null" json:"asset_code" validate:"required"`
 	Name               string              `gorm:"size:200;not null;index" json:"name" validate:"required"`
 	Category           string              `gorm:"size:50;index" json:"category"`
@@ -36,6 +37,7 @@ type AssetMaintenance struct {
 // CashFlowEntry represents a financial transaction
 type CashFlowEntry struct {
 	ID            uint      `gorm:"primaryKey" json:"id"`
+	SPPGID        *uint     `gorm:"index" json:"sppg_id"`
 	TransactionID string    `gorm:"uniqueIndex;size:50;not null" json:"transaction_id" validate:"required"`
 	Date          time.Time `gorm:"index;not null" json:"date"`
 	Category      string    `gorm:"size:50;not null;index" json:"category" validate:"required,oneof=bahan_baku gaji utilitas operasional lainnya"` // bahan_baku, gaji, utilitas, operasional, lainnya
@@ -51,6 +53,7 @@ type CashFlowEntry struct {
 // BudgetTarget represents budget targets and actuals
 type BudgetTarget struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
+	SPPGID    *uint     `gorm:"index" json:"sppg_id"`
 	Year      int       `gorm:"index;not null" json:"year" validate:"required,gte=2000"`
 	Month     int       `gorm:"index;not null" json:"month" validate:"required,gte=1,lte=12"`
 	Category  string    `gorm:"size:50;not null;index" json:"category" validate:"required"`
