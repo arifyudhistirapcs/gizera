@@ -86,6 +86,13 @@ const renderMarkers = () => {
             <tr><td style="color:#888;padding:2px 8px 2px 0">Total Distribusi</td><td style="text-align:right;font-weight:600">${(m.stats.totalDelivered ?? 0).toLocaleString('id-ID')}</td></tr>
             <tr><td style="color:#888;padding:2px 8px 2px 0">Rating Feedback</td><td style="text-align:right;font-weight:600">${(m.stats.rating ?? 0).toFixed(1)} / 5</td></tr>
           </table>`
+      } else if (m.type === 'Supplier') {
+        return `
+          <table style="margin-top:8px;font-size:12px;width:100%;border-collapse:collapse">
+            <tr><td style="color:#888;padding:2px 8px 2px 0">On-Time Delivery</td><td style="text-align:right;font-weight:600">${(m.stats.onTimeDelivery ?? 0).toFixed(1)}%</td></tr>
+            <tr><td style="color:#888;padding:2px 8px 2px 0">Rating Kualitas</td><td style="text-align:right;font-weight:600">${(m.stats.qualityRating ?? 0).toFixed(1)} / 5</td></tr>
+            ${m.stats.contactPerson ? `<tr><td style="color:#888;padding:2px 8px 2px 0">Kontak</td><td style="text-align:right;font-weight:600">${m.stats.contactPerson}</td></tr>` : ''}
+          </table>`
       } else {
         return `
           <table style="margin-top:8px;font-size:12px;width:100%;border-collapse:collapse">

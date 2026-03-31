@@ -59,8 +59,21 @@
     </a-card>
 
     <!-- Peta Sebaran (paling atas setelah filter) -->
-    <a-card title="Peta Sebaran Yayasan & SPPG" style="margin-bottom: 20px">
-      <OrganizationMap :markers="mapMarkers" :height="450" />
+    <a-card style="margin-bottom: 20px">
+      <template #title>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px">
+          <span>Peta Sebaran</span>
+          <a-checkbox-group v-model:value="mapLayers">
+            <a-checkbox v-for="opt in mapLayerOptions" :key="opt.value" :value="opt.value">
+              <span :style="{ display: 'inline-flex', alignItems: 'center', gap: '4px' }">
+                <span :style="{ width: '10px', height: '10px', borderRadius: '50%', background: opt.color, display: 'inline-block' }"></span>
+                {{ opt.label }}
+              </span>
+            </a-checkbox>
+          </a-checkbox-group>
+        </div>
+      </template>
+      <OrganizationMap :markers="filteredMapMarkers" :height="450" />
     </a-card>
 
     <!-- Drill-down indicator -->
@@ -209,6 +222,8 @@ import { message } from 'ant-design-vue'
 import { ReloadOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import aggregatedDashboardService from '@/services/aggregatedDashboardService'
 import organizationService from '@/services/organizationService'
+import schoolService from '@/services/schoolService'
+import supplierService from '@/services/supplierService'
 import OrganizationMap from '@/components/OrganizationMap.vue'
 
 const loading = ref(false)
@@ -216,7 +231,17 @@ const exporting = ref(false)
 const dashboard = ref(null)
 const yayasanList = ref([])
 const sppgList = ref([])
+const schoolList = ref([])
+const supplierList = ref([])
 const dateRange = ref([])
+
+const mapLayers = ref(['Yayasan', 'SPPG', 'Sekolah', 'Supplier'])
+const mapLayerOptions = [
+  { label: 'Yayasan', value: 'Yayasan', color: '#722ed1' },
+  { label: 'SPPG', value: 'SPPG', color: '#52c41a' },
+  { label: 'Sekolah', value: 'Sekolah', color: '#1890ff' },
+  { label: 'Supplier', value: 'Supplier', color: '#fa8c16' }
+]
 
 const filters = ref({
   yayasan_id: null,
@@ -283,12 +308,16 @@ const fetchDashboard = async () => {
 
 const fetchLookups = async () => {
   try {
-    const [yRes, sRes] = await Promise.all([
+    const [yRes, sRes, schRes, supRes] = await Promise.all([
       organizationService.getYayasanList(),
-      organizationService.getSPPGList()
+      organizationService.getSPPGList(),
+      schoolService.getSchools().catch(() => ({ data: { data: [] } })),
+      supplierService.getSuppliers().catch(() => ({ data: { data: [] } }))
     ])
     yayasanList.value = yRes.data?.data || yRes.data?.yayasans || []
     sppgList.value = sRes.data?.data || sRes.data?.sppgs || []
+    schoolList.value = schRes.data?.data || schRes.data?.schools || []
+    supplierList.value = supRes.data?.data || supRes.data?.suppliers || []
   } catch (e) {
     // silent
   }
@@ -425,7 +454,54 @@ const mapMarkers = computed(() => {
       })
     }
   })
+  
+  // School markers
+  schoolList.value.forEach(sch => {
+    if (sch.latitude && sch.longitude) {
+      if (selectedSPPG && sch.sppg_id !== selectedSPPG) return
+      markers.push({
+        id: `school-${sch.id}`,
+        name: sch.name,
+        kode: sch.npsn || '',
+        type: 'Sekolah',
+        latitude: sch.latitude,
+        longitude: sch.longitude,
+        details: sch.address || '',
+        stats: {
+          portionsSmall: sch.student_count_grade_1_3 || 0,
+          portionsLarge: sch.student_count_grade_4_6 || 0,
+          totalDelivered: sch.student_count || 0,
+          rating: 0
+        }
+      })
+    }
+  })
+
+  // Supplier markers
+  supplierList.value.forEach(sup => {
+    if (sup.latitude && sup.longitude) {
+      markers.push({
+        id: `supplier-${sup.id}`,
+        name: sup.name,
+        kode: sup.product_category || '',
+        type: 'Supplier',
+        latitude: sup.latitude,
+        longitude: sup.longitude,
+        details: sup.address || '',
+        stats: {
+          onTimeDelivery: sup.on_time_delivery || 0,
+          qualityRating: sup.quality_rating || 0,
+          contactPerson: sup.contact_person || ''
+        }
+      })
+    }
+  })
+
   return markers
+})
+
+const filteredMapMarkers = computed(() => {
+  return mapMarkers.value.filter(m => mapLayers.value.includes(m.type))
 })
 
 const selectedYayasanName = computed(() => {
