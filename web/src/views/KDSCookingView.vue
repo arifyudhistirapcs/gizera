@@ -1,24 +1,7 @@
 <template>
-  <div class="kds-cooking">
+  <div>
     <!-- Header Controls -->
     <div class="cooking-header">
-      <div class="header-left">
-        <h2 class="page-title">
-          <FireOutlined class="title-icon" />
-          KDS Dapur Memasak
-        </h2>
-        <div class="status-summary">
-          <span class="summary-chip chip-pending">
-            <ClockCircleOutlined /> {{ pendingCount }} Menunggu
-          </span>
-          <span class="summary-chip chip-cooking">
-            <FireOutlined /> {{ cookingCount }} Dimasak
-          </span>
-          <span class="summary-chip chip-ready">
-            <CheckCircleOutlined /> {{ readyCount }} Selesai
-          </span>
-        </div>
-      </div>
       <div class="header-controls">
         <KDSDatePicker
           v-model="selectedDate"
@@ -39,7 +22,7 @@
       </div>
     </div>
 
-    <!-- Alert -->
+    <!-- Alerts -->
     <a-alert
       v-if="error"
       type="error"
@@ -56,139 +39,181 @@
       </template>
     </a-alert>
 
-    <!-- Bento Grid -->
+
+
+
+
+    <!-- Kanban Board -->
     <a-spin :spinning="loading" tip="Memuat data...">
       <a-empty v-if="!loading && recipes.length === 0" :description="emptyMessage" />
 
-      <div v-else class="bento-grid">
-        <!-- COOKING cards first (prominent, larger) -->
-        <div
-          v-for="recipe in cookingRecipes"
-          :key="'c-' + recipe.recipe_id"
-          class="bento-card bento-card--cooking"
-        >
-          <div class="card-top">
-            <div class="card-header">
-              <div class="card-title-row">
-                <span class="card-name">{{ recipe.name }}</span>
-                <span class="status-badge badge-cooking">
-                  <span class="badge-dot"></span>
-                  Sedang Dimasak
-                </span>
-              </div>
-              <div v-if="recipe.start_time" class="card-timer">
-                <ClockCircleOutlined />
-                Mulai {{ formatTime(recipe.start_time) }}
-              </div>
-            </div>
-            <div class="card-portions">
-              <span class="portions-number">{{ recipe.portions_required }}</span>
-              <span class="portions-label">porsi</span>
-            </div>
+      <div v-else class="kanban-board">
+        <!-- Pending Column -->
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            <h3 class="kanban-column-title">
+              <ClockCircleOutlined class="column-icon" />
+              Belum Dimulai
+            </h3>
+            <span class="kanban-column-count">{{ pendingRecipes.length }}</span>
           </div>
-
-          <div class="card-body">
-            <div class="ingredients-section">
-              <div class="section-label">Bahan</div>
-              <div class="ingredients-compact">
-                <div v-for="item in recipe.items" :key="item.name" class="ingredient-row">
-                  <span class="ing-name">{{ item.name }}</span>
-                  <span class="ing-qty">{{ item.quantity }} {{ item.unit }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="recipe.instructions" class="instructions-section">
-              <div
-                class="section-label section-label--toggle"
-                @click="toggleInstructions(recipe.recipe_id)"
-                role="button"
-                tabindex="0"
-                :aria-expanded="expandedInstructions[recipe.recipe_id] ? 'true' : 'false'"
-                @keydown.enter.space.prevent="toggleInstructions(recipe.recipe_id)"
-              >
-                Instruksi
-                <DownOutlined class="toggle-icon" :class="{ 'toggle-icon--open': expandedInstructions[recipe.recipe_id] }" />
-              </div>
-              <div v-if="expandedInstructions[recipe.recipe_id]" class="instructions-content">
-                {{ recipe.instructions }}
-              </div>
-            </div>
-          </div>
-
-          <a-button type="primary" block size="large" @click="finishCooking(recipe)" :loading="updatingRecipeId === recipe.recipe_id" class="action-btn action-btn--finish">
-            <template #icon><CheckCircleOutlined /></template>
-            Selesai Masak
-          </a-button>
-        </div>
-
-        <!-- PENDING cards -->
-        <div v-for="recipe in pendingRecipes" :key="'p-' + recipe.recipe_id" class="bento-card bento-card--pending">
-          <div class="card-top">
-            <div class="card-header">
-              <div class="card-title-row">
-                <span class="card-name">{{ recipe.name }}</span>
-                <span class="status-badge badge-pending">
-                  <span class="badge-dot"></span>
+          <div class="kanban-column-content">
+            <div v-for="recipe in pendingRecipes" :key="recipe.recipe_id" class="h-card recipe-card status-pending">
+              <div class="recipe-card__header">
+                <div class="recipe-card__name">{{ recipe.name }}</div>
+                <div class="recipe-card__status-badge status-pending">
+                  <span class="status-dot"></span>
                   Belum Dimulai
-                </span>
-              </div>
-            </div>
-            <div class="card-portions">
-              <span class="portions-number">{{ recipe.portions_required }}</span>
-              <span class="portions-label">porsi</span>
-            </div>
-          </div>
-
-          <div class="card-body">
-            <div class="ingredients-section">
-              <div class="section-label">Bahan</div>
-              <div class="ingredients-compact">
-                <div v-for="item in recipe.items" :key="item.name" class="ingredient-row">
-                  <span class="ing-name">{{ item.name }}</span>
-                  <span class="ing-qty">{{ item.quantity }} {{ item.unit }}</span>
                 </div>
               </div>
-            </div>
 
-            <div v-if="recipe.instructions" class="instructions-section">
-              <div class="section-label section-label--toggle" @click="toggleInstructions(recipe.recipe_id)" role="button" tabindex="0" :aria-expanded="expandedInstructions[recipe.recipe_id] ? 'true' : 'false'" @keydown.enter.space.prevent="toggleInstructions(recipe.recipe_id)">
-                Instruksi
-                <DownOutlined class="toggle-icon" :class="{ 'toggle-icon--open': expandedInstructions[recipe.recipe_id] }" />
+              <div v-if="recipe.photo_url" class="recipe-card__photo">
+                <img :src="recipe.photo_url" :alt="recipe.name" />
               </div>
-              <div v-if="expandedInstructions[recipe.recipe_id]" class="instructions-content">
-                {{ recipe.instructions }}
+
+              <div class="recipe-card__portions">
+                <span class="portions-label">Jumlah Porsi</span>
+                <span class="portions-value">{{ recipe.portions_required }}</span>
               </div>
+
+              <!-- Ingredients -->
+              <div class="recipe-card__section">
+                <div class="section-title">Bahan-Bahan</div>
+                <div class="ingredients-list">
+                  <div v-for="item in recipe.items" :key="item.name" class="ingredient-item">
+                    <span class="ingredient-name">{{ item.name }}</span>
+                    <div class="ingredient-qty">
+                      <span class="qty-value">{{ item.quantity }} {{ item.unit }}</span>
+                      <span v-if="item.current_stock !== undefined" class="stock-indicator" :class="item.current_stock >= item.quantity ? 'stock-ok' : 'stock-low'">
+                        Stok: {{ item.current_stock }} {{ item.unit }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Instructions -->
+              <div v-if="recipe.instructions" class="recipe-card__section">
+                <div class="section-title">Instruksi</div>
+                <div class="instructions-text">{{ recipe.instructions }}</div>
+              </div>
+
+              <a-button type="primary" block @click="startCooking(recipe)" :loading="updatingRecipeId === recipe.recipe_id" class="action-button">
+                <template #icon><play-circle-outlined /></template>
+                Mulai Masak
+              </a-button>
             </div>
           </div>
-
-          <a-button type="primary" block size="large" @click="startCooking(recipe)" :loading="updatingRecipeId === recipe.recipe_id" class="action-btn action-btn--start">
-            <template #icon><PlayCircleOutlined /></template>
-            Mulai Masak
-          </a-button>
         </div>
 
-        <!-- READY cards (compact, muted) -->
-        <div v-for="recipe in readyRecipes" :key="'r-' + recipe.recipe_id" class="bento-card bento-card--ready">
-          <div class="card-top card-top--ready">
-            <div class="card-header">
-              <div class="card-title-row">
-                <span class="card-name">{{ recipe.name }}</span>
-                <span class="status-badge badge-ready">
-                  <CheckOutlined />
-                  Selesai
-                </span>
+        <!-- Cooking Column -->
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            <h3 class="kanban-column-title">
+              <FireOutlined class="column-icon" />
+              Sedang Dimasak
+            </h3>
+            <span class="kanban-column-count">{{ cookingRecipes.length }}</span>
+          </div>
+          <div class="kanban-column-content">
+            <div v-for="recipe in cookingRecipes" :key="recipe.recipe_id" class="h-card recipe-card status-cooking">
+              <div class="recipe-card__header">
+                <div class="recipe-card__name">{{ recipe.name }}</div>
+                <div class="recipe-card__status-badge status-cooking">
+                  <span class="status-dot"></span>
+                  Sedang Dimasak
+                </div>
               </div>
-            </div>
-            <div class="card-portions card-portions--ready">
-              <span class="portions-number">{{ recipe.portions_required }}</span>
-              <span class="portions-label">porsi</span>
+
+              <div v-if="recipe.photo_url" class="recipe-card__photo">
+                <img :src="recipe.photo_url" :alt="recipe.name" />
+              </div>
+
+              <div class="recipe-card__portions">
+                <span class="portions-label">Jumlah Porsi</span>
+                <span class="portions-value">{{ recipe.portions_required }}</span>
+              </div>
+
+              <div v-if="recipe.start_time" class="recipe-card__time">
+                <span class="time-label">Mulai</span>
+                <span class="time-value">{{ formatTime(recipe.start_time) }}</span>
+              </div>
+
+              <!-- Ingredients -->
+              <div class="recipe-card__section">
+                <div class="section-title">Bahan-Bahan</div>
+                <div class="ingredients-list">
+                  <div v-for="item in recipe.items" :key="item.name" class="ingredient-item">
+                    <span class="ingredient-name">{{ item.name }}</span>
+                    <div class="ingredient-qty">
+                      <span class="qty-value">{{ item.quantity }} {{ item.unit }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Instructions -->
+              <div v-if="recipe.instructions" class="recipe-card__section">
+                <div class="section-title">Instruksi</div>
+                <div class="instructions-text">{{ recipe.instructions }}</div>
+              </div>
+
+              <a-button type="primary" block @click="finishCooking(recipe)" :loading="updatingRecipeId === recipe.recipe_id" class="action-button action-button--success">
+                <template #icon><check-circle-outlined /></template>
+                Selesai Masak
+              </a-button>
             </div>
           </div>
-          <div v-if="recipe.start_time || recipe.end_time" class="card-times">
-            <span v-if="recipe.start_time" class="time-chip">Mulai {{ formatTime(recipe.start_time) }}</span>
-            <span v-if="recipe.end_time" class="time-chip">Selesai {{ formatTime(recipe.end_time) }}</span>
-            <span v-if="recipe.duration_minutes" class="time-chip time-chip--duration">{{ recipe.duration_minutes }} menit</span>
+        </div>
+
+        <!-- Ready Column -->
+        <div class="kanban-column">
+          <div class="kanban-column-header">
+            <h3 class="kanban-column-title">
+              <CheckCircleOutlined class="column-icon" />
+              Selesai
+            </h3>
+            <span class="kanban-column-count">{{ readyRecipes.length }}</span>
+          </div>
+          <div class="kanban-column-content">
+            <div v-for="recipe in readyRecipes" :key="recipe.recipe_id" class="h-card recipe-card status-ready">
+              <div class="recipe-card__header">
+                <div class="recipe-card__name">{{ recipe.name }}</div>
+                <div class="recipe-card__status-badge status-ready">
+                  <span class="status-dot"></span>
+                  Selesai
+                </div>
+              </div>
+
+              <div v-if="recipe.photo_url" class="recipe-card__photo">
+                <img :src="recipe.photo_url" :alt="recipe.name" />
+              </div>
+
+              <div class="recipe-card__portions">
+                <span class="portions-label">Jumlah Porsi</span>
+                <span class="portions-value">{{ recipe.portions_required }}</span>
+              </div>
+
+              <div v-if="recipe.start_time || recipe.end_time" class="recipe-card__times">
+                <div v-if="recipe.start_time" class="time-row">
+                  <span class="time-label">Mulai</span>
+                  <span class="time-value">{{ formatTime(recipe.start_time) }}</span>
+                </div>
+                <div v-if="recipe.end_time" class="time-row">
+                  <span class="time-label">Selesai</span>
+                  <span class="time-value">{{ formatTime(recipe.end_time) }}</span>
+                </div>
+                <div v-if="recipe.duration_minutes" class="time-row">
+                  <span class="time-label">Durasi</span>
+                  <span class="time-value duration">{{ recipe.duration_minutes }} menit</span>
+                </div>
+              </div>
+
+              <div class="completed-badge">
+                <check-outlined />
+                Sudah Selesai
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -197,12 +222,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import {
-  WifiOutlined, DisconnectOutlined, ReloadOutlined, PlayCircleOutlined,
-  CheckCircleOutlined, CheckOutlined, ClockCircleOutlined, FireOutlined, DownOutlined
+  WifiOutlined,
+  DisconnectOutlined,
+  ReloadOutlined,
+  PlayCircleOutlined,
+  CheckCircleOutlined,
+  CheckOutlined,
+  ClockCircleOutlined,
+  FireOutlined
 } from '@ant-design/icons-vue'
+import HStatCard from '@/components/horizon/HStatCard.vue'
 import KDSDatePicker from '@/components/KDSDatePicker.vue'
 import { getCookingToday, updateCookingStatus } from '@/services/kdsService'
 import { database, firebasePaths } from '@/services/firebase'
@@ -214,15 +246,22 @@ const updatingRecipeId = ref(null)
 const isConnected = ref(true)
 const selectedDate = ref(new Date())
 const error = ref(null)
-const expandedInstructions = reactive({})
 let firebaseListener = null
 
+// Filter recipes by status
 const pendingRecipes = computed(() => recipes.value.filter(r => r.status === 'pending'))
 const cookingRecipes = computed(() => recipes.value.filter(r => r.status === 'cooking'))
 const readyRecipes = computed(() => recipes.value.filter(r => r.status === 'ready'))
+
+// Counts
 const pendingCount = computed(() => pendingRecipes.value.length)
 const cookingCount = computed(() => cookingRecipes.value.length)
 const readyCount = computed(() => readyRecipes.value.length)
+
+const allRecipesCompleted = computed(() => {
+  if (recipes.value.length === 0) return false
+  return recipes.value.every(recipe => recipe.status === 'ready')
+})
 
 const emptyMessage = computed(() => {
   const today = new Date()
@@ -236,8 +275,14 @@ const formatTime = (timestamp) => {
   return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
 }
 
-const toggleInstructions = (recipeId) => {
-  expandedInstructions[recipeId] = !expandedInstructions[recipeId]
+const getTotalSmallPortions = (allocations) => {
+  if (!allocations || allocations.length === 0) return 0
+  return allocations.reduce((total, alloc) => total + (alloc.portions_small || 0), 0)
+}
+
+const getTotalLargePortions = (allocations) => {
+  if (!allocations || allocations.length === 0) return 0
+  return allocations.reduce((total, alloc) => total + (alloc.portions_large || 0), 0)
 }
 
 const loadData = async () => {
@@ -271,9 +316,9 @@ const startCooking = async (recipe) => {
     } else {
       message.error(response.message || 'Gagal memperbarui status')
     }
-  } catch (err) {
-    console.error('Error updating status:', err)
-    message.error(err.response?.data?.message || 'Gagal memperbarui status')
+  } catch (error) {
+    console.error('Error updating status:', error)
+    message.error(error.response?.data?.message || 'Gagal memperbarui status')
   } finally {
     updatingRecipeId.value = null
   }
@@ -289,9 +334,9 @@ const finishCooking = async (recipe) => {
     } else {
       message.error(response.message || 'Gagal memperbarui status')
     }
-  } catch (err) {
-    console.error('Error updating status:', err)
-    message.error(err.response?.data?.message || 'Gagal memperbarui status')
+  } catch (error) {
+    console.error('Error updating status:', error)
+    message.error(error.response?.data?.message || 'Gagal memperbarui status')
   } finally {
     updatingRecipeId.value = null
   }
@@ -301,23 +346,32 @@ const setupFirebaseListener = () => {
   cleanupFirebaseListener()
   const dateStr = selectedDate.value.toISOString().split('T')[0]
   const cookingRef = dbRef(database, firebasePaths.kdsCooking(dateStr))
-  firebaseListener = onValue(cookingRef, (snapshot) => {
-    isConnected.value = true
-    const data = snapshot.val()
-    if (data) {
-      const firebaseRecipes = Object.values(data)
-      recipes.value = recipes.value.map(recipe => {
-        const fr = firebaseRecipes.find(f => f.recipe_id === recipe.recipe_id)
-        if (fr) {
-          return { ...recipe, status: fr.status, start_time: fr.start_time, end_time: fr.end_time, duration_minutes: fr.duration_minutes }
-        }
-        return recipe
-      })
+
+  firebaseListener = onValue(
+    cookingRef,
+    (snapshot) => {
+      isConnected.value = true
+      const data = snapshot.val()
+      if (data) {
+        const firebaseRecipes = Object.values(data)
+        recipes.value = recipes.value.map(recipe => {
+          const fr = firebaseRecipes.find(f => f.recipe_id === recipe.recipe_id)
+          if (fr) {
+            return {
+              ...recipe,
+              status: fr.status,
+              start_time: fr.start_time
+            }
+          }
+          return recipe
+        })
+      }
+    },
+    (error) => {
+      console.error('Firebase listener error:', error)
+      isConnected.value = false
     }
-  }, (err) => {
-    console.error('Firebase listener error:', err)
-    isConnected.value = false
-  })
+  )
 }
 
 const cleanupFirebaseListener = () => {
@@ -335,90 +389,421 @@ const handleDateChange = (date) => {
   setupFirebaseListener()
 }
 
-watch(selectedDate, () => { setupFirebaseListener() })
-onMounted(() => { loadData(); setupFirebaseListener() })
-onUnmounted(() => { cleanupFirebaseListener() })
+watch(selectedDate, () => {
+  setupFirebaseListener()
+})
+
+onMounted(() => {
+  loadData()
+  setupFirebaseListener()
+})
+
+onUnmounted(() => {
+  cleanupFirebaseListener()
+})
 </script>
 
 <style scoped>
-.kds-cooking { padding: 0; }
+/* Header Controls */
+.cooking-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--h-spacing-4);
+}
 
-.cooking-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-.header-left { display: flex; flex-direction: column; gap: 8px; }
-.page-title { margin: 0; font-size: 20px; font-weight: 700; color: #303030; display: flex; align-items: center; gap: 8px; }
-.title-icon { color: #C94A3A; }
-.status-summary { display: flex; gap: 8px; flex-wrap: wrap; }
-.summary-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.chip-pending { background: #FFF7E6; color: #D48806; }
-.chip-cooking { background: #FDEAE7; color: #C94A3A; }
-.chip-ready { background: #D1FAE5; color: #1E8A6E; }
-.header-controls { display: flex; align-items: center; gap: 12px; }
-.connection-tag { font-size: 14px; padding: 4px 12px; border-radius: 6px; }
-.cooking-alert { margin-bottom: 20px; }
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-3);
+}
 
-.bento-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; align-items: start; }
+.connection-tag {
+  font-size: var(--h-text-sm);
+  padding: 4px 12px;
+  border-radius: var(--h-radius-sm);
+}
 
-.bento-card { background: #fff; border-radius: 16px; border: 1px solid #E8E8E8; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
-.bento-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.cooking-alert {
+  margin-bottom: var(--h-spacing-5);
+}
 
-.card-top { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px; gap: 16px; }
-.card-header { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-.card-title-row { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
-.card-name { font-size: 18px; font-weight: 700; color: #303030; line-height: 1.25; }
+/* Stat Cards Row */
+.stat-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--h-spacing-5);
+  margin-bottom: var(--h-spacing-6);
+}
 
-.status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
-.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.badge-pending { background: #FFF7E6; color: #D48806; }
-.badge-cooking { background: #FDEAE7; color: #C94A3A; }
-.badge-ready { background: #D1FAE5; color: #1E8A6E; }
+/* Kanban Board */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--h-spacing-5);
+  align-items: start;
+}
 
-.card-timer { display: flex; align-items: center; gap: 4px; font-size: 14px; color: #C94A3A; font-weight: 500; }
+.kanban-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-4);
+  min-height: 400px;
+}
 
-.card-portions { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 80px; height: 80px; background: #303030; border-radius: 12px; color: #fff; flex-shrink: 0; }
-.card-portions--ready { background: #1E8A6E; opacity: 0.85; }
-.portions-number { font-size: 30px; font-weight: 700; line-height: 1; }
-.portions-label { font-size: 12px; font-weight: 500; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--h-spacing-4);
+  background: var(--h-bg-card);
+  border-radius: var(--h-radius-lg);
+  box-shadow: var(--h-shadow-sm);
+}
 
-.card-body { padding: 0 20px 16px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
-.section-label { font-size: 12px; font-weight: 700; color: #6B6B6B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.section-label--toggle { cursor: pointer; display: flex; align-items: center; gap: 4px; user-select: none; }
-.section-label--toggle:hover { color: #303030; }
-.toggle-icon { font-size: 10px; transition: transform 0.2s; }
-.toggle-icon--open { transform: rotate(180deg); }
+.kanban-column-title {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-2);
+  margin: 0;
+  font-size: var(--h-text-lg);
+  font-weight: var(--h-font-bold);
+  color: var(--h-text-primary);
+}
 
-.ingredients-compact { display: flex; flex-direction: column; gap: 2px; }
-.ingredient-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-radius: 6px; background: #F7F8FA; font-size: 14px; }
-.ing-name { color: #303030; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; }
-.ing-qty { color: #C94A3A; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.column-icon {
+  font-size: var(--h-text-xl);
+  color: var(--h-primary);
+}
 
-.instructions-content { white-space: pre-wrap; line-height: 1.5; color: #6B6B6B; padding: 8px 12px; background: #F7F8FA; border-radius: 6px; font-size: 14px; max-height: 120px; overflow-y: auto; }
+.kanban-column-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--h-spacing-2);
+  background: var(--h-primary);
+  color: white;
+  border-radius: var(--h-radius-full);
+  font-size: var(--h-text-sm);
+  font-weight: var(--h-font-bold);
+}
 
-.card-times { display: flex; gap: 8px; padding: 0 20px 16px; flex-wrap: wrap; }
-.time-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; background: #F7F8FA; color: #6B6B6B; }
-.time-chip--duration { background: #D1FAE5; color: #1E8A6E; font-weight: 600; }
+.kanban-column-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-4);
+}
 
-.action-btn { margin: 0 20px 20px; height: 44px; font-weight: 700; border-radius: 12px; font-size: 14px; }
-.action-btn--start { background: #303030 !important; border-color: #303030 !important; }
-.action-btn--start:hover { background: #1a1a1a !important; border-color: #1a1a1a !important; }
-.action-btn--finish { background: #C94A3A !important; border-color: #C94A3A !important; }
-.action-btn--finish:hover { background: #A33D30 !important; border-color: #A33D30 !important; }
+/* Recipe Card */
+.recipe-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-4);
+  transition: all var(--h-transition-base);
+  border-left: 4px solid var(--h-border-color);
+}
 
-.bento-card--cooking { border-left: 5px solid #C94A3A; box-shadow: 0 2px 12px rgba(201,74,58,0.10); }
-.bento-card--cooking .card-top { background: #FDEAE7; }
-.bento-card--pending { border-left: 5px solid #D48806; }
-.bento-card--ready { border-left: 5px solid #1E8A6E; opacity: 0.75; }
-.bento-card--ready:hover { opacity: 1; }
-.bento-card--ready .card-top--ready { background: #D1FAE5; }
+.recipe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
 
-@media (min-width: 1536px) { .bento-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (min-width: 1280px) and (max-width: 1535px) { .bento-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 768px) and (max-width: 1279px) { .bento-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 767px) {
-  .cooking-header { flex-direction: column; gap: 12px; }
-  .header-controls { flex-wrap: wrap; gap: 8px; width: 100%; }
-  .bento-grid { grid-template-columns: 1fr; gap: 16px; }
-  .card-name { font-size: 16px; }
-  .portions-number { font-size: 24px; }
-  .card-portions { min-width: 64px; height: 64px; }
+.recipe-card.status-pending { border-left-color: #FFB547; }
+.recipe-card.status-cooking { border-left-color: #303030; }
+.recipe-card.status-ready { border-left-color: #05CD99; }
+
+.recipe-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--h-spacing-3);
+}
+
+.recipe-card__name {
+  flex: 1;
+  font-size: var(--h-text-base);
+  font-weight: var(--h-font-bold);
+  color: var(--h-text-primary);
+  line-height: var(--h-leading-tight);
+}
+
+.recipe-card__status-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--h-spacing-2);
+  padding: 4px 12px;
+  border-radius: var(--h-radius-sm);
+  font-size: var(--h-text-xs);
+  font-weight: var(--h-font-medium);
+  flex-shrink: 0;
+}
+
+.recipe-card__status-badge.status-pending { background: rgba(255, 181, 71, 0.1); color: #FFB547; }
+.recipe-card__status-badge.status-cooking { background: rgba(48, 48, 48, 0.1); color: #303030; }
+.recipe-card__status-badge.status-ready { background: rgba(5, 205, 153, 0.1); color: #05CD99; }
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Photo */
+.recipe-card__photo {
+  width: 100%;
+  border-radius: var(--h-radius-md);
+  overflow: hidden;
+}
+
+.recipe-card__photo img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+/* Portions */
+.recipe-card__portions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--h-spacing-4);
+  background: #303030;
+  border-radius: var(--h-radius-md);
+  color: white;
+}
+
+.portions-label {
+  font-size: var(--h-text-sm);
+  font-weight: var(--h-font-medium);
+}
+
+.portions-value {
+  font-size: var(--h-text-2xl);
+  font-weight: var(--h-font-bold);
+}
+
+/* Portion Breakdown */
+.portion-breakdown {
+  display: flex;
+  gap: var(--h-spacing-3);
+}
+
+.portion-size-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--h-spacing-2);
+  padding: var(--h-spacing-3);
+  border-radius: var(--h-radius-md);
+  transition: all var(--h-transition-base);
+}
+
+.portion-size-item:hover { transform: translateY(-2px); }
+
+.portion-size-item.portion-small {
+  background: linear-gradient(135deg, #FFF4E6 0%, #FFE7BA 100%);
+  border: 2px solid #FFB547;
+}
+
+.portion-size-item.portion-large {
+  background: linear-gradient(135deg, #E6F7FF 0%, #BAE7FF 100%);
+  border: 2px solid #1890FF;
+}
+
+.size-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: white;
+  border-radius: var(--h-radius-full);
+  font-size: var(--h-text-base);
+  font-weight: var(--h-font-bold);
+  color: var(--h-primary);
+  box-shadow: var(--h-shadow-sm);
+}
+
+.size-label {
+  font-size: var(--h-text-xs);
+  font-weight: var(--h-font-medium);
+  color: var(--h-text-secondary);
+}
+
+.size-value {
+  font-size: var(--h-text-xl);
+  font-weight: var(--h-font-bold);
+  color: var(--h-text-primary);
+}
+
+/* Time */
+.recipe-card__time,
+.recipe-card__times {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-2);
+  padding: var(--h-spacing-3);
+  background: var(--h-bg-light);
+  border-radius: var(--h-radius-md);
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.time-label {
+  font-size: var(--h-text-sm);
+  color: var(--h-text-secondary);
+  font-weight: var(--h-font-medium);
+}
+
+.time-value {
+  font-size: var(--h-text-sm);
+  color: var(--h-text-primary);
+  font-weight: var(--h-font-semibold);
+}
+
+.time-value.duration {
+  color: #05CD99;
+}
+
+/* Sections */
+.recipe-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-3);
+}
+
+.section-title {
+  font-size: var(--h-text-sm);
+  font-weight: var(--h-font-bold);
+  color: var(--h-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Ingredients */
+.ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h-spacing-2);
+}
+
+.ingredient-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--h-spacing-2) var(--h-spacing-3);
+  background: var(--h-bg-light);
+  border-radius: var(--h-radius-sm);
+}
+
+.ingredient-name {
+  font-size: var(--h-text-sm);
+  color: var(--h-text-primary);
+  font-weight: var(--h-font-medium);
+}
+
+.ingredient-qty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.qty-value {
+  font-size: var(--h-text-sm);
+  color: var(--h-primary);
+  font-weight: var(--h-font-semibold);
+}
+
+.stock-indicator {
+  font-size: 11px;
+  font-weight: var(--h-font-medium);
+}
+
+.stock-ok { color: #05CD99; }
+.stock-low { color: #EE5D50; }
+
+/* Instructions */
+.instructions-text {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: var(--h-text-secondary);
+  padding: var(--h-spacing-3);
+  background: var(--h-bg-light);
+  border-radius: var(--h-radius-sm);
+  font-size: var(--h-text-sm);
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+/* Action Button */
+.action-button {
+  margin-top: var(--h-spacing-2);
+  height: var(--h-touch-target-min);
+  font-weight: var(--h-font-semibold);
+  border-radius: var(--h-radius-md);
+}
+
+.action-button--success {
+  background-color: #05CD99 !important;
+  border-color: #05CD99 !important;
+}
+
+.action-button--success:hover {
+  background-color: #04b888 !important;
+  border-color: #04b888 !important;
+}
+
+/* Completed Badge */
+.completed-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--h-spacing-2);
+  padding: var(--h-spacing-3);
+  background: rgba(5, 205, 153, 0.1);
+  border-radius: var(--h-radius-md);
+  color: #05CD99;
+  font-size: var(--h-text-sm);
+  font-weight: var(--h-font-semibold);
+}
+
+/* Dark Mode */
+.dark .kanban-column-header { background: var(--h-bg-card); }
+.dark .kanban-column-title { color: var(--h-text-primary); }
+.dark .column-icon { color: var(--h-primary-light); }
+.dark .recipe-card__name { color: var(--h-text-primary); }
+.dark .recipe-card__portions { background: #404040; }
+.dark .portion-size-item.portion-small { background: rgba(255, 181, 71, 0.15); border-color: #FFB547; }
+.dark .portion-size-item.portion-large { background: rgba(24, 144, 255, 0.15); border-color: #1890FF; }
+.dark .size-badge { background: var(--h-bg-card); }
+.dark .ingredient-item { background: rgba(255, 255, 255, 0.05); }
+.dark .ingredient-name { color: var(--h-text-primary); }
+.dark .instructions-text { background: rgba(255, 255, 255, 0.05); color: var(--h-text-secondary); }
+.dark .completed-badge { background: rgba(5, 205, 153, 0.2); }
+.dark .recipe-card__time,
+.dark .recipe-card__times { background: rgba(255, 255, 255, 0.05); }
+.dark .time-value { color: var(--h-text-primary); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .stat-cards-row { grid-template-columns: repeat(3, 1fr); gap: var(--h-spacing-3); }
+  .kanban-board { grid-template-columns: 1fr; gap: var(--h-spacing-6); }
+  .kanban-column { min-height: auto; }
+}
+
+@media (max-width: 768px) {
+  .header-controls { flex-wrap: wrap; gap: var(--h-spacing-2); }
+  .stat-cards-row { grid-template-columns: 1fr; gap: var(--h-spacing-3); }
+  .portion-breakdown { flex-direction: column; }
+  .portion-size-item { flex-direction: row; justify-content: space-between; align-items: center; }
+  .size-badge { width: 28px; height: 28px; font-size: var(--h-text-sm); }
 }
 </style>
