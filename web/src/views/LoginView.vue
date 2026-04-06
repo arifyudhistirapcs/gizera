@@ -3,10 +3,15 @@
     <!-- Left Side: Login Form -->
     <div class="horizon-login__form-side">
       <div class="horizon-login__form-container">
+        <!-- Mobile Logo (visible only when branding side is hidden) -->
+        <div class="horizon-login__mobile-logo">
+          <img src="/gizera-light.png" alt="Gizera" class="horizon-login__mobile-logo-img" />
+        </div>
+
         <!-- Title -->
         <div class="horizon-login__header">
-          <h1 class="horizon-login__title">Sign In</h1>
-          <p class="horizon-login__subtitle">Masuk ke Sistem ERP SPPG</p>
+          <h1 class="horizon-login__title">Masuk ke Gizera</h1>
+          <p class="horizon-login__subtitle">Kelola operasional dapur dengan mudah</p>
         </div>
 
         <!-- Form -->
@@ -75,10 +80,7 @@
         <!-- Footer -->
         <div class="horizon-login__footer">
           <p class="horizon-login__footer-text">
-            Sistem Manajemen Operasional SPPG
-          </p>
-          <p class="horizon-login__footer-subtext">
-            Satuan Pelayanan Pemenuhan Gizi
+            Gizera &mdash; Sistem Manajemen Operasional
           </p>
         </div>
       </div>
@@ -86,14 +88,28 @@
 
     <!-- Right Side: Branding -->
     <div class="horizon-login__brand-side">
+      <!-- Decorative background circles -->
+      <div class="horizon-login__brand-bg-circle horizon-login__brand-bg-circle--top" />
+      <div class="horizon-login__brand-bg-circle horizon-login__brand-bg-circle--bottom" />
+
       <div class="horizon-login__brand-content">
-        <div class="horizon-login__brand-decoration">
-          <LottiePlayer src="/lottie/data-flow.json" width="160px" height="160px" :loop="true" />
+        <!-- Gizera Logo -->
+        <div class="horizon-login__brand-logo-wrap">
+          <img src="/gizera-light.png" alt="Gizera" class="horizon-login__brand-gizera-logo" />
         </div>
-        <div class="horizon-login__brand-logo">
-          <img src="@/assets/illustrations/login-branding.svg" alt="ERP SPPG Branding" class="horizon-login__brand-illustration" />
+
+        <!-- Lottie Animation as Centerpiece -->
+        <div class="horizon-login__brand-lottie">
+          <LottiePlayer src="/lottie/data-flow.json" width="300px" height="300px" :loop="true" />
         </div>
-        <h2 class="horizon-login__brand-title">ERP SPPG</h2>
+
+        <!-- SVG Illustration -->
+        <div class="horizon-login__brand-illustration-wrap">
+          <img src="@/assets/illustrations/login-branding.svg" alt="Gizera Branding" class="horizon-login__brand-illustration" />
+        </div>
+
+        <!-- Tagline -->
+        <h2 class="horizon-login__brand-title">Gizera</h2>
         <p class="horizon-login__brand-subtitle">
           Sistem Manajemen Operasional Terpadu
         </p>
@@ -203,24 +219,37 @@ const handleLogin = async () => {
   max-width: 480px;
 }
 
+/* Mobile Logo — hidden on desktop, shown when branding side is hidden */
+.horizon-login__mobile-logo {
+  display: none;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.horizon-login__mobile-logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
 /* Header */
 .horizon-login__header {
   margin-bottom: var(--h-spacing-8, 32px);
 }
 
 .horizon-login__title {
-  font-size: var(--h-text-4xl, 32px);
-  font-weight: var(--h-font-bold, 600);
+  font-size: 34px;
+  font-weight: 700;
   color: var(--h-text-primary, #303030);
-  margin: 0 0 var(--h-spacing-2, 8px) 0;
-  line-height: var(--h-leading-tight, 1.25);
+  margin: 0 0 8px 0;
+  line-height: 1.2;
 }
 
 .horizon-login__subtitle {
-  font-size: var(--h-text-sm, 14px);
+  font-size: 15px;
   color: var(--h-text-secondary, #6B6B6B);
   margin: 0;
-  line-height: var(--h-leading-normal, 1.5);
+  line-height: 1.5;
 }
 
 /* Form */
@@ -229,76 +258,85 @@ const handleLogin = async () => {
 }
 
 .horizon-login__form :deep(.ant-form-item-label > label) {
-  font-size: var(--h-text-sm, 14px);
-  font-weight: var(--h-font-medium, 500);
+  font-size: 14px;
+  font-weight: 500;
   color: var(--h-text-primary, #303030);
 }
 
 .horizon-login__input {
-  height: 44px;
-  border-radius: 6px;
-  font-size: var(--h-text-base, 14px);
-  border: 1px solid var(--h-border-color, #D8D8DB);
-  transition: all var(--h-transition-base, 200ms);
+  height: 48px;
+  border-radius: 12px;
+  font-size: 15px;
+  border: 1.5px solid var(--h-border-color, #D8D8DB);
+  transition: all 200ms ease;
 }
 
-.horizon-login__input:hover,
-.horizon-login__input:focus {
-  border-color: var(--h-primary, #303030);
+.horizon-login__input:hover {
+  border-color: #C94A3A;
+}
+
+.horizon-login__input:focus,
+.horizon-login__input:focus-within {
+  border-color: #C94A3A;
+  box-shadow: 0 0 0 3px rgba(201, 74, 58, 0.1);
+}
+
+.horizon-login__input :deep(.ant-input) {
+  font-size: 15px;
 }
 
 .horizon-login__input-icon {
   color: var(--h-text-secondary, #6B6B6B);
-  font-size: var(--h-icon-sm, 20px);
+  font-size: 18px;
 }
 
 /* Options (Keep me logged in) */
 .horizon-login__options {
-  margin-bottom: var(--h-spacing-6, 24px);
+  margin-bottom: 24px;
 }
 
 .horizon-login__options :deep(.ant-checkbox-wrapper) {
-  font-size: var(--h-text-sm, 14px);
+  font-size: 14px;
   color: var(--h-text-secondary, #6B6B6B);
 }
 
 /* Submit Button */
 .horizon-login__submit {
   width: 100%;
-  height: 48px;
-  border-radius: 6px;
-  font-size: var(--h-text-base, 14px);
-  font-weight: var(--h-font-semibold, 600);
+  height: 52px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
   background: #C94A3A;
   border: none;
-  transition: all var(--h-transition-base, 200ms);
+  transition: all 200ms ease;
+  box-shadow: 0 4px 14px rgba(201, 74, 58, 0.3);
 }
 
 .horizon-login__submit:hover {
-  background: #A33D30;
+  background: #B5412F;
+  box-shadow: 0 6px 20px rgba(201, 74, 58, 0.4);
+  transform: translateY(-1px);
 }
 
 .horizon-login__submit:active {
-  background: #8B3428;
+  background: #9C3828;
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(201, 74, 58, 0.3);
 }
 
 /* Footer */
 .horizon-login__footer {
   text-align: center;
-  padding-top: var(--h-spacing-6, 24px);
-  border-top: 1px solid var(--h-border-color, #D8D8DB);
+  padding-top: 24px;
+  border-top: 1px solid var(--h-border-color, #E8E8EB);
 }
 
 .horizon-login__footer-text {
-  font-size: var(--h-text-sm, 14px);
-  color: var(--h-text-secondary, #6B6B6B);
-  margin: 0 0 var(--h-spacing-1, 4px) 0;
-}
-
-.horizon-login__footer-subtext {
-  font-size: var(--h-text-xs, 12px);
-  color: var(--h-text-light, #6B6B6B);
+  font-size: 13px;
+  color: var(--h-text-secondary, #9B9B9B);
   margin: 0;
+  letter-spacing: 0.02em;
 }
 
 /* ========================================
@@ -310,97 +348,156 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #C94A3A 0%, #1E8A6E 100%);
-  padding: var(--h-spacing-12, 48px);
+  background: linear-gradient(160deg, #C94A3A 0%, #A33D30 40%, #1E8A6E 100%);
+  padding: 48px;
   position: relative;
   overflow: hidden;
+}
+
+/* Decorative background circles */
+.horizon-login__brand-bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.horizon-login__brand-bg-circle--top {
+  width: 400px;
+  height: 400px;
+  top: -120px;
+  right: -100px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.horizon-login__brand-bg-circle--bottom {
+  width: 300px;
+  height: 300px;
+  bottom: -80px;
+  left: -60px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .horizon-login__brand-content {
   text-align: center;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
-.horizon-login__brand-decoration {
-  position: absolute;
-  top: -80px;
-  right: -60px;
-  opacity: 0.15;
-  pointer-events: none;
+/* Gizera Logo */
+.horizon-login__brand-logo-wrap {
+  margin-bottom: 8px;
 }
 
-/* Logo */
-.horizon-login__brand-logo {
-  margin-bottom: var(--h-spacing-8, 32px);
+.horizon-login__brand-gizera-logo {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+/* Lottie Centerpiece */
+.horizon-login__brand-lottie {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.1));
+}
+
+/* SVG Illustration */
+.horizon-login__brand-illustration-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .horizon-login__brand-illustration {
-  width: 200px;
+  width: 300px;
   height: auto;
-  max-height: 200px;
+  max-height: 300px;
   object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.1));
 }
 
 /* Brand Title */
 .horizon-login__brand-title {
-  font-size: var(--h-text-4xl, 32px);
-  font-weight: var(--h-font-bold, 600);
+  font-size: 36px;
+  font-weight: 700;
   color: #FFFFFF;
-  margin: 0 0 var(--h-spacing-4, 16px) 0;
-  line-height: var(--h-leading-tight, 1.25);
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .horizon-login__brand-subtitle {
-  font-size: var(--h-text-lg, 18px);
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.85);
   margin: 0;
-  line-height: var(--h-leading-normal, 1.5);
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 /* ========================================
-   RESPONSIVE - Mobile & Tablet
+   RESPONSIVE - Tablet & Mobile
    ======================================== */
 
-/* Tablet (< 1024px) */
+/* Tablet (< 1024px): hide branding, show mobile logo */
 @media (max-width: 1024px) {
   .horizon-login__brand-side {
     display: none;
   }
-  
+
   .horizon-login__form-side {
     flex: 1;
+  }
+
+  .horizon-login__mobile-logo {
+    display: block;
   }
 }
 
 /* Mobile (< 768px) */
 @media (max-width: 768px) {
   .horizon-login__form-side {
-    padding: var(--h-spacing-6, 24px);
+    padding: 24px;
   }
-  
+
   .horizon-login__title {
-    font-size: var(--h-text-3xl, 30px);
+    font-size: 28px;
   }
-  
+
   .horizon-login__form-container {
     max-width: 100%;
+  }
+
+  .horizon-login__submit {
+    height: 48px;
+    border-radius: 12px;
   }
 }
 
 /* Small Mobile (< 480px) */
 @media (max-width: 480px) {
   .horizon-login__form-side {
-    padding: var(--h-spacing-4, 16px);
+    padding: 16px;
   }
-  
+
   .horizon-login__title {
-    font-size: var(--h-text-2xl, 24px);
+    font-size: 24px;
   }
-  
+
   .horizon-login__input,
   .horizon-login__submit {
     height: 44px;
+  }
+
+  .horizon-login__mobile-logo-img {
+    height: 40px;
   }
 }
 
