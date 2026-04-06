@@ -262,7 +262,8 @@ func (s *DeliveryTaskService) UpdateDeliveryTaskStatus(id uint, status string) e
 	// Update in transaction
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		// Update delivery task status and current_stage
-		if err := tx.Model(&models.DeliveryTask{}).
+		// Use NewDB session to avoid tenant scope adding duplicate FROM clause
+		if err := tx.Session(&gorm.Session{NewDB: true}).Model(&models.DeliveryTask{}).
 			Where("id = ?", id).
 			Updates(map[string]interface{}{
 				"status":        status,
@@ -279,7 +280,7 @@ func (s *DeliveryTaskService) UpdateDeliveryTaskStatus(id uint, status string) e
 
 		// Find all delivery records for this task (by school_id, driver_id, and date)
 		var deliveryRecords []models.DeliveryRecord
-		if err := tx.Where("school_id = ? AND driver_id = ? AND DATE(delivery_date) = DATE(?)",
+		if err := tx.Session(&gorm.Session{NewDB: true}).Where("school_id = ? AND driver_id = ? AND DATE(delivery_date) = DATE(?)",
 			task.SchoolID, task.DriverID, task.TaskDate).
 			Find(&deliveryRecords).Error; err != nil {
 			return err
@@ -290,7 +291,7 @@ func (s *DeliveryTaskService) UpdateDeliveryTaskStatus(id uint, status string) e
 			oldStatus := record.CurrentStatus
 
 			// Update delivery record status and stage
-			if err := tx.Model(&models.DeliveryRecord{}).
+			if err := tx.Session(&gorm.Session{NewDB: true}).Model(&models.DeliveryRecord{}).
 				Where("id = ?", record.ID).
 				Updates(map[string]interface{}{
 					"current_status": mapping.Status,
@@ -310,7 +311,7 @@ func (s *DeliveryTaskService) UpdateDeliveryTaskStatus(id uint, status string) e
 				TransitionedBy:   task.DriverID,
 				Notes:            mapping.Notes,
 			}
-			if err := tx.Create(&transition).Error; err != nil {
+			if err := tx.Session(&gorm.Session{NewDB: true}).Create(&transition).Error; err != nil {
 				return err
 			}
 		}
