@@ -658,14 +658,14 @@ const pickupTaskDate = ref(null)
 const pickupTaskTime = ref(null)
 
 // Filters
-const filterDate = ref(null)
+const filterDate = ref(dayjs())
 const filterDriver = ref(undefined)
 const filterStatus = ref(undefined)
 const deliveryListKey = ref(0)
 const deliveryTaskListRef = ref(null)
 
 // Pickup filters
-const filterPickupDate = ref(null)
+const filterPickupDate = ref(dayjs())
 const filterPickupDriver = ref(undefined)
 const filterPickupStatus = ref(undefined)
 const pickupTaskListRef = ref(null)
