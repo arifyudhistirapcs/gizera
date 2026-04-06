@@ -157,6 +157,9 @@ const handleLogin = async () => {
         case 'kepala_yayasan':
           router.push('/dashboard-yayasan')
           break
+        case 'kepala_sppg':
+          router.push('/dashboard/kepala-sppg')
+          break
         case 'ahli_gizi':
           router.push('/menu-planning')
           break
@@ -164,11 +167,11 @@ const handleLogin = async () => {
           router.push('/purchase-orders')
           break
         case 'akuntan':
-          router.push('/financial')
+          router.push('/financial-reports')
           break
         case 'chef':
         case 'packing':
-          router.push('/kds')
+          router.push('/kds/cooking')
           break
         default:
           router.push('/dashboard')

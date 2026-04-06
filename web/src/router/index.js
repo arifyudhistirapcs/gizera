@@ -16,6 +16,17 @@ function getDefaultRouteForRole(role) {
       return '/dashboard-bgn'
     case 'kepala_yayasan':
       return '/dashboard-yayasan'
+    case 'kepala_sppg':
+      return '/dashboard/kepala-sppg'
+    case 'ahli_gizi':
+      return '/menu-planning'
+    case 'pengadaan':
+      return '/purchase-orders'
+    case 'akuntan':
+      return '/financial-reports'
+    case 'chef':
+    case 'packing':
+      return '/kds/cooking'
     default:
       return '/dashboard'
   }

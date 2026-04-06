@@ -20,12 +20,12 @@ function initTheme() {
   if (initialized) return
   initialized = true
 
-  // Load from localStorage or system preference
+  // Load from localStorage, default to light mode
   const stored = localStorage.getItem('theme')
   if (stored) {
     isDark.value = stored === 'dark'
   } else {
-    isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+    isDark.value = false
   }
   applyTheme(isDark.value)
 
