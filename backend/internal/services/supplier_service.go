@@ -303,21 +303,21 @@ func (s *SupplierService) GetSupplierStats() (*SupplierStats, error) {
 
 	// Get total suppliers count
 	var totalSuppliers int64
-	if err := s.db.Model(&models.Supplier{}).Count(&totalSuppliers).Error; err != nil {
+	if err := s.db.Session(&gorm.Session{}).Model(&models.Supplier{}).Count(&totalSuppliers).Error; err != nil {
 		return nil, err
 	}
 	stats.TotalSuppliers = int(totalSuppliers)
 
 	// Get active suppliers count
 	var activeSuppliers int64
-	if err := s.db.Model(&models.Supplier{}).Where("is_active = ?", true).Count(&activeSuppliers).Error; err != nil {
+	if err := s.db.Session(&gorm.Session{}).Model(&models.Supplier{}).Where("is_active = ?", true).Count(&activeSuppliers).Error; err != nil {
 		return nil, err
 	}
 	stats.ActiveSuppliers = int(activeSuppliers)
 
 	// Get average quality rating
 	var avgRating float64
-	if err := s.db.Model(&models.Supplier{}).
+	if err := s.db.Session(&gorm.Session{}).Model(&models.Supplier{}).
 		Where("quality_rating > 0").
 		Select("COALESCE(AVG(quality_rating), 0)").
 		Scan(&avgRating).Error; err != nil {
@@ -327,7 +327,7 @@ func (s *SupplierService) GetSupplierStats() (*SupplierStats, error) {
 
 	// Get total spending from purchase orders (approved and received)
 	var totalSpending float64
-	if err := s.db.Model(&models.PurchaseOrder{}).
+	if err := s.db.Session(&gorm.Session{}).Model(&models.PurchaseOrder{}).
 		Where("status IN ?", []string{"approved", "received"}).
 		Select("COALESCE(SUM(total_amount), 0)").
 		Scan(&totalSpending).Error; err != nil {
@@ -337,25 +337,26 @@ func (s *SupplierService) GetSupplierStats() (*SupplierStats, error) {
 
 	// Get top 3 suppliers by order count and total amount
 	type SupplierOrderStats struct {
-		SupplierID  uint
+		SupplierID   uint
 		SupplierName string
-		OrderCount  int
-		TotalAmount float64
+		OrderCount   int
+		TotalAmount  float64
 	}
 
 	var topSupplierStats []SupplierOrderStats
-	// Use NewDB session to avoid tenant scope adding ambiguous sppg_id
-	rawDB := s.db.Session(&gorm.Session{NewDB: true})
-	if err := rawDB.Table("purchase_orders").
-		Select("suppliers.id as supplier_id, suppliers.name as supplier_name, COUNT(purchase_orders.id) as order_count, COALESCE(SUM(purchase_orders.total_amount), 0) as total_amount").
-		Joins("JOIN suppliers ON suppliers.id = purchase_orders.supplier_id").
-		Where("purchase_orders.sppg_id = suppliers.sppg_id").
-		Where("purchase_orders.status IN ?", []string{"approved", "received"}).
-		Group("suppliers.id, suppliers.name").
-		Order("total_amount DESC, order_count DESC").
-		Limit(3).
-		Scan(&topSupplierStats).Error; err != nil {
-		return nil, err
+	// Use raw SQL to avoid tenant scope ambiguity on JOIN queries
+	if err := s.db.Session(&gorm.Session{NewDB: true}).Raw(`
+		SELECT suppliers.id as supplier_id, suppliers.name as supplier_name, 
+			COUNT(purchase_orders.id) as order_count, 
+			COALESCE(SUM(purchase_orders.total_amount), 0) as total_amount
+		FROM purchase_orders
+		JOIN suppliers ON suppliers.id = purchase_orders.supplier_id
+		WHERE purchase_orders.status IN ('approved', 'received')
+		GROUP BY suppliers.id, suppliers.name
+		ORDER BY total_amount DESC, order_count DESC
+		LIMIT 3
+	`).Scan(&topSupplierStats).Error; err != nil {
+		topSupplierStats = nil
 	}
 
 	// Convert to TopSupplier format
