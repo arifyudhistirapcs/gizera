@@ -548,6 +548,7 @@ func (s *DeliveryTaskService) CreateDeliveryTasksFromRecords(taskDate time.Time,
 
 			// Create delivery task
 			task := &models.DeliveryTask{
+				SPPGID:     deliveryRecord.SPPGID,
 				TaskDate:   taskDate,
 				DriverID:   driverID,
 				SchoolID:   deliveryRecord.SchoolID,
@@ -614,6 +615,7 @@ func (s *DeliveryTaskService) CreateDeliveryTaskFromRecord(taskDate time.Time, d
 
 	// Create delivery task
 	task := &models.DeliveryTask{
+		SPPGID:     deliveryRecord.SPPGID,
 		TaskDate:   taskDate,
 		DriverID:   driverID,
 		SchoolID:   deliveryRecord.SchoolID,
