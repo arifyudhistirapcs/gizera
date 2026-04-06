@@ -420,10 +420,8 @@ type ReadyOrderResponse struct {
 func (s *DeliveryTaskService) GetReadyOrders(date time.Time) ([]ReadyOrderResponse, error) {
 	var orders []ReadyOrderResponse
 	
-	// Query delivery records with status "selesai_dipacking" (packing completed, ready for delivery)
-	// This status is set when packing is completed in KDS Packing
-	// Only show orders that don't have a driver assigned yet (driver_id IS NULL)
-	err := s.db.Table("delivery_records").
+	// Use NewDB session to avoid tenant scope ambiguity on JOIN queries
+	err := s.db.Session(&gorm.Session{NewDB: true}).Table("delivery_records").
 		Select(`
 			delivery_records.id,
 			delivery_records.school_id,
@@ -479,7 +477,7 @@ func (s *DeliveryTaskService) GetAvailableDrivers(date time.Time) ([]AvailableDr
 		ORDER BY u.full_name
 	`
 	
-	err := s.db.Raw(query, "driver", true, date).Scan(&drivers).Error
+	err := s.db.Session(&gorm.Session{NewDB: true}).Raw(query, "driver", true, date).Scan(&drivers).Error
 	if err != nil {
 		return nil, err
 	}

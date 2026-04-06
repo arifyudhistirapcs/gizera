@@ -15,11 +15,33 @@ import (
 //   - kepala_yayasan: WHERE sppg_id IN (SELECT id FROM sppgs WHERE yayasan_id = ?)
 //   - admin_bgn/superadmin: no filter (with optional query param filtering)
 func getTenantScopedDB(c *gin.Context, db *gorm.DB) *gorm.DB {
-	// Apply tenant scope using GORM Scopes for reliable WHERE clause preservation.
-	scopeFn := middleware.TenantScope(c)
-	return db.Scopes(func(tx *gorm.DB) *gorm.DB {
-		return scopeFn(tx)
-	})
+	role, _ := c.Get("user_role")
+	sppgID, _ := c.Get("sppg_id")
+	yayasanID, _ := c.Get("yayasan_id")
+
+	roleStr, ok := role.(string)
+	if !ok {
+		return db.Where("1 = 0")
+	}
+
+	switch roleStr {
+	case "superadmin", "admin_bgn":
+		if filterSPPG := c.Query("sppg_id"); filterSPPG != "" {
+			return db.Where("sppg_id = ?", filterSPPG)
+		}
+		if filterYayasan := c.Query("yayasan_id"); filterYayasan != "" {
+			return db.Where("sppg_id IN (?)",
+				db.Session(&gorm.Session{NewDB: true}).
+					Table("sppgs").Select("id").Where("yayasan_id = ?", filterYayasan))
+		}
+		return db
+	case "kepala_yayasan":
+		return db.Where("sppg_id IN (?)",
+			db.Session(&gorm.Session{NewDB: true}).
+				Table("sppgs").Select("id").Where("yayasan_id = ?", yayasanID))
+	default:
+		return db.Where("sppg_id = ?", sppgID)
+	}
 }
 
 // autoInjectSPPGID sets the SPPG ID on a model struct for SPPG-level roles.
