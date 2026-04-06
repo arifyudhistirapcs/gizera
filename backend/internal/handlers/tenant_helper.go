@@ -15,14 +15,11 @@ import (
 //   - kepala_yayasan: WHERE sppg_id IN (SELECT id FROM sppgs WHERE yayasan_id = ?)
 //   - admin_bgn/superadmin: no filter (with optional query param filtering)
 func getTenantScopedDB(c *gin.Context, db *gorm.DB) *gorm.DB {
-	// Apply tenant scope and return a cloneable DB so each query in the service
-	// gets a fresh statement (prevents GORM session state accumulation).
+	// Apply tenant scope using GORM Scopes for reliable WHERE clause preservation.
 	scopeFn := middleware.TenantScope(c)
-	// Eagerly apply the scope to get the scoped DB, then wrap in a new session
-	// so the service gets a fresh clone for each query.
-	scopedDB := scopeFn(db.Session(&gorm.Session{NewDB: true}))
-	// Return with clone=2 so each query clones the statement (preserving the scope's WHERE clauses)
-	return scopedDB.Session(&gorm.Session{})
+	return db.Scopes(func(tx *gorm.DB) *gorm.DB {
+		return scopeFn(tx)
+	})
 }
 
 // autoInjectSPPGID sets the SPPG ID on a model struct for SPPG-level roles.

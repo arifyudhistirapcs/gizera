@@ -624,7 +624,7 @@ const loadMapData = async () => {
   try {
     const [schoolsRes, suppliersRes] = await Promise.all([
       api.get('/schools'),
-      api.get('/suppliers')
+      api.get('/suppliers?active_only=true')
     ])
     schoolsList.value = schoolsRes.data?.schools || schoolsRes.data?.data || []
     suppliersList.value = suppliersRes.data?.suppliers || suppliersRes.data?.data || []
