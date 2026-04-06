@@ -1,27 +1,35 @@
 # ============================================
-# Local Development Docker Compose
-# Usage: docker compose up -d
+# ERP SPPG - Full Stack Docker Compose
+# Usage: docker compose up -d --build
 # ============================================
 version: '3.8'
 
 services:
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
   postgres:
     image: postgres:15-alpine
     container_name: erp-sppg-db
     environment:
-      POSTGRES_DB: erp_sppg
-      POSTGRES_USER: erp_sppg_user
-      POSTGRES_PASSWORD: localdev123
+      POSTGRES_DB: ${DB_NAME:-erp_sppg}
+      POSTGRES_USER: ${DB_USER:-erp_sppg_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-localdev123}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - erp-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U erp_sppg_user -d erp_sppg"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-erp_sppg_user} -d ${DB_NAME:-erp_sppg}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # ============================================
+  # Redis Cache
+  # ============================================
   redis:
     image: redis:7-alpine
     container_name: erp-sppg-redis
@@ -30,7 +38,89 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/data
+    networks:
+      - erp-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Backend API (Go + Gin)
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: erp-sppg-backend
+    env_file: ./backend/.env
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-erp_sppg}
+      - DB_USER=${DB_USER:-erp_sppg_user}
+      - DB_PASSWORD=${DB_PASSWORD:-localdev123}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVER_PORT=8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - erp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # Web Dashboard (Vue 3 + Ant Design Vue)
+  # ============================================
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: erp-sppg-web
+    ports:
+      - "3001:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - erp-network
+    restart: unless-stopped
+
+  # ============================================
+  # PWA Mobile App (Vue 3 + Vant)
+  # ============================================
+  pwa:
+    build:
+      context: ./pwa
+      dockerfile: Dockerfile
+    container_name: erp-sppg-pwa
+    ports:
+      - "3002:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - erp-network
+    restart: unless-stopped
 
 volumes:
   pgdata:
   redisdata:
+
+networks:
+  erp-network:
+    driver: bridge

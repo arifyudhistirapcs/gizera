@@ -170,25 +170,66 @@ docker exec erp-sppg-backup /backup.sh
 
 ---
 
-## Local Development
+## Local Development / Staging (Semua Apps via Docker)
 
-Untuk development lokal, gunakan compose di root project:
+Cara paling gampang — jalankan semua dari root project:
 
 ```bash
-# Start PostgreSQL + Redis lokal
-docker compose up -d
+# 1. Copy env backend
+cp backend/.env.example backend/.env
+# Edit backend/.env sesuai kebutuhan (atau biarkan default)
 
-# Jalankan backend
+# 2. Build & jalankan semua (DB + Redis + Backend + Web + PWA)
+docker compose up -d --build
+```
+
+Setelah jalan, akses:
+| Service | URL |
+|---|---|
+| Backend API | http://localhost:8080 |
+| Web Dashboard | http://localhost:3001 |
+| PWA Mobile | http://localhost:3002 |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
+
+Perintah berguna:
+```bash
+# Lihat status semua container
+docker compose ps
+
+# Lihat logs backend
+docker compose logs -f backend
+
+# Rebuild setelah ada perubahan code
+docker compose up -d --build backend   # backend saja
+docker compose up -d --build           # semua
+
+# Stop semua
+docker compose down
+
+# Stop + hapus data (reset database)
+docker compose down -v
+```
+
+### Tanpa Docker (manual)
+
+Kalau mau jalankan tanpa Docker (misal untuk debug):
+
+```bash
+# Start DB + Redis saja
+docker compose up -d postgres redis
+
+# Jalankan backend manual
 cd backend
-cp .env.example .env  # edit sesuai kebutuhan
+cp .env.example .env
 go run ./cmd/server
 
-# Jalankan web dashboard
+# Jalankan web dashboard manual
 cd web
 cp .env.example .env
 npm install && npm run dev
 
-# Jalankan PWA
+# Jalankan PWA manual
 cd pwa
 cp .env.example .env
 npm install && npm run dev
