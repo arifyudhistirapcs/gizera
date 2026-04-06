@@ -462,7 +462,7 @@ func (s *DeliveryTaskService) GetAvailableDrivers(date time.Time) ([]AvailableDr
 	var drivers []AvailableDriverResponse
 	
 	// Get all active drivers with role 'driver'
-	// Filter out those who already have delivery tasks on the specified date
+	// Only exclude drivers who have active (non-completed) delivery tasks on the specified date
 	query := `
 		SELECT u.id, u.full_name, u.email, u.phone_number as phone
 		FROM users u
@@ -473,11 +473,12 @@ func (s *DeliveryTaskService) GetAvailableDrivers(date time.Time) ([]AvailableDr
 			FROM delivery_tasks 
 			WHERE DATE(task_date) = DATE(?)
 			AND driver_id IS NOT NULL
+			AND status IN ('pending', 'in_progress', 'arrived')
 		)
 		ORDER BY u.full_name
 	`
 	
-	err := s.db.Session(&gorm.Session{NewDB: true}).Raw(query, "driver", true, date).Scan(&drivers).Error
+	err := s.db.Raw(query, "driver", true, date).Scan(&drivers).Error
 	if err != nil {
 		return nil, err
 	}
