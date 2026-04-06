@@ -1,0 +1,617 @@
+# Implementation Plan: Redesign UI/UX Datum
+
+## Overview
+
+Redesign menyeluruh UI/UX aplikasi Gizera ERP SPPG dari tema Horizon UI (ungu/krem, shadow berat, border-radius besar) ke bahasa desain Datum (netral/minimal, border-based, tipografi Urbanist). Mencakup Web Dashboard (Vue 3 + Ant Design Vue) dan PWA Mobile (Vue 3 + Vant 4).
+
+Perubahan bersifat PURE UI/UX: hanya CSS, Vue template, Vue style, dan asset statis (SVG, Lottie JSON). Tidak ada perubahan backend, business logic, API, database, routing, state management, atau service layer.
+
+### Palet Datum
+- Background utama: #E8EDE5 (sage/hijau muda sangat terang)
+- Teks utama: #303030 (gelap)
+- Teks sekunder: #6B6B6B (abu medium — dikoreksi dari #6B6B6B untuk memenuhi WCAG AA 4.5:1)
+- Aksen: #CCE2C8 (hijau muda)
+- Border: #D8D8DB (abu terang)
+- Kartu/putih: #FFFFFF
+- Font: Urbanist (sizes: 32, 24, 18, 14, 12)
+- Border-radius: 4px-8px (kecil)
+- Shadow: minimal atau tanpa shadow, border-based
+
+## Tasks
+
+- [x] 0. Pre-flight: Validasi dan Koreksi Kontras Palet Datum
+  - [x] 0.1 Koreksi warna teks sekunder dari #6B6B6B ke #6B6B6B (memenuhi WCAG AA 4.5:1 pada putih dan sage)
+    - Update di `web/src/styles/horizon/variables.css`: `--h-text-secondary` dan `--h-text-light` ke `#6B6B6B`
+    - Update di `pwa/src/styles/horizon-mobile.css`: `--h-text-secondary` dan `--h-text-light` ke `#6B6B6B`
+    - Update di `requirements.md` dan `design.md`: ganti semua referensi #6B6B6B ke #6B6B6B
+    - _Persyaratan: 2.2 (kontras WCAG AA)_
+
+- [x] 1. Foundation: Update Design Token Web (variables.css)
+  - [x] 1.1 Update palet warna di `web/src/styles/horizon/variables.css`
+    - Ganti `--h-primary: #5A4372` ke `#303030` (gelap netral Datum)
+    - Ganti `--h-primary-hover` ke `#404040`, `--h-primary-active` ke `#202020`, `--h-primary-light` ke `#505050`
+    - Ganti `--h-accent: #3D2B53` ke `#CCE2C8` (hijau muda Datum)
+    - Ganti `--h-bg-primary: #F8FDEA` ke `#E8EDE5` (sage Datum)
+    - Ganti `--h-bg-light: #F4F7FE` ke `#F0F0F0`
+    - Tambah `--h-bg-accent: #CCE2C8` untuk widget highlight/overview cards
+    - Ganti `--h-text-primary: #322837` ke `#303030`
+    - Ganti `--h-text-secondary: #74788C` ke `#6B6B6B`
+    - Ganti `--h-text-light: #ACA9B0` ke `#6B6B6B`
+    - Ganti `--h-border-color: #E9EDF7` ke `#D8D8DB`
+    - Ganti `--h-border-light: #F4F7FE` ke `#F0F0F0`
+    - Update semantic colors: success ke `#CCE2C8`, info ke `#3B82F6` (biru subtle)
+    - _Persyaratan: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8_
+  - [x] 1.2 Update tipografi di `web/src/styles/horizon/variables.css`
+    - Ganti `--h-font-primary` dari `DM Sans` ke `Urbanist`
+    - Update font sizes ke skala Datum: `--h-text-xs: 12px`, `--h-text-sm: 14px`, `--h-text-base: 14px`, `--h-text-lg: 18px`, `--h-text-xl: 18px`, `--h-text-2xl: 24px`, `--h-text-3xl: 24px`, `--h-text-4xl: 32px`
+    - Ganti `--h-font-bold: 700` ke `600` (alias ke semibold, tidak pakai 700)
+    - Tambah `letter-spacing: 0` (normal) di base styles sesuai spesifikasi Datum
+    - Pastikan `--h-leading-normal: 1.5` dan `--h-leading-tight: 1.25` sudah ada
+    - _Persyaratan: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+  - [x] 1.3 Update border-radius di `web/src/styles/horizon/variables.css`
+    - Ganti `--h-radius-sm: 8px` ke `4px`
+    - Ganti `--h-radius-md: 12px` ke `6px`
+    - Ganti `--h-radius-lg: 16px` ke `8px`
+    - Ganti `--h-radius-xl: 20px` ke `8px` (sama dengan lg)
+    - _Persyaratan: 5.1, 5.2, 5.3, 5.4_
+  - [x] 1.4 Update shadow di `web/src/styles/horizon/variables.css`
+    - Ganti `--h-shadow-sm` ke `0 1px 2px rgba(0, 0, 0, 0.05)`
+    - Ganti `--h-shadow-md` ke `0 2px 8px rgba(0, 0, 0, 0.08)`
+    - Ganti `--h-shadow-lg` dan `--h-shadow-xl` ke `0 2px 8px rgba(0, 0, 0, 0.08)`
+    - Ganti `--h-shadow-card` ke `0 1px 3px rgba(0, 0, 0, 0.04)`
+    - _Persyaratan: 4.1, 4.2, 4.3_
+  - [x] 1.5 Update component-specific variables di `web/src/styles/horizon/variables.css`
+    - Ganti `--h-header-height: 88px` ke `64px`
+    - Ganti `--h-header-height-mobile: 68px` ke `56px`
+    - Ganti `--h-card-padding: 24px` ke `20px`
+    - _Persyaratan: 7.4, 23.3_
+
+- [x] 2. Foundation: Hapus Konflik Tema dan Update Base Styles
+  - [x] 2.1 Hapus import `theme.css` dari `web/src/main.js`
+    - Hapus baris `import './styles/theme.css'` — file ini memuat tema merah #f82c17 / Montserrat yang berkonflik
+    - Pastikan hanya `import './styles/horizon/index.css'` yang tersisa sebagai sumber desain tunggal
+    - _Persyaratan: 1.1, 1.2, 1.3, 1.4_
+  - [x] 2.2 Update `web/src/styles/horizon/base.css`
+    - Ganti Google Fonts import dari DM Sans ke Urbanist: `@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600&display=swap')`
+    - Ganti `box-shadow: 0 0 0 3px rgba(90, 67, 114, 0.1)` pada input:focus ke `rgba(48, 48, 48, 0.1)`
+    - Ganti `-webkit-tap-highlight-color: rgba(90, 67, 114, 0.1)` ke `rgba(48, 48, 48, 0.1)`
+    - _Persyaratan: 1.2, 3.1, 3.2_
+  - [x] 2.3 Update `web/src/styles/horizon/utilities.css`
+    - Update `.h-card`: hapus `box-shadow: var(--h-shadow-card)`, tambah `border: 1px solid var(--h-border-color)`
+    - Update `.h-card-hover:hover`: hapus `transform: translateY(-4px)` dan `box-shadow: var(--h-shadow-xl)`, ganti dengan `background: var(--h-bg-light)`
+    - Ganti `.h-gradient-primary` dari `linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)` ke `background: #303030` (solid gelap)
+    - _Persyaratan: 4.1, 4.2, 25.3, 25.4_
+  - [x] 2.4 Update `web/src/App.vue`
+    - Ganti font-family di `#app` style ke `'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+    - _Persyaratan: 3.1_
+
+- [x] 3. Foundation: Update Ant Design Overrides (Web)
+  - [x] 3.1 Update primary button di `web/src/styles/horizon/overrides.css`
+    - Ganti semua `#5A4372` ke `#303030` untuk .ant-btn-primary
+    - Ganti hover `#4a3562` ke `#404040`, active `#3a2752` ke `#202020`
+    - Ganti border-radius `10px` ke `6px` untuk semua button
+    - _Persyaratan: 21.1, 21.3_
+  - [x] 3.2 Update tabel override di `web/src/styles/horizon/overrides.css`
+    - Ganti `.ant-table-thead > tr > th` background ke `#F7F8FA !important`
+    - Ganti color ke `#6B6B6B !important`
+    - Ganti `.ant-table-tbody > tr:hover > td` background ke `#F7F8FA !important`
+    - Ganti border-radius tabel dari `12px` ke `8px`
+    - _Persyaratan: 10.1, 10.2, 10.3, 10.4, 10.5, 21.2_
+  - [x] 3.3 Update card override di `web/src/styles/horizon/overrides.css`
+    - Ganti `.ant-card` border-radius dari `16px` ke `8px`
+    - Hapus `box-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12)`, tambah `border: 1px solid #D8D8DB`
+    - _Persyaratan: 21.3, 21.4_
+  - [x] 3.4 Update input/select override di `web/src/styles/horizon/overrides.css`
+    - Ganti border-radius dari `10px` ke `6px` untuk semua input, select, picker
+    - Ganti focus border-color dan box-shadow dari ungu ke `#303030` / `rgba(48, 48, 48, 0.1)`
+    - _Persyaratan: 21.3, 21.5_
+  - [x] 3.5 Update pagination, tabs, tag, modal, alert, collapse override di `web/src/styles/horizon/overrides.css`
+    - Ganti semua referensi `#5A4372` ke `#303030`
+    - Ganti modal border-radius dari `16px` ke `8px`
+    - Ganti alert, collapse border-radius dari `12px` ke `8px`
+    - _Persyaratan: 21.1, 21.3, 21.5_
+  - [x] 3.6 Update statistic dan page header override di `web/src/styles/horizon/overrides.css`
+    - Ganti font-family dari `DM Sans` ke `Urbanist`
+    - Ganti font-weight dari `700` ke `600`
+    - Ganti color fallback dari `#322837` ke `#303030`
+    - _Persyaratan: 3.1, 21.1_
+
+- [x] 4. Foundation: Update Dark Mode (Web)
+  - [x] 4.1 Update `web/src/styles/horizon/dark-mode.css`
+    - Ganti `--h-bg-primary: #322837` ke `#1A1A1A`
+    - Ganti `--h-bg-secondary: #3D2B53` ke `#252525`
+    - Ganti `--h-bg-card: #3D2B53` ke `#252525`
+    - Ganti `--h-bg-light: #1B254B` ke `#303030`
+    - Ganti `--h-text-primary: #F8FDEA` ke `#F7F8FA`
+    - Ganti `--h-text-secondary: #ACA9B0` ke `#D8D8DB`
+    - Ganti `--h-border-color: #5A4372` ke `#404040`
+    - Ganti `--h-border-light: #4a3562` ke `#505050`
+    - Update shadow values untuk dark mode
+    - _Persyaratan: 24.1, 24.2, 24.3, 24.4_
+  - [x] 4.2 Update dark mode overrides di `web/src/styles/horizon/overrides.css`
+    - Ganti semua referensi `#5A4372` di dark mode selectors ke `#404040`
+    - Ganti `#1B254B` ke `#303030`
+    - Ganti `#111C44` ke `#252525`
+    - Ganti `#F8FDEA` ke `#F7F8FA`
+    - Ganti `rgba(90, 67, 114, ...)` ke `rgba(48, 48, 48, ...)`
+    - _Persyaratan: 24.1, 24.2, 24.4_
+
+- [x] 5. Foundation: Update Responsive Utilities (Web)
+  - [x] 5.1 Update `web/src/styles/horizon/responsive.css`
+    - Ganti `-webkit-tap-highlight-color: rgba(90, 67, 114, 0.2)` ke `rgba(48, 48, 48, 0.15)`
+    - _Persyaratan: 2.6_
+
+- [x] 6. Foundation: Update Design Token PWA (horizon-mobile.css)
+  - [x] 6.1 Update palet warna di `pwa/src/styles/horizon-mobile.css`
+    - Ganti `--h-primary: #5A4372` ke `#303030`
+    - Ganti `--h-primary-hover` ke `#404040`, `--h-primary-active` ke `#202020`
+    - Ganti `--h-accent: #3D2B53` ke `#CCE2C8`
+    - Ganti `--h-bg-primary: #F8FDEA` ke `#E8EDE5` (sage Datum)
+    - Ganti `--h-text-primary: #322837` ke `#303030`
+    - Ganti `--h-text-secondary: #74788C` ke `#6B6B6B`
+    - Ganti `--h-text-light: #ACA9B0` ke `#6B6B6B`
+    - Ganti `--h-border-color: #E9EDF7` ke `#D8D8DB`
+    - Ganti `--h-border-light: #F4F7FE` ke `#F0F0F0`
+    - Ganti `--h-success: #05CD99` ke `#CCE2C8`
+    - Ganti `--h-info: #5A4372` ke `#3B82F6`
+    - _Persyaratan: 14.1, 14.2, 14.3_
+  - [x] 6.2 Update tipografi di `pwa/src/styles/horizon-mobile.css`
+    - Ganti Google Fonts import dari DM Sans ke Urbanist
+    - Ganti `--h-font-family` ke `'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+    - _Persyaratan: 14.6_
+  - [x] 6.3 Update border-radius di `pwa/src/styles/horizon-mobile.css`
+    - Ganti `--h-radius-sm: 8px` ke `4px`
+    - Ganti `--h-radius-md: 12px` ke `6px`
+    - Ganti `--h-radius-lg: 16px` ke `8px`
+    - Ganti `--h-radius-xl: 20px` ke `8px`
+    - _Persyaratan: 14.4_
+  - [x] 6.4 Update shadow di `pwa/src/styles/horizon-mobile.css`
+    - Ganti `--h-shadow-card: 0px 18px 40px rgba(112, 144, 176, 0.12)` ke `none`
+    - Ganti `--h-shadow-sm/md/lg` ke shadow minimal Datum
+    - _Persyaratan: 14.5_
+  - [x] 6.5 Update `pwa/src/App.vue`
+    - Ganti font-family di body style dari `DM Sans` ke `Urbanist`
+    - _Persyaratan: 14.6_
+
+- [x] 7. Foundation: Update Vant Component Overrides (PWA)
+  - [x] 7.1 Update Vant NavBar override di `pwa/src/styles/horizon-mobile.css`
+    - Ganti `.van-nav-bar` background dari `linear-gradient(135deg, #5A4372, #7B5E99)` ke `#FFFFFF`
+    - Hapus `box-shadow: 0 4px 20px rgba(90, 67, 114, 0.25)`
+    - Hapus `border-radius: 0 0 20px 20px` (persegi)
+    - Tambah `border-bottom: 1px solid #D8D8DB`
+    - Ganti `.van-nav-bar__title` color dari `#ffffff` ke `#303030`
+    - Ganti `.van-nav-bar__arrow`, `.van-nav-bar__text`, ikon color dari `#ffffff` ke `#303030`
+    - _Persyaratan: 15.1, 15.2, 15.3, 15.4_
+  - [x] 7.2 Update Vant Tabbar override di `pwa/src/styles/horizon-mobile.css`
+    - Hapus `box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08)`
+    - Ganti `border-radius: 24px 24px 0 0` ke `0` (persegi)
+    - Tambah `border-top: 1px solid #D8D8DB`
+    - Ganti `.van-tabbar-item--active` color dari `#5A4372` ke `#303030`
+    - _Persyaratan: 16.1, 16.2, 16.3, 16.5_
+  - [x] 7.3 Update Vant Button override di `pwa/src/styles/horizon-mobile.css`
+    - Ganti `.van-button--primary` background dari `var(--h-primary)` (ungu) ke `#303030`
+    - Ganti border-radius dari `var(--h-radius-md)` (12px) ke `6px`
+    - _Persyaratan: 22.1, 22.2_
+  - [x] 7.4 Update Vant Card, Cell-Group override di `pwa/src/styles/horizon-mobile.css`
+    - Ganti `.van-card` shadow ke `none`, tambah `border: 1px solid #D8D8DB`
+    - Ganti `.van-cell-group` shadow ke `none`, tambah `border: 1px solid #D8D8DB`
+    - Ganti border-radius ke `8px`
+    - _Persyaratan: 22.2, 22.3_
+  - [x] 7.5 Update Vant Switch, Checkbox, Radio override di `pwa/src/styles/horizon-mobile.css`
+    - Ganti `.van-switch--on` background dari `var(--h-primary)` (ungu) ke `#303030`
+    - Ganti `.van-checkbox__icon--checked` background/border dari ungu ke `#303030`
+    - Ganti `.van-radio__icon--checked` background/border dari ungu ke `#303030`
+    - _Persyaratan: 22.4_
+  - [x] 7.6 Update Vant Dialog, Popup override di `pwa/src/styles/horizon-mobile.css`
+    - Ganti border-radius dari `var(--h-radius-lg)` (16px) ke `8px`
+    - _Persyaratan: 22.2_
+
+- [x] 8. Komponen Web: Redesign HSidebar
+  - [x] 8.1 Update `web/src/components/layout/HSidebar.vue` style
+    - Ganti `border-right: 1px solid var(--h-border-color, #E9EDF7)` ke `1px solid #D8D8DB`
+    - Ganti `.menu-item.active` background dari `#5A4372` ke `#F0F0F0`, color dari `#FFFFFF` ke `#303030`
+    - Ganti `.menu-item:hover` background dari `#F4F7FE` ke `#F7F8FA`
+    - Ganti `.menu-item` color dari `var(--h-text-secondary, #74788C)` ke `#303030`
+    - Ganti `.menu-icon` color ke `#6B6B6B`
+    - Ganti border-radius `.menu-item` dan `.submenu-item` dari `12px` ke `6px`
+    - Ganti `.submenu-item.active` background dari `#5A4372` ke `#F0F0F0`, color dari `#FFFFFF` ke `#303030`
+    - Ganti scrollbar thumb dari `rgba(90, 67, 114, 0.3)` ke `rgba(0, 0, 0, 0.15)`
+    - Ganti `.user-info__avatar` color dari `#5A4372` ke `#303030`
+    - Ganti `.logout-button` border-radius dari `12px` ke `6px`
+    - Update dark mode styles: ganti `#111C44` ke `#252525`, `#1B254B` ke `#303030`
+    - _Persyaratan: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
+
+- [x] 9. Komponen Web: Redesign HHeader
+  - [x] 9.1 Update `web/src/components/layout/HHeader.vue` style
+    - Ganti height dari `88px` ke `64px`, mobile dari `68px` ke `56px`
+    - Hapus `box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05)`, tambah `border-bottom: 1px solid #D8D8DB`
+    - Ganti `.page-title` font-weight dari `700` ke `600`, color ke `#303030`
+    - Ganti `.breadcrumb` color ke `#6B6B6B`
+    - _Persyaratan: 7.1, 7.2, 7.3, 7.4_
+
+- [x] 10. Komponen Web: Redesign ThemeToggle
+  - [x] 10.1 Update `web/src/components/layout/ThemeToggle.vue` style
+    - Ganti border dari `rgba(90, 67, 114, 0.25)` ke `rgba(48, 48, 48, 0.2)`
+    - Ganti background dari `#F4F7FE` ke `#F0F0F0`
+    - Ganti border-radius dari `12px` ke `6px`
+    - Ganti moon icon stroke dari `#5A4372` ke `#303030`
+    - Ganti focus-visible outline dari `#5A4372` ke `#303030`
+    - Ganti dark mode background dari `#1B254B` ke `#303030`
+    - _Persyaratan: 2.6, 24.2_
+
+- [x] 11. Komponen Web: Redesign HStatCard
+  - [x] 11.1 Update `web/src/components/horizon/HStatCard.vue` style
+    - Hapus shadow dari `.h-stat-card` (sudah inherit dari `.h-card` yang di-update)
+    - Ganti `.h-stat-card__icon` background dari `linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)` ke `#F0F0F0`
+    - Ganti `.h-stat-card__icon-svg` color dari `#FFFFFF` ke `#303030`
+    - Ganti `.h-stat-card__value` font-weight dari `var(--h-font-bold)` (700) ke `600`
+    - _Persyaratan: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
+
+- [x] 12. Komponen Web: Redesign HChartCard
+  - [x] 12.1 Update `web/src/components/horizon/HChartCard.vue` style
+    - Hapus shadow (sudah inherit dari `.h-card`)
+    - Ganti `.h-chart-card__title` font-weight dari `var(--h-font-bold)` (700) ke `600`
+    - _Persyaratan: 9.1, 9.2, 9.3, 9.4_
+
+- [x] 13. Komponen Web: Redesign HDataTable
+  - [x] 13.1 Update `web/src/components/horizon/HDataTable.vue` style
+    - Ganti row hover background dari `#F8FDEA` ke `#F7F8FA`
+    - Ganti dark mode hover dari `rgba(90, 67, 114, 0.1)` ke `rgba(48, 48, 48, 0.1)`
+    - Ganti mobile card active background dari `#F8FDEA` ke `#F7F8FA`
+    - Ganti scrollbar thumb dari `var(--h-primary-light)` ke `rgba(0, 0, 0, 0.15)`
+    - _Persyaratan: 10.1, 10.2, 10.3, 10.4, 10.5_
+
+- [x] 14. Komponen Web: Redesign HKanbanCard
+  - [x] 14.1 Update `web/src/components/horizon/HKanbanCard.vue` style
+    - Hapus hover `transform: translateY(-2px)` dan `box-shadow: var(--h-shadow-lg)`
+    - Ganti dark mode status badge backgrounds dari `rgba(90, 67, 114, ...)` ke netral
+    - _Persyaratan: 4.1, 25.3_
+
+- [x] 15. Komponen Web: Redesign MobileDrawer
+  - [x] 15.1 Update `web/src/components/layout/MobileDrawer.vue` style
+    - Ganti dark mode background dari `var(--h-bg-secondary-dark, #111C44)` ke `#252525`
+    - _Persyaratan: 24.1_
+
+- [x] 16. Komponen PWA: Redesign BottomNavigation
+  - [x] 16.1 Update `pwa/src/components/mobile/BottomNavigation.vue` template dan style
+    - Hapus floating center button (`.floating-center-btn`) dan `.nav-center-spacer` dari template
+    - Ubah layout menjadi satu baris inline: gabungkan leftItems, centerItem, dan rightItems menjadi satu array flat
+    - Ganti `.bottom-navigation` height dari `64px` ke `56px`
+    - Hapus `box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08)`, tambah `border-top: 1px solid #D8D8DB`
+    - Hapus `border-radius: 24px 24px 0 0` (persegi)
+    - Ganti `.nav-item--active .nav-item__label` color dari `#5A4372` ke `#303030`
+    - Ganti `activeColor` dari `#5A4372` ke `#303030` di script
+    - Ganti `inactiveColor` dari `#ACA9B0` ke `#6B6B6B` di script
+    - Hapus pulse animation keyframes
+    - _Persyaratan: 16.1, 16.2, 16.3, 16.4, 16.5_
+  - [x] 16.2 Update `pwa/src/layouts/MobileLayout.vue` style
+    - Ganti `padding-bottom: 80px` ke `72px` (sesuai tinggi baru 56px + safe area)
+    - _Persyaratan: 16.5_
+
+- [x] 17. Komponen PWA: Redesign MetricCard
+  - [x] 17.1 Update `pwa/src/components/mobile/MetricCard.vue` style
+    - Hapus shadow dari `.metric-card` (inherit dari `.h-card` yang sudah di-update)
+    - Tambah `border: 1px solid var(--h-border-color)` jika belum ada
+    - Ganti `.metric-card__icon` default background dari `#5A4372` ke `#F0F0F0`
+    - Ganti `.metric-card__icon` border-radius dari `var(--h-radius-md)` (12px) ke `6px`
+    - Ganti icon color dari `#fff` ke `#303030` di template
+    - Ganti `.metric-card__label` font-size dari `11px` ke `12px`
+    - Ganti `.metric-card__value` font-size dari `20px` ke `18px`, font-weight dari `700` ke `600`
+    - Ganti padding dari `var(--h-spacing-md)` ke `16px`
+    - _Persyaratan: 17.1, 17.2, 17.3, 17.4_
+
+- [x] 18. Komponen PWA: Redesign TaskCard
+  - [x] 18.1 Update `pwa/src/components/mobile/TaskCard.vue` style
+    - Hapus `box-shadow: var(--h-shadow-card)`, tambah `border: 1px solid var(--h-border-color)`
+    - Ganti border-radius dari `var(--h-radius-lg)` (16px) ke `8px`
+    - Ganti `.task-card__order` background dari `var(--h-primary-lighter)` ke `#F0F0F0`
+    - Ganti `.task-card__order` color dari `var(--h-primary)` ke `#303030`
+    - Ganti `.task-card__type-tag` border-radius ke `4px`
+    - Ganti `.task-card__type-tag--delivery` background ke warna hijau terang subtle
+    - Ganti `.task-card__type-tag--pickup` background ke warna amber terang subtle
+    - Ganti `.task-card__status--in_progress` background/color dari ungu ke netral
+    - _Persyaratan: 18.1, 18.2, 18.3, 18.4_
+
+- [x] 19. Komponen PWA: Redesign SummaryCard
+  - [x] 19.1 Update `pwa/src/components/mobile/SummaryCard.vue` style
+    - Hapus `box-shadow: var(--h-shadow-card)`, tambah `border: 1px solid var(--h-border-color)`
+    - Ganti border-radius dari `var(--h-radius-lg)` ke `8px`
+    - Ganti icon background dari `var(--h-primary-lighter)` ke `#F0F0F0`
+    - Ganti `.summary-card__value` font-weight dari `700` ke `600`
+    - _Persyaratan: 17.1, 25.3_
+
+- [x] 20. Komponen PWA: Redesign SkeletonCard
+  - [x] 20.1 Update `pwa/src/components/mobile/SkeletonCard.vue` style
+    - Hapus `box-shadow: var(--h-shadow-card)`, tambah `border: 1px solid var(--h-border-color)`
+    - Ganti border-radius dari `var(--h-radius-lg)` ke `8px`
+    - _Persyaratan: 25.3_
+
+- [x] 21. View Web: Redesign LoginView
+  - [x] 21.1 Update `web/src/views/LoginView.vue` style
+    - Ganti `.horizon-login__brand-side` background dari `linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)` ke `#303030` (solid gelap)
+    - Hapus decorative circles (pseudo-elements `::before` dan `::after`)
+    - Hapus `.horizon-login__logo-circle` glassmorphism (backdrop-filter, border transparan)
+    - Ganti `.horizon-login__submit` background dari gradien ungu ke `#303030` (solid)
+    - Hapus `.horizon-login__submit:hover` translateY(-2px) dan shadow ungu
+    - Ganti `.horizon-login__input` border-radius dari `var(--h-radius-md, 12px)` ke `6px`, height dari `48px` ke `44px`
+    - Ganti `.horizon-login__submit` border-radius dari `var(--h-radius-md, 12px)` ke `6px`
+    - Update dark mode: ganti `#322837` ke `#1A1A1A`, `#3D2B53` ke `#252525`, `#5A4372` ke `#404040`
+    - _Persyaratan: 11.1, 11.2, 11.3, 11.4, 11.5_
+
+- [x] 22. View Web: Redesign DashboardView
+  - [x] 22.1 Update `web/src/views/DashboardView.vue` style dan template
+    - Ganti stat card `icon-bg` props dari gradien warna-warni ke `#F0F0F0` (netral)
+    - Ganti `.welcome-card` padding dari `var(--h-spacing-8, 32px)` ke `20px`
+    - Ganti `.welcome-title` font-weight dari `var(--h-font-bold, 700)` ke `600`
+    - Ganti `.h-button` background dari gradien ungu ke `#303030`, border-radius dari `var(--h-radius-md, 12px)` ke `6px`
+    - Ganti `.stats-row` gap dari `20px` ke `16px`
+    - Tambah overview/highlight widget dengan background `#CCE2C8` (hijau muda Datum) berisi stat cards kecil
+    - _Persyaratan: 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [x] 23. View Web: Redesign DashboardKepalaSSPGView
+  - [x] 23.1 Update `web/src/views/DashboardKepalaSSPGView.vue` style dan template
+    - Ganti semua stat card `icon-bg` props dari gradien ungu/warna-warni ke `#F0F0F0`
+    - Ganti semua hardcoded warna ungu (`#5A4372`, `#3D2B53`) ke netral
+    - Tambah overview widget dengan background `#CCE2C8`
+    - _Persyaratan: 12.1, 12.2, 12.3, 12.4, 12.5_
+
+- [x] 24. View Web: Redesign DashboardBGNView
+  - [x] 24.1 Update `web/src/views/DashboardBGNView.vue` style
+    - Pastikan semua `a-card` menggunakan styling Datum via override (border, tanpa shadow)
+    - Pastikan tabel menggunakan header abu terang dan baris bersih
+    - Ganti map layer colors dari ungu ke netral
+    - _Persyaratan: 13.1, 13.2, 13.3, 13.4_
+
+- [x] 25. View Web: Redesign DashboardKepalaYayasanView
+  - [x] 25.1 Update `web/src/views/DashboardKepalaYayasanView.vue` style
+    - Pastikan konsisten dengan styling Datum (border-based, tanpa shadow berat)
+    - Ganti hardcoded warna ungu ke netral
+    - _Persyaratan: 13.1, 25.1_
+
+- [x] 26. View Web: Migrasi Semua View Lainnya (Batch)
+  - [x] 26.1 Audit dan update semua view web yang menggunakan hardcoded warna ungu atau merah
+    - Scan dan ganti hardcoded `#5A4372`, `#3D2B53`, `#f82c17`, `#ffeae8` di semua view
+    - File terdampak: `MenuPlanningView.vue`, `RecipeListView.vue`, `SupplierListView.vue`, `PurchaseOrderListView.vue`, `GoodsReceiptView.vue`, `InventoryView.vue`, `EmployeeListView.vue`, `EmployeeFormView.vue`, `AttendanceConfigView.vue`, `AttendanceReportView.vue`, `CashFlowListView.vue`, `FinancialReportView.vue`, `AssetListView.vue`, `DeliveryTaskListView.vue`, `DeliveryTaskFormView.vue`, `KDSCookingView.vue`, `KDSPackingView.vue`, `KDSCleaningView.vue`, `RiskAssessmentListView.vue`, `RiskAssessmentDetailView.vue`, `AuditTrailView.vue`, `SystemConfigView.vue`, `UserManagementView.vue`, `SPPGListView.vue`, `YayasanListView.vue`, `SchoolListView.vue`, `SchoolFormView.vue`, `ReviewListView.vue`, `OmprengTrackingView.vue`, `SemiFinishedGoodsView.vue`, `WiFiConfigView.vue`, `ActivityTrackerListView.vue`, `ActivityTrackerDetailView.vue`
+    - Ganti semua `font-weight: 700` ke `600` di scoped styles
+    - Ganti semua `border-radius: 12px/16px` ke `8px` di scoped styles
+    - Ganti semua gradien ungu ke solid `#303030`
+    - _Persyaratan: 25.1, 25.2, 25.3, 25.4_
+  - [x] 26.2 Audit dan update view logistics
+    - File: `web/src/views/logistics/DeliveryDetailView.vue`, `web/src/views/logistics/MonitoringDashboardView.vue`
+    - Ganti hardcoded warna ungu, shadow berat, border-radius besar
+    - _Persyaratan: 25.1_
+
+- [x] 27. View PWA: Redesign LoginView
+  - [x] 27.1 Update `pwa/src/views/LoginView.vue` style
+    - Ganti `.login-container` background dari `linear-gradient(180deg, var(--h-primary), var(--h-accent))` ke `#E8EDE5` (sage Datum)
+    - Hapus decorative circles (pseudo-elements `::before` dan `::after`)
+    - Hapus `.logo-image` filter `drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2))`
+    - Ganti `.login-card` shadow ke `none`, tambah `border: 1px solid #D8D8DB`
+    - Ganti `.login-card` border-radius dari `var(--h-radius-lg)` ke `8px`
+    - Ganti `.login-btn` background ke `#303030`, border-radius ke `6px`
+    - Hapus `.login-btn` box-shadow `0px 8px 20px rgba(0, 0, 0, 0.2)`
+    - Ganti `.login-footer` color dari `#ffffff` ke `#6B6B6B`
+    - Ganti `.login-header` color dari `#ffffff` ke `#303030`
+    - _Persyaratan: 19.1, 19.2, 19.3, 19.4, 19.5_
+
+- [x] 28. View PWA: Redesign DashboardView
+  - [x] 28.1 Update `pwa/src/views/DashboardView.vue` style dan template
+    - Ganti semua MetricCard `iconColor` props dari `#5A4372` ke `#F0F0F0` (atau hapus prop agar default ke Datum)
+    - Ganti `.detail-card` styling: pastikan menggunakan border, tanpa shadow
+    - Ganti `.detail-table-header` border-bottom ke `2px solid #D8D8DB`
+    - Ganti `.stok-kritis-item` background dari `var(--h-bg-light)` ke `#FFFFFF`, tambah border
+    - Ganti `.supplier-rank.rank-1/2/3` dari gradien emas/perak/perunggu ke background `#F0F0F0` dengan teks `#303030`
+    - Ganti `.supplier-rank.rank-4/5` dari gradien ungu ke `#F0F0F0`
+    - Ganti `.supplier-item` background dari `var(--h-bg-light)` ke `#FFFFFF` dengan border
+    - Ganti `.arus-kas-item` background dari `var(--h-bg-light)` ke `#FFFFFF` dengan border
+    - _Persyaratan: 20.1, 20.2, 20.3, 20.4, 20.5_
+
+- [x] 29. View PWA: Redesign DashboardBGNView
+  - [x] 29.1 Update `pwa/src/views/DashboardBGNView.vue` style
+    - Ganti breadcrumb tag `type="danger"` ke styling netral Datum
+    - Ganti semua MetricCard iconColor dari ungu ke netral
+    - Pastikan semua card menggunakan border, tanpa shadow
+    - _Persyaratan: 20.1, 25.2_
+
+- [x] 30. View PWA: Redesign DashboardYayasanView
+  - [x] 30.1 Update `pwa/src/views/DashboardYayasanView.vue` style
+    - Ganti semua MetricCard iconColor dari ungu ke netral
+    - Pastikan konsisten dengan styling Datum
+    - _Persyaratan: 20.1, 25.2_
+
+- [x] 31. View PWA: Migrasi Semua View Lainnya (Batch)
+  - [x] 31.1 Audit dan update semua view PWA yang menggunakan hardcoded warna ungu
+    - Scan dan ganti hardcoded `#5A4372`, `#3D2B53` di semua view
+    - File terdampak: `AttendanceView.vue`, `DeliveryTasksView.vue`, `DeliveryTaskDetailView.vue`, `ePODFormView.vue`, `MenuPlanningView.vue`, `MonitoringView.vue`, `MonitoringDetailView.vue`, `PickupTaskDetailView.vue`, `ProfileView.vue`, `ReviewFormView.vue`, `RiskAssessmentFormView.vue`, `RiskAssessmentSelectView.vue`, `SchoolMonitoringView.vue`, `TasksView.vue`
+    - Ganti semua `font-weight: 700` ke `600` di scoped styles
+    - Ganti semua gradien ungu ke solid `#303030`
+    - Ganti semua shadow berat ke border
+    - _Persyaratan: 25.1, 25.2_
+
+- [x] 32. Asset: Setup Folder Struktur dan Ilustrasi SVG
+  - [x] 32.1 Buat folder struktur asset baru
+    - Buat `web/src/assets/illustrations/`
+    - Buat `web/src/assets/lottie/`
+    - Buat `pwa/src/assets/illustrations/`
+    - Buat `pwa/src/assets/lottie/`
+    - _Persyaratan: 26.4, 27.7_
+  - [x] 32.2 Tambah ilustrasi SVG untuk web
+    - Buat/unduh `web/src/assets/illustrations/login-branding.svg` — ilustrasi flat aktivitas SPPG (memasak/pengiriman) untuk sisi kanan login, palet Datum
+    - Buat/unduh `web/src/assets/illustrations/welcome-chef.svg` — ilustrasi chef untuk welcome card ahli_gizi
+    - Buat/unduh `web/src/assets/illustrations/welcome-delivery.svg` — ilustrasi truk untuk welcome card driver
+    - Buat/unduh `web/src/assets/illustrations/welcome-analytics.svg` — ilustrasi grafik untuk welcome card akuntan
+    - Buat/unduh `web/src/assets/illustrations/empty-state-general.svg` — ilustrasi empty state default
+    - Buat/unduh `web/src/assets/illustrations/empty-state-table.svg` — ilustrasi tabel kosong
+    - Buat/unduh `web/src/assets/illustrations/empty-state-search.svg` — ilustrasi pencarian kosong
+    - Pastikan semua SVG menggunakan palet warna Datum (netral + aksen hijau muda)
+    - _Persyaratan: 26.1, 26.2, 26.4, 26.5, 26.6, 26.7_
+  - [x] 32.3 Tambah ilustrasi SVG untuk PWA
+    - Buat/unduh `pwa/src/assets/illustrations/login-header.svg` — ilustrasi header login mobile
+    - Buat/unduh `pwa/src/assets/illustrations/empty-state-general.svg` — ilustrasi empty state default
+    - Buat/unduh `pwa/src/assets/illustrations/empty-state-list.svg` — ilustrasi daftar kosong
+    - _Persyaratan: 26.3, 26.4, 26.6_
+
+- [x] 33. Asset: Unduh dan Integrasikan Lottie Animations
+  - [x] 33.1 Unduh file Lottie JSON dari IconScout
+    - Unduh `web/src/assets/lottie/loading-cooking.json` — animasi memasak untuk loading state (maks 100KB)
+    - Unduh `web/src/assets/lottie/loading-delivery.json` — animasi pengiriman untuk loading state (maks 100KB)
+    - Unduh `web/src/assets/lottie/empty-box.json` — animasi kotak kosong untuk empty state (maks 100KB)
+    - Unduh `web/src/assets/lottie/success-check.json` — animasi centang untuk success feedback (maks 100KB)
+    - Unduh `web/src/assets/lottie/data-flow.json` — animasi dekoratif untuk login branding (maks 100KB)
+    - Unduh `pwa/src/assets/lottie/loading-cooking.json` — animasi memasak untuk pull-to-refresh (maks 100KB)
+    - Unduh `pwa/src/assets/lottie/empty-box.json` — animasi empty state (maks 100KB)
+    - Unduh `pwa/src/assets/lottie/success-check.json` — animasi success setelah aksi (maks 100KB)
+    - Unduh `pwa/src/assets/lottie/loading-spinner.json` — animasi loading umum (maks 100KB)
+    - Pastikan semua animasi menggunakan palet warna Datum
+    - _Persyaratan: 27.7, 27.8, 27.9, 27.10_
+
+- [x] 34. Komponen: Buat LottiePlayer.vue Reusable
+  - [x] 34.1 Install dependency `@lottiefiles/dotlottie-vue` di web dan PWA
+    - Jalankan `npm install @lottiefiles/dotlottie-vue` di `web/` dan `pwa/`
+    - _Persyaratan: 27.1_
+  - [x] 34.2 Buat `web/src/components/common/LottiePlayer.vue`
+    - Props: src (string), autoplay (boolean, default true), loop (boolean, default true), width (string, default '200px'), height (string, default '200px')
+    - Gunakan `@lottiefiles/dotlottie-vue` untuk render
+    - Implementasi `prefers-reduced-motion`: jika aktif, tampilkan frame statis pertama (pause animasi)
+    - Lazy load: gunakan IntersectionObserver, hanya load animasi saat komponen visible
+    - _Persyaratan: 27.1, 27.11, 27.12_
+  - [x] 34.3 Buat `pwa/src/components/common/LottiePlayer.vue`
+    - Sama dengan web version, props dan behavior identik
+    - _Persyaratan: 27.1, 27.11, 27.12_
+
+- [x] 35. Komponen: Buat HEmptyState Reusable
+  - [x] 35.1 Buat `web/src/components/common/HEmptyState.vue`
+    - Props: illustration (string, path SVG), lottie (string, path JSON opsional), title (string), description (string)
+    - Tampilkan ilustrasi SVG atau Lottie animation + teks deskripsi
+    - Gunakan palet Datum untuk styling
+    - _Persyaratan: 26.6_
+  - [x] 35.2 Buat `pwa/src/components/common/MobileEmptyState.vue`
+    - Props sama dengan web version, styling disesuaikan untuk mobile
+    - _Persyaratan: 26.6_
+
+- [x] 36. Integrasi: Pasang Ilustrasi SVG di Halaman Kunci
+  - [x] 36.1 Update `web/src/views/LoginView.vue` template
+    - Ganti logo circle "ERP" di sisi branding (kanan) dengan `<img src="@/assets/illustrations/login-branding.svg">`
+    - Hapus `.horizon-login__logo-circle` dan `.horizon-login__logo-text`
+    - _Persyaratan: 26.1_
+  - [x] 36.2 Update `web/src/views/DashboardView.vue` template
+    - Tambah ilustrasi figure kecil di welcome card yang relevan dengan role pengguna
+    - Gunakan computed property berdasarkan `authStore.user?.role` untuk memilih SVG: ahli_gizi -> welcome-chef.svg, driver -> welcome-delivery.svg, akuntan -> welcome-analytics.svg
+    - _Persyaratan: 26.2_
+  - [x] 36.3 Update `pwa/src/views/LoginView.vue` template
+    - Tambah `<img src="@/assets/illustrations/login-header.svg">` di area header, di bawah logo
+    - _Persyaratan: 26.3_
+  - [x] 36.4 Ganti empty state default di seluruh halaman web (gunakan HEmptyState dari Task 35)
+    - Ganti `<a-empty>` dengan `<HEmptyState>` di halaman yang memiliki kondisi "tidak ada data"
+    - Terapkan di: DashboardView, DashboardBGNView, dan view lain yang menggunakan `<a-empty>`
+    - _Persyaratan: 26.6, 26.7_
+  - [x] 36.5 Ganti empty state default di seluruh halaman PWA (gunakan MobileEmptyState dari Task 35)
+    - Ganti `<van-empty>` atau empty state text dengan `<MobileEmptyState>` di halaman yang memiliki kondisi "tidak ada data"
+    - Terapkan di: DashboardView, TasksView, dan view lain yang menggunakan empty state
+    - _Persyaratan: 26.6, 26.7_
+
+- [x] 37. Integrasi: Pasang Lottie Animations (depends on Task 34)
+  - [x] 37.1 Pasang Lottie loading state di web
+    - Ganti spinner default Ant Design (`<a-spin>`) dengan `<LottiePlayer src="loading-cooking.json">` di halaman kunci
+    - Terapkan di: DashboardView, DashboardBGNView, DashboardKepalaSSPGView
+    - _Persyaratan: 27.2_
+  - [x] 37.2 Pasang Lottie loading state di PWA
+    - Ganti spinner default Vant pada pull-to-refresh dan loading state dengan `<LottiePlayer>`
+    - Terapkan di: DashboardView, TasksView
+    - _Persyaratan: 27.3_
+  - [x] 37.3 Pasang Lottie empty state di web dan PWA
+    - Tambah `<LottiePlayer src="empty-box.json">` sebagai alternatif/pelengkap ilustrasi statis pada empty state
+    - _Persyaratan: 27.4_
+  - [x] 37.4 Pasang Lottie dekoratif di LoginView web
+    - Tambah `<LottiePlayer src="data-flow.json">` di sisi branding login sebagai elemen dekoratif subtle
+    - _Persyaratan: 27.5_
+  - [x] 37.5 Pasang Lottie success state di PWA
+    - Tambah `<LottiePlayer src="success-check.json">` setelah aksi berhasil (check-in absensi, submit form)
+    - Terapkan di: AttendanceView, ePODFormView, ReviewFormView
+    - _Persyaratan: 27.6_
+
+- [x] 38. Final: Verifikasi dan Cleanup
+  - [x] 38.1 Verifikasi tidak ada referensi warna ungu tersisa
+    - Cari semua file untuk `#5A4372`, `#3D2B53`, `#4a3562`, `#3a2752`, `#6a5382`, `#7B5E99`, `#6B4E9B`
+    - Cari semua file untuk `#f82c17`, `#ffeae8`, `Montserrat`, `DM Sans`
+    - Pastikan semua sudah diganti ke palet Datum
+    - _Persyaratan: 2.6, 2.7, 25.1, 25.2_
+  - [x] 38.2 Verifikasi kontras WCAG AA
+    - Pastikan teks utama (#303030) pada background (#E8EDE5) memenuhi rasio kontras 4.5:1
+    - Pastikan teks sekunder (#6B6B6B) pada background putih memenuhi rasio kontras 4.5:1
+    - Pastikan dark mode teks (#F7F8FA) pada background (#1A1A1A) memenuhi rasio kontras 4.5:1
+    - Pastikan success color (#CCE2C8) tidak digunakan sebagai satu-satunya indikator — harus ada ikon/teks pendamping
+    - _Persyaratan: 2.2, 24.3_
+  - [x] 38.3 Verifikasi file `theme.css` tidak lagi di-import
+    - Pastikan `web/src/main.js` tidak mengandung `import './styles/theme.css'`
+    - Pastikan tidak ada file lain yang meng-import `theme.css`
+    - _Persyaratan: 1.1, 1.2, 1.3, 1.4_
+  - [x] 38.4 Verifikasi konsistensi spacing
+    - Pastikan gap antar kartu menggunakan `16px` (var(--h-spacing-4))
+    - Pastikan padding kartu desktop `20px`, mobile `16px`
+    - Pastikan padding area konten utama desktop `24px`, mobile `16px`
+    - _Persyaratan: 23.1, 23.2, 23.3, 23.4_
+  - [x] 38.5 Verifikasi semua Lottie file berukuran maksimal 100KB
+    - Cek ukuran semua file di `web/src/assets/lottie/` dan `pwa/src/assets/lottie/`
+    - _Persyaratan: 27.9_
+  - [x] 38.6 Responsive testing di semua breakpoint
+    - Web: Test di 768px, 1024px, 1280px, 1440px, 1920px
+    - PWA: Test di 320px, 375px, 414px, 428px (landscape juga)
+    - Verifikasi header height 64px desktop / 56px mobile
+    - Verifikasi card padding 20px desktop / 16px mobile
+    - Verifikasi BottomNavigation height 56px tidak overlap konten
+    - Verifikasi sidebar collapse behavior tetap berfungsi
+    - _Persyaratan: 7.4, 23.3, 23.4_
+  - [x] 38.7 Verifikasi semua interaction states
+    - Button: default (#303030), hover (#404040), active (#202020), disabled, loading
+    - Sidebar menu: default, hover (#F7F8FA), active (#F0F0F0)
+    - Table row: default, hover (#F7F8FA)
+    - Input: default, focus (border #303030 + ring), error, disabled
+    - Bottom nav: inactive (#6B6B6B), active (#303030)
+    - _Persyaratan: 6.3, 6.4, 10.4, 16.2, 16.3_
+  - [x] 38.8 Verifikasi dark mode end-to-end
+    - Toggle dark mode dan verifikasi semua halaman web
+    - Verifikasi tidak ada teks yang "hilang" (warna gelap pada background gelap)
+    - Verifikasi border berubah dari #D8D8DB ke #404040
+    - Verifikasi ilustrasi SVG dan Lottie animations tetap visible
+    - _Persyaratan: 24.1, 24.2, 24.3, 24.4_
+  - [x] 38.9 Verifikasi font Urbanist loading
+    - Pastikan font Urbanist ter-load di semua weight (400, 500, 600)
+    - Verifikasi fallback font stack berfungsi saat offline
+    - Verifikasi font DM Sans dan Montserrat tidak ter-load di network tab
+    - _Persyaratan: 3.1, 3.2_
+  - [x] 38.10 Verifikasi Lottie prefers-reduced-motion
+    - Aktifkan prefers-reduced-motion di browser/OS
+    - Verifikasi semua Lottie animation menampilkan frame statis pertama
+    - _Persyaratan: 27.12_
+  - [x] 38.11 Cross-browser verification
+    - Test di Chrome, Firefox, Safari (minimal 2 browser)
+    - Verifikasi font Urbanist render konsisten
+    - Verifikasi CSS variables ter-resolve dengan benar
+    - Verifikasi Lottie animations berjalan di semua browser
+  - [x] 38.12 Verifikasi keyboard navigation
+    - Tab through sidebar menu items — focus indicator harus visible (#303030)
+    - Tab through login form — urutan logis
+    - Escape key menutup modal/dropdown
+    - _Persyaratan: 2.6_
+  - [x] 38.13 Verifikasi palet semantik
+    - Verifikasi success (#CCE2C8), warning (#F59E0B), error (#EF4444), info (#3B82F6) konsisten di web dan PWA
+    - Verifikasi alert/notification/toast menggunakan palet semantik yang benar
+    - _Persyaratan: 2.8_
+  - [x] 38.14 Verifikasi performa setelah redesign
+    - Cek bundle size sebelum dan sesudah (target: tidak naik >50KB)
+    - Verifikasi lazy loading Lottie berfungsi (tidak load semua sekaligus)
+    - _Persyaratan: 27.9_
+
+## Notes
+
+- Perubahan bersifat PURE UI/UX — TIDAK ADA perubahan backend, business logic, API, database, routing, state management, atau service layer
+- Perubahan HANYA pada: CSS/style, Vue template, Vue style, dan asset statis (SVG, Lottie JSON)
+- Script logic (`<script>`) pada komponen Vue HANYA boleh diubah untuk: Lottie player, class binding, atau menghapus hardcoded warna di props
+- Urutan task mengikuti dependency: pre-flight (0) -> foundation (1-7) -> hapus konflik -> override library -> komponen custom (8-20) -> views (21-31) -> assets & komponen baru (32-35) -> integrasi (36-37) -> verifikasi (38)
+- Task 0 (Pre-flight) HARUS selesai sebelum Task 1 — koreksi kontras WCAG
+- Task 1-7 (Foundation) akan otomatis mengubah tampilan banyak komponen karena menggunakan CSS variables
+- Task 8-20 (Komponen) fokus pada styling yang hardcoded di scoped styles
+- Task 21-31 (Views) fokus pada styling spesifik per halaman
+- Task 32-37 (Assets & Integrasi) menambah identitas visual baru — Task 34 (LottiePlayer) HARUS selesai sebelum Task 37 (Integrasi Lottie)
+- Task 38 (Final) verifikasi komprehensif: warna, kontras, responsive, dark mode, font, accessibility, performa

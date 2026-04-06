@@ -184,7 +184,7 @@ function onTouchEnd() {
 .swipe-action__track {
   position: relative;
   height: 56px;
-  background: linear-gradient(90deg, #5A4372 0%, #3D2B53 100%);
+  background: #303030;
   border-radius: var(--h-radius-full);
   display: flex;
   align-items: center;

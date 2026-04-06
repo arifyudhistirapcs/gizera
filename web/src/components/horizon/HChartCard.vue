@@ -118,7 +118,7 @@ const chartHeight = computed(() => `${props.height}px`)
 /* Title */
 .h-chart-card__title {
   font-size: var(--h-text-lg);
-  font-weight: var(--h-font-bold);
+  font-weight: 600;
   color: var(--h-text-primary);
   line-height: var(--h-leading-tight);
   margin: 0;

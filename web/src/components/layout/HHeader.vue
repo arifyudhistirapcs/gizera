@@ -57,22 +57,29 @@ const { isMobile } = useBreakpoint()
 .h-header {
   display: flex;
   align-items: center;
-  height: 88px;
-  background-color: var(--h-bg-secondary, #FFFFFF);
-  padding: 12px 24px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+  height: 56px;
+  background-color: transparent;
+  padding: 0 4px;
+  border-bottom: none;
   position: relative;
   transition: all 0.2s ease;
 }
 
 .h-header.mobile {
-  height: 68px;
-  padding: 8px 16px;
+  height: 52px;
+  padding: 0 16px;
+  background-color: #fff;
+  border-bottom: 1px solid #D8D8DB;
 }
 
 .dark .h-header {
-  background-color: var(--h-bg-secondary-dark, #111C44);
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: transparent;
+  border-bottom-color: transparent;
+}
+
+.dark .h-header.mobile {
+  background-color: var(--h-bg-secondary-dark, #252525);
+  border-bottom-color: #404040;
 }
 
 .hamburger-button {
@@ -92,7 +99,7 @@ const { isMobile } = useBreakpoint()
 }
 
 .hamburger-button:hover {
-  background-color: var(--h-bg-light, #F4F7FE);
+  background-color: var(--h-bg-light, #F0F0F0);
 }
 
 .hamburger-button:active {
@@ -100,11 +107,11 @@ const { isMobile } = useBreakpoint()
 }
 
 .dark .hamburger-button {
-  color: var(--h-text-primary-dark, #F8FDEA);
+  color: var(--h-text-primary-dark, #F7F8FA);
 }
 
 .dark .hamburger-button:hover {
-  background-color: var(--h-bg-card-dark, #1B254B);
+  background-color: var(--h-bg-card-dark, #303030);
 }
 
 .header-left {
@@ -119,35 +126,36 @@ const { isMobile } = useBreakpoint()
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: var(--h-text-secondary, #74788C);
+  font-size: 13px;
+  color: #6B6B6B;
 }
 
 .breadcrumb-parent {
-  color: var(--h-text-secondary, #74788C);
+  color: #6B6B6B;
 }
 
 .breadcrumb-separator {
-  color: var(--h-text-secondary, #74788C);
+  color: #6B6B6B;
 }
 
 .breadcrumb-current {
-  color: var(--h-text-primary, #322837);
+  color: #303030;
   font-weight: 500;
 }
 
 .dark .breadcrumb-current {
-  color: var(--h-text-primary-dark, #F8FDEA);
+  color: var(--h-text-primary-dark, #F7F8FA);
 }
 
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: var(--h-text-primary, #322837);
+  color: #303030;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.3px;
 }
 
 .mobile .page-title {
@@ -155,7 +163,7 @@ const { isMobile } = useBreakpoint()
 }
 
 .dark .page-title {
-  color: var(--h-text-primary-dark, #F8FDEA);
+  color: var(--h-text-primary-dark, #F7F8FA);
 }
 
 .header-right {

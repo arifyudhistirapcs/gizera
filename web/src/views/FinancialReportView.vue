@@ -312,14 +312,14 @@
         </div>
 
         <!-- Empty State -->
-        <a-empty 
+        <HEmptyState 
           v-else-if="!loading"
           description="Pilih rentang tanggal dan klik 'Generate Laporan' untuk melihat laporan keuangan"
         >
           <a-button type="primary" @click="generateReport" :disabled="!dateRange || dateRange.length !== 2">
             Generate Laporan
           </a-button>
-        </a-empty>
+        </HEmptyState>
       </a-space>
     </a-card>
   </div>
@@ -328,6 +328,7 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { message } from 'ant-design-vue'
+import HEmptyState from '@/components/common/HEmptyState.vue'
 import { 
   BarChartOutlined, 
   FilePdfOutlined, 

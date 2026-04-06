@@ -8,54 +8,67 @@
      PRIMARY COLORS
      ======================================== */
   
-  /* Primary Purple - Main brand color */
-  --h-primary: #5A4372;
-  --h-primary-hover: #4a3562;
-  --h-primary-active: #3a2752;
-  --h-primary-light: #6a5382;
+  /* Primary Dark - Main brand color (Datum) */
+  --h-primary: #303030;
+  --h-primary-hover: #404040;
+  --h-primary-active: #202020;
+  --h-primary-light: #505050;
+  --h-primary-lighter: rgba(48, 48, 48, 0.08);
   
-  /* Accent Purple - For highlights */
-  --h-accent: #3D2B53;
-  --h-accent-light: #4d3b63;
+  /* Accent Green - For highlights (Datum) */
+  --h-accent: #CCE2C8;
+  --h-accent-light: #DCF0D8;
+  
+  /* === CULINARY ACCENT (Inspirasi Restaurant + Mabelino) === */
+  --h-culinary-coral: #C94A3A;
+  --h-culinary-coral-light: #FDEAE7;
+  --h-culinary-coral-dark: #A33D30;
+  
+  --h-fresh-mint: #1E8A6E;
+  --h-fresh-mint-light: #D1FAE5;
+  --h-fresh-mint-dark: #166B56;
+  
+  --h-bg-highlight-warm: #FDEAE7;
   
   /* ========================================
      NEUTRAL COLORS
      ======================================== */
   
   /* Backgrounds */
-  --h-bg-primary: #F8FDEA;        /* Cream/Off-white background */
+  --h-bg-primary: #E8EDE5;        /* Sage/green tint background (Datum) */
   --h-bg-secondary: #FFFFFF;       /* Pure white */
   --h-bg-card: #FFFFFF;            /* Card background */
-  --h-bg-light: #F4F7FE;           /* Light gray background */
+  --h-bg-light: #F0F0F0;           /* Light gray background */
+  --h-bg-accent: #CCE2C8;          /* Green accent for widget highlight/overview cards (Datum) */
   
   /* Text Colors */
-  --h-text-primary: #322837;       /* Dark purple-gray for text */
-  --h-text-secondary: #74788C;     /* Medium gray for secondary text */
-  --h-text-light: #ACA9B0;         /* Light gray for hints */
+  --h-text-primary: #303030;       /* Dark neutral for text (Datum) */
+  --h-text-secondary: #6B6B6B;     /* Medium gray for secondary text — WCAG AA 4.5:1 on white and sage */
+  --h-text-light: #6B6B6B;         /* Medium gray for hints — WCAG AA 4.5:1 on white and sage */
   
   /* Border Colors */
-  --h-border-color: #E9EDF7;       /* Light border */
-  --h-border-light: #F4F7FE;       /* Very light border */
+  --h-border-color: #D8D8DB;       /* Light border (Datum) */
+  --h-border-light: #F0F0F0;       /* Very light border (Datum) */
   
   /* ========================================
      SEMANTIC COLORS
      ======================================== */
   
-  --h-success: #05CD99;            /* Green for success */
-  --h-success-light: #26d9a8;
-  --h-success-dark: #04b888;
+  --h-success: #1E8A6E;            /* Fresh Mint for success (Culinary V2) */
+  --h-success-light: #D1FAE5;
+  --h-success-dark: #166B56;
   
-  --h-warning: #FFB547;            /* Orange for warning */
-  --h-warning-light: #ffc266;
-  --h-warning-dark: #f5a632;
+  --h-warning: #F59E0B;            /* Orange for warning */
+  --h-warning-light: #FBBF24;
+  --h-warning-dark: #D97706;
   
-  --h-error: #EE5D50;              /* Red for error */
-  --h-error-light: #f17a6f;
-  --h-error-dark: #e84438;
+  --h-error: #C94A3A;              /* Culinary Coral for error (V2) */
+  --h-error-light: #FDEAE7;
+  --h-error-dark: #A33D30;
   
-  --h-info: #5A4372;               /* Use primary purple for info */
-  --h-info-light: #6a5382;
-  --h-info-dark: #4a3562;
+  --h-info: #3B82F6;               /* Subtle blue for info (Datum) */
+  --h-info-light: #60A5FA;
+  --h-info-dark: #2563EB;
   
   /* ========================================
      SPACING SYSTEM (4px increments)
@@ -79,24 +92,27 @@
      ======================================== */
   
   /* Font Family */
-  --h-font-primary: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --h-font-primary: 'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --h-font-fallback: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
-  /* Font Sizes */
+  /* Font Sizes — Bold & Playful scale (V2 Culinary) */
   --h-text-xs: 12px;
   --h-text-sm: 14px;
-  --h-text-base: 16px;
+  --h-text-base: 15px;
   --h-text-lg: 18px;
-  --h-text-xl: 20px;
-  --h-text-2xl: 24px;
-  --h-text-3xl: 30px;
-  --h-text-4xl: 36px;
+  --h-text-xl: 22px;
+  --h-text-2xl: 28px;
+  --h-text-3xl: 32px;
+  --h-text-4xl: 40px;
   
-  /* Font Weights */
+  /* Font Weights — Tambah bold 700 */
   --h-font-normal: 400;
   --h-font-medium: 500;
   --h-font-semibold: 600;
-  --h-font-bold: 700;
+  --h-font-bold: 700;     /* was 600 — sekarang benar-benar bold */
+  
+  /* Letter Spacing */
+  --h-tracking-normal: 0;
   
   /* Line Heights */
   --h-leading-tight: 1.25;
@@ -107,21 +123,21 @@
      BORDER RADIUS
      ======================================== */
   
-  --h-radius-sm: 8px;
-  --h-radius-md: 12px;
-  --h-radius-lg: 16px;
-  --h-radius-xl: 20px;
+  --h-radius-sm: 6px;
+  --h-radius-md: 8px;
+  --h-radius-lg: 12px;
+  --h-radius-xl: 16px;
   --h-radius-full: 9999px;
   
   /* ========================================
      SHADOWS
      ======================================== */
   
-  --h-shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.05);
-  --h-shadow-md: 0px 4px 6px rgba(0, 0, 0, 0.07);
-  --h-shadow-lg: 0px 10px 15px rgba(0, 0, 0, 0.1);
-  --h-shadow-xl: 0px 20px 25px rgba(0, 0, 0, 0.15);
-  --h-shadow-card: 0px 18px 40px rgba(112, 144, 176, 0.12);
+  --h-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --h-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --h-shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.08); /* Sama dengan md */
+  --h-shadow-xl: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --h-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
   
   /* ========================================
      TRANSITIONS
@@ -167,8 +183,8 @@
   --h-sidebar-item-height: 44px;
   
   /* Header */
-  --h-header-height: 88px;
-  --h-header-height-mobile: 68px;
+  --h-header-height: 64px;
+  --h-header-height-mobile: 56px;
   --h-header-padding: 24px;
   
   /* Search Bar */
@@ -179,7 +195,7 @@
   --h-touch-target-min: 44px;
   
   /* Card */
-  --h-card-padding: 24px;
+  --h-card-padding: 20px;
   --h-card-padding-mobile: 16px;
   
   /* Table */

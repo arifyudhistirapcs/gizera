@@ -56,7 +56,7 @@
       />
       <HStatCard
         :icon="SyncOutlined"
-        icon-bg="linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)"
+        icon-bg="#F0F0F0"
         label="In Progress"
         :value="statusCounts.inProgress"
         :loading="loading"

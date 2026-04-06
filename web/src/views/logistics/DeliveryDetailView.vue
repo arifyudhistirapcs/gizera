@@ -69,7 +69,7 @@
             v-if="activityLog.length > 0"
             :activity-log="activityLog"
           />
-          <a-empty v-else description="Belum ada aktivitas" />
+          <HEmptyState v-else description="Belum ada aktivitas" />
         </a-card>
       </a-spin>
     </div>
@@ -108,7 +108,7 @@
                 style="max-width: 100%; max-height: 300px; object-fit: contain"
               />
             </div>
-            <a-empty v-else description="Tidak ada foto" :image-style="{ height: '60px' }" />
+            <HEmptyState v-else description="Tidak ada foto" />
           </div>
 
           <!-- Signature Section -->
@@ -121,10 +121,10 @@
                 style="max-width: 100%; max-height: 200px; object-fit: contain; background: #f5f5f5; border-radius: 8px"
               />
             </div>
-            <a-empty v-else description="Tidak ada tanda tangan" :image-style="{ height: '60px' }" />
+            <HEmptyState v-else description="Tidak ada tanda tangan" />
           </div>
         </div>
-        <a-empty v-else description="Data e-POD tidak ditemukan" />
+        <HEmptyState v-else description="Data e-POD tidak ditemukan" />
       </a-spin>
     </a-modal>
   </div>
@@ -138,6 +138,7 @@ import { ReloadOutlined, EnvironmentOutlined } from '@ant-design/icons-vue'
 import { getDeliveryDetail, getActivityLog, getEPODByDeliveryTask } from '@/services/monitoringService'
 import DeliveryTimeline from '@/components/DeliveryTimeline.vue'
 import ActivityLogTable from '@/components/ActivityLogTable.vue'
+import HEmptyState from '@/components/common/HEmptyState.vue'
 
 const router = useRouter()
 const route = useRoute()

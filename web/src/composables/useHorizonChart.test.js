@@ -24,7 +24,7 @@ vi.mock('./useDarkMode', () => ({
 // Mock horizonChartTheme
 vi.mock('@/utils/horizonChartTheme', () => ({
   getHorizonChartTheme: vi.fn((isDark) => ({
-    color: ['#5A4372', '#3D2B53'],
+    color: ['#303030', '#6B6B6B'],
     backgroundColor: 'transparent',
     textStyle: {
       fontFamily: 'DM Sans',

@@ -31,8 +31,8 @@ defineProps({
 <style scoped>
 .skeleton-card {
   background: var(--h-bg-card);
-  border-radius: var(--h-radius-lg);
-  box-shadow: var(--h-shadow-card);
+  border-radius: 8px;
+  border: 1px solid var(--h-border-color);
   padding: var(--h-spacing-lg);
 }
 </style>

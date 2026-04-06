@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Truck body -->
+  <rect x="20" y="50" width="65" height="30" rx="4" fill="#303030"/>
+  <!-- Truck cabin -->
+  <rect x="80" y="55" width="25" height="25" rx="4" fill="#6B6B6B"/>
+  <rect x="86" y="60" width="14" height="12" rx="2" fill="#CCE2C8" opacity="0.5"/>
+  <!-- Wheels -->
+  <circle cx="40" cy="82" r="8" fill="#D8D8DB"/>
+  <circle cx="40" cy="82" r="4" fill="#303030"/>
+  <circle cx="90" cy="82" r="8" fill="#D8D8DB"/>
+  <circle cx="90" cy="82" r="4" fill="#303030"/>
+  <!-- Ground line -->
+  <line x1="10" y1="90" x2="110" y2="90" stroke="#D8D8DB" stroke-width="2"/>
+  <!-- Food boxes -->
+  <rect x="28" y="55" width="16" height="12" rx="2" fill="#CCE2C8"/>
+  <rect x="48" y="55" width="16" height="12" rx="2" fill="#E8EDE5"/>
+  <rect x="38" y="42" width="16" height="12" rx="2" fill="#CCE2C8" opacity="0.7"/>
+  <!-- Speed lines -->
+  <line x1="8" y1="60" x2="16" y2="60" stroke="#D8D8DB" stroke-width="2" stroke-linecap="round"/>
+  <line x1="5" y1="68" x2="16" y2="68" stroke="#D8D8DB" stroke-width="2" stroke-linecap="round"/>
+  <line x1="8" y1="76" x2="16" y2="76" stroke="#D8D8DB" stroke-width="2" stroke-linecap="round"/>
+</svg>

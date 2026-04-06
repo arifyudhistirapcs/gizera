@@ -157,7 +157,7 @@
             <div style="padding: 16px; background: #fafafa;">
               <a-spin :spinning="expandedRowLoading[record.employee_id]">
                 <div v-if="expandedRowData[record.employee_id] && expandedRowData[record.employee_id].length > 0">
-                  <h4 style="margin-bottom: 12px; color: #5A4372;">
+                  <h4 style="margin-bottom: 12px; color: #303030;">
                     <ClockCircleOutlined /> Detail Kehadiran - {{ record.full_name }}
                   </h4>
                   <a-table
@@ -197,10 +197,9 @@
                     </template>
                   </a-table>
                 </div>
-                <a-empty 
+                <HEmptyState 
                   v-else-if="!expandedRowLoading[record.employee_id]"
                   description="Tidak ada data detail"
-                  :image="Empty.PRESENTED_IMAGE_SIMPLE"
                 />
               </a-spin>
             </div>
@@ -208,12 +207,12 @@
         </a-table>
 
         <!-- Empty State -->
-        <a-empty 
+        <HEmptyState 
           v-if="!loading && !hasData" 
           description="Tidak ada data absensi untuk periode yang dipilih"
         >
           <a-button type="primary" @click="resetFilters">Reset Filter</a-button>
-        </a-empty>
+        </HEmptyState>
       </a-space>
     </a-card>
   </div>
@@ -222,6 +221,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message, Empty } from 'ant-design-vue'
+import HEmptyState from '@/components/common/HEmptyState.vue'
 import { 
   FileExcelOutlined, 
   FilePdfOutlined, 
@@ -685,7 +685,7 @@ onMounted(async () => {
 }
 
 :deep(.ant-table-row-expand-icon) {
-  color: #5A4372;
+  color: #303030;
   vertical-align: middle;
   display: inline-flex;
   align-items: center;

@@ -25,7 +25,7 @@
         
         <HStatCard
           :icon="TeamOutlined"
-          icon-bg="linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)"
+          icon-bg="#F0F0F0"
           label="Karyawan Aktif"
           value="42"
           change="-2%"
@@ -48,7 +48,7 @@
       <div class="card-grid">
         <HStatCard
           :icon="HomeOutlined"
-          icon-bg="linear-gradient(135deg, #5A4372 0%, #6a5382 100%)"
+          icon-bg="#F0F0F0"
           label="Total Sekolah"
           value="25"
         />

@@ -48,7 +48,7 @@
           >
             <template #right-icon>
               <van-loading v-if="creatingSppgId === sppg.id" size="20" />
-              <van-icon v-else name="add-o" color="#5A4372" size="20" />
+              <van-icon v-else name="add-o" color="#303030" size="20" />
             </template>
           </van-cell>
         </van-cell-group>
@@ -184,7 +184,7 @@ onMounted(() => fetchData())
 <style scoped>
 .risk-assessment-select {
   min-height: 100vh;
-  background-color: #F8FDEA;
+  background-color: #E8EDE5;
 }
 
 .loading-state {
@@ -204,7 +204,7 @@ onMounted(() => fetchData())
 .section-title {
   font-size: 15px;
   font-weight: 600;
-  color: #322837;
+  color: #303030;
   margin: 0 0 4px;
 }
 
@@ -228,7 +228,7 @@ onMounted(() => fetchData())
 
 .score {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .swipe-delete-btn {

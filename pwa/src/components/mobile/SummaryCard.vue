@@ -42,15 +42,15 @@ const props = defineProps({
 })
 
 const iconBgColor = computed(() => {
-  return 'var(--h-primary-lighter)'
+  return '#F0F0F0'
 })
 </script>
 
 <style scoped>
 .summary-card {
   background: var(--h-bg-card);
-  border-radius: var(--h-radius-lg);
-  box-shadow: var(--h-shadow-card);
+  border-radius: 8px;
+  border: 1px solid var(--h-border-color);
   padding: var(--h-spacing-lg);
   display: flex;
   align-items: center;
@@ -81,7 +81,7 @@ const iconBgColor = computed(() => {
 
 .summary-card__value {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   line-height: 1.3;
 }

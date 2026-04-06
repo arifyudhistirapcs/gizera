@@ -169,7 +169,7 @@ onMounted(() => {
 
 .school-header__name {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   margin: 0 0 var(--h-spacing-xs) 0;
 }

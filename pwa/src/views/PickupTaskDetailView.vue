@@ -29,7 +29,7 @@
     <div v-else-if="task" class="detail-view__content">
       <!-- Progress Steps -->
       <div class="detail-view__card">
-        <van-steps :active="activeStep" active-color="#5A4372">
+        <van-steps :active="activeStep" active-color="#303030">
           <van-step>Menuju</van-step>
           <van-step>Tiba</van-step>
           <van-step>Kembali</van-step>
@@ -177,7 +177,7 @@
         <!-- Info message if review needed -->
         <van-notice-bar
           v-if="needsReviewFirst"
-          color="#5A4372"
+          color="#303030"
           background="var(--h-primary-lighter)"
           left-icon="info-o"
           class="detail-view__notice"
@@ -188,7 +188,7 @@
         <!-- Info message if ompreng input needed -->
         <van-notice-bar
           v-if="showOmprengInput && !canProceedWithOmpreng && !needsReviewFirst"
-          color="#5A4372"
+          color="#303030"
           background="var(--h-primary-lighter)"
           left-icon="info-o"
           class="detail-view__notice"
@@ -522,7 +522,7 @@ onMounted(() => {
 
 .detail-view__card-title {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   margin-bottom: var(--h-spacing-md);
 }

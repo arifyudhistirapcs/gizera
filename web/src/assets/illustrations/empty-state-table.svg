@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" fill="none">
+  <!-- Table frame -->
+  <rect x="30" y="20" width="140" height="100" rx="6" fill="#E8EDE5"/>
+  <!-- Header row -->
+  <rect x="30" y="20" width="140" height="20" rx="6" fill="#D8D8DB"/>
+  <rect x="30" y="34" width="140" height="6" fill="#D8D8DB"/>
+  <!-- Header cells -->
+  <rect x="40" y="26" width="30" height="8" rx="2" fill="#6B6B6B" opacity="0.5"/>
+  <rect x="80" y="26" width="30" height="8" rx="2" fill="#6B6B6B" opacity="0.5"/>
+  <rect x="120" y="26" width="40" height="8" rx="2" fill="#6B6B6B" opacity="0.5"/>
+  <!-- Empty rows (dashed) -->
+  <line x1="40" y1="55" x2="160" y2="55" stroke="#D8D8DB" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="40" y1="70" x2="160" y2="70" stroke="#D8D8DB" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="40" y1="85" x2="160" y2="85" stroke="#D8D8DB" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="40" y1="100" x2="160" y2="100" stroke="#D8D8DB" stroke-width="1" stroke-dasharray="4 3"/>
+  <!-- Center icon -->
+  <circle cx="100" cy="78" r="14" fill="#CCE2C8" opacity="0.4"/>
+  <rect x="94" y="72" width="12" height="12" rx="2" fill="#6B6B6B" opacity="0.4"/>
+  <!-- Shadow -->
+  <ellipse cx="100" cy="132" rx="45" ry="5" fill="#D8D8DB" opacity="0.3"/>
+</svg>

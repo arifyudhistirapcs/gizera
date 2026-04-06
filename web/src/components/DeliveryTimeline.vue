@@ -212,7 +212,7 @@ const formatTimestamp = (timestamp) => {
 
 .epod-icon {
   font-size: 16px;
-  color: #5A4372;
+  color: #303030;
   cursor: pointer;
   transition: color 0.2s;
 }

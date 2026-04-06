@@ -239,7 +239,7 @@ const showOfflineInfo = () => {
     title: 'Mode Offline',
     message: 'Aplikasi ini dapat bekerja secara offline. Data akan disinkronkan otomatis saat koneksi internet tersedia.',
     confirmButtonText: 'Mengerti',
-    confirmButtonColor: '#5A4372'
+    confirmButtonColor: '#303030'
   })
 }
 </script>
@@ -259,7 +259,7 @@ const showOfflineInfo = () => {
 
 .header-bg {
   height: 160px;
-  background: linear-gradient(135deg, #5A4372 0%, #7B5E99 50%, #9D7EC2 100%);
+  background: #303030;
   position: relative;
   overflow: hidden;
   border-radius: 0 0 32px 32px;
@@ -293,8 +293,8 @@ const showOfflineInfo = () => {
   height: 100px;
   border-radius: 50%;
   padding: 4px;
-  background: linear-gradient(135deg, #5A4372, #9D7EC2);
-  box-shadow: 0 8px 24px rgba(90, 67, 114, 0.3);
+  background: #303030;
+  box-shadow: none;
 }
 
 .avatar {
@@ -310,8 +310,8 @@ const showOfflineInfo = () => {
 
 .avatar-text {
   font-size: 32px;
-  font-weight: 700;
-  color: #5A4372;
+  font-weight: 600;
+  color: #303030;
   font-family: var(--h-font-family);
 }
 
@@ -330,7 +330,7 @@ const showOfflineInfo = () => {
 .user-name {
   margin: 16px 0 8px;
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   font-family: var(--h-font-family);
 }
@@ -340,9 +340,9 @@ const showOfflineInfo = () => {
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  background: linear-gradient(135deg, rgba(90, 67, 114, 0.1), rgba(157, 126, 194, 0.1));
+  background: #F0F0F0;
   border-radius: 20px;
-  color: #5A4372;
+  color: #303030;
   font-size: 13px;
   font-weight: 600;
 }
@@ -376,8 +376,8 @@ const showOfflineInfo = () => {
 }
 
 .stat-icon--primary {
-  background: linear-gradient(135deg, rgba(90, 67, 114, 0.15), rgba(90, 67, 114, 0.05));
-  color: #5A4372;
+  background: rgba(48, 48, 48, 0.1);
+  color: #303030;
 }
 
 .stat-icon--success {
@@ -392,7 +392,7 @@ const showOfflineInfo = () => {
 
 .stat-value {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   line-height: 1.2;
 }
@@ -428,12 +428,12 @@ const showOfflineInfo = () => {
 
 .section-icon {
   font-size: 20px;
-  color: #5A4372;
+  color: #303030;
 }
 
 .section-title {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
 }
 
@@ -458,7 +458,7 @@ const showOfflineInfo = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5A4372;
+  color: #303030;
   flex-shrink: 0;
 }
 
@@ -526,7 +526,7 @@ const showOfflineInfo = () => {
 }
 
 .setting-icon--purple {
-  background: linear-gradient(135deg, #5A4372, #9D7EC2);
+  background: #303030;
   color: #FFFFFF;
 }
 

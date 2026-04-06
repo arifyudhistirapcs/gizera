@@ -663,7 +663,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: var(--h-spacing-4);
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  background: #303030;
   border-radius: var(--h-radius-md);
   color: white;
 }
@@ -943,7 +943,7 @@ onUnmounted(() => {
 }
 
 .dark .total-portions {
-  background: linear-gradient(135deg, #6a5382 0%, #4d3b63 100%);
+  background: #404040;
 }
 
 .dark .portion-size-item.portion-small {

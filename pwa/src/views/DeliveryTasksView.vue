@@ -373,7 +373,7 @@ onUnmounted(() => {
 <style scoped>
 .delivery-tasks-container {
   min-height: 100vh;
-  background-color: #F8FDEA;
+  background-color: #E8EDE5;
   padding-top: 46px;
   padding-bottom: 50px;
 }
@@ -400,14 +400,14 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   background: #FFFFFF;
-  color: #74788C;
+  color: #6B6B6B;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .tab-button--active {
-  background: #5A4372;
+  background: #303030;
   color: #FFFFFF;
-  box-shadow: 0px 4px 12px rgba(90, 67, 114, 0.3);
+  box-shadow: none;
 }
 
 /* Date Filter */
@@ -464,19 +464,19 @@ onUnmounted(() => {
   align-items: center;
   margin-bottom: 8px;
   font-size: 14px;
-  color: #74788C;
+  color: #6B6B6B;
 }
 
 .info-row .van-icon {
   margin-right: 8px;
-  color: #5A4372;
+  color: #303030;
   font-size: 18px;
 }
 
 .info-text {
   flex: 1;
   margin-right: 8px;
-  color: #322837;
+  color: #303030;
   font-weight: 500;
 }
 

@@ -23,7 +23,7 @@
       <a-col :xs="24" :sm="12" :md="8">
         <HStatCard
           :icon="ClockCircleOutlined"
-          icon-bg="linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)"
+          icon-bg="#F0F0F0"
           label="Terakhir Diperbarui"
           :value="lastUpdate"
           :loading="loading"

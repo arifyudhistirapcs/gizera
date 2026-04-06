@@ -24,7 +24,7 @@
           title="Pilih Minggu"
         >
           <template #confirm>
-            <span style="color: #5A4372;">Konfirmasi</span>
+            <span style="color: #303030;">Konfirmasi</span>
           </template>
         </van-picker>
       </van-popup>
@@ -374,7 +374,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   padding: var(--h-spacing-sm);
-  background: rgba(90, 67, 114, 0.05);
+  background: rgba(48, 48, 48, 0.05);
   border-radius: var(--h-radius-md);
 }
 

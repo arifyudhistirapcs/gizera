@@ -14,7 +14,7 @@
               <a-statistic
                 title="Total Ulasan"
                 :value="summary.total_reviews || 0"
-                :value-style="{ color: '#5A4372' }"
+                :value-style="{ color: '#303030' }"
               >
                 <template #prefix><MessageOutlined /></template>
               </a-statistic>
@@ -111,7 +111,7 @@
         <a-card size="small" title="Breakdown Rating" v-if="summary.total_reviews > 0">
           <a-row :gutter="[16, 16]">
             <a-col :span="12">
-              <h4 style="color: #5A4372; margin-bottom: 12px;">Rating Menu</h4>
+              <h4 style="color: #303030; margin-bottom: 12px;">Rating Menu</h4>
               <div class="rating-breakdown">
                 <div class="rating-item">
                   <span>Rasa Makanan</span>
@@ -141,7 +141,7 @@
               </div>
             </a-col>
             <a-col :span="12">
-              <h4 style="color: #5A4372; margin-bottom: 12px;">Rating Layanan</h4>
+              <h4 style="color: #303030; margin-bottom: 12px;">Rating Layanan</h4>
               <div class="rating-breakdown">
                 <div class="rating-item">
                   <span>Ketepatan Waktu</span>
@@ -450,7 +450,7 @@ onMounted(async () => {
 
 .rating-value {
   font-weight: 600;
-  color: #5A4372;
+  color: #303030;
 }
 
 .detail-rating {

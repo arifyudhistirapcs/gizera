@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Model Registration Reminder",
+  "description": "When a new Go model file is created, remind to register it in AllModels() for auto-migration",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "backend/internal/models/*.go"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new model file was created. Check if any new GORM structs in this file need to be registered in backend/internal/models/models.go AllModels() function for auto-migration. If yes, add them under the appropriate comment section."
+  }
+}

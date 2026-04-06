@@ -1,56 +1,76 @@
 /**
- * Horizon UI Mobile Theme
- * Adapted from Horizon UI for mobile PWA
- * Primary Color: #5A4372 (Purple)
+ * Datum Mobile Theme
+ * Adapted from Horizon UI for mobile PWA — redesigned to Datum design language
+ * Primary Color: #303030 (Dark Neutral)
  */
 
-/* Google Fonts - DM Sans */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+/* Google Fonts - Urbanist */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Primary Colors - Purple Theme */
-  --h-primary: #5A4372;
-  --h-primary-hover: #4a3562;
-  --h-primary-active: #3a2752;
-  --h-primary-light: #6a5382;
-  --h-primary-lighter: rgba(90, 67, 114, 0.1);
+  /* Primary Colors - Datum Dark */
+  --h-primary: #303030;
+  --h-primary-hover: #404040;
+  --h-primary-active: #202020;
+  --h-primary-light: #505050;
+  --h-primary-lighter: rgba(48, 48, 48, 0.08);
   
-  /* Accent Purple */
-  --h-accent: #3D2B53;
-  --h-accent-light: #4d3b63;
+  /* Accent - Datum Green */
+  --h-accent: #CCE2C8;
+  --h-accent-light: #DCF0D8;
   
-  /* Backgrounds */
-  --h-bg-primary: #F8FDEA;
+  /* === CULINARY ACCENT (Inspirasi Restaurant + Mabelino) === */
+  --h-culinary-coral: #C94A3A;
+  --h-culinary-coral-light: #FDEAE7;
+  --h-culinary-coral-dark: #A33D30;
+  
+  --h-fresh-mint: #1E8A6E;
+  --h-fresh-mint-light: #D1FAE5;
+  --h-fresh-mint-dark: #166B56;
+  
+  --h-bg-highlight-warm: #FDEAE7;
+  
+  /* Backgrounds - Datum Sage/Green Tint */
+  --h-bg-primary: #E8EDE5;
   --h-bg-secondary: #FFFFFF;
   --h-bg-card: #FFFFFF;
-  --h-bg-light: #F4F7FE;
+  --h-bg-light: #F0F0F0;
+  --h-bg-accent: #CCE2C8;
   
   /* Text Colors */
-  --h-text-primary: #322837;
-  --h-text-secondary: #74788C;
-  --h-text-light: #ACA9B0;
+  --h-text-primary: #303030;
+  --h-text-secondary: #6B6B6B;
+  --h-text-light: #6B6B6B;
   
   /* Border Colors */
-  --h-border-color: #E9EDF7;
-  --h-border-light: #F4F7FE;
+  --h-border-color: #D8D8DB;
+  --h-border-light: #F0F0F0;
   
-  /* Semantic Colors */
-  --h-success: #05CD99;
-  --h-warning: #FFB547;
-  --h-error: #EE5D50;
-  --h-info: #5A4372;
+  /* Semantic Colors - Culinary V2 */
+  --h-success: #1E8A6E;
+  --h-success-light: #D1FAE5;
+  --h-success-dark: #166B56;
+  --h-warning: #F59E0B;
+  --h-warning-light: #FBBF24;
+  --h-warning-dark: #D97706;
+  --h-error: #C94A3A;
+  --h-error-light: #FDEAE7;
+  --h-error-dark: #A33D30;
+  --h-info: #3B82F6;
+  --h-info-light: #60A5FA;
+  --h-info-dark: #2563EB;
   
-  /* Shadows */
-  --h-shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.05);
-  --h-shadow-md: 0px 4px 6px rgba(0, 0, 0, 0.07);
-  --h-shadow-lg: 0px 10px 15px rgba(0, 0, 0, 0.1);
-  --h-shadow-card: 0px 18px 40px rgba(112, 144, 176, 0.12);
+  /* Shadows - Minimal Datum */
+  --h-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --h-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --h-shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --h-shadow-card: none;
   
-  /* Border Radius */
-  --h-radius-sm: 8px;
-  --h-radius-md: 12px;
-  --h-radius-lg: 16px;
-  --h-radius-xl: 20px;
+  /* Border Radius - V2 Scale */
+  --h-radius-sm: 6px;
+  --h-radius-md: 8px;
+  --h-radius-lg: 12px;
+  --h-radius-xl: 16px;
   --h-radius-full: 9999px;
   
   /* Spacing */
@@ -61,8 +81,8 @@
   --h-spacing-xl: 20px;
   --h-spacing-2xl: 24px;
   
-  /* Typography */
-  --h-font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Typography - Urbanist (Datum) */
+  --h-font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* Transitions */
   --h-transition-fast: 150ms ease-in-out;
@@ -96,22 +116,22 @@ input[type="reset"],
 
 /* Vant Component Overrides */
 
-/* Button Primary - Purple */
+/* Button Primary - Culinary Coral */
 .van-button--primary {
-  background: var(--h-primary) !important;
-  border-color: var(--h-primary) !important;
-  border-radius: var(--h-radius-md) !important;
+  background: #C94A3A !important;
+  border-color: #C94A3A !important;
+  border-radius: 6px !important;
   font-weight: 500;
 }
 
 .van-button--primary:active {
-  background: var(--h-primary-active) !important;
-  border-color: var(--h-primary-active) !important;
+  background: #A33D30 !important;
+  border-color: #A33D30 !important;
 }
 
 /* Button Default */
 .van-button--default {
-  border-radius: var(--h-radius-md) !important;
+  border-radius: 6px !important;
   border-color: var(--h-border-color);
   color: var(--h-text-primary);
 }
@@ -120,21 +140,23 @@ input[type="reset"],
 .van-button--danger {
   background: var(--h-error) !important;
   border-color: var(--h-error) !important;
-  border-radius: var(--h-radius-md) !important;
+  border-radius: 6px !important;
 }
 
-/* Card */
+/* Card - Datum Border-based */
 .van-card {
-  border-radius: var(--h-radius-lg) !important;
-  box-shadow: var(--h-shadow-card);
+  border-radius: 8px !important;
+  box-shadow: none;
+  border: 1px solid #D8D8DB;
   background: var(--h-bg-card);
 }
 
-/* Cell Group */
+/* Cell Group - Datum Border-based */
 .van-cell-group {
-  border-radius: var(--h-radius-lg) !important;
+  border-radius: 8px !important;
   overflow: hidden;
-  box-shadow: var(--h-shadow-sm);
+  box-shadow: none;
+  border: 1px solid #D8D8DB;
 }
 
 .van-cell-group--inset {
@@ -170,11 +192,10 @@ input[type="reset"],
   color: var(--h-text-light);
 }
 
-/* Nav Bar */
+/* Nav Bar - Datum Clean */
 .van-nav-bar {
-  background: linear-gradient(135deg, #5A4372 0%, #7B5E99 100%) !important;
-  box-shadow: 0 4px 20px rgba(90, 67, 114, 0.25);
-  border-radius: 0 0 20px 20px;
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #D8D8DB;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
@@ -185,31 +206,31 @@ input[type="reset"],
 }
 
 .van-nav-bar__title {
-  color: #ffffff !important;
+  color: #303030 !important;
   font-weight: 600;
   font-size: 17px;
 }
 
 .van-nav-bar__arrow,
 .van-nav-bar__text {
-  color: #ffffff !important;
+  color: #303030 !important;
 }
 
 .van-nav-bar__left .van-icon,
 .van-nav-bar__right .van-icon {
-  color: #ffffff !important;
+  color: #303030 !important;
 }
 
-/* Tabbar */
+/* Tabbar - Datum Clean */
 .van-tabbar {
   background: #FFFFFF !important;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
-  border-radius: 24px 24px 0 0 !important;
+  border-top: 1px solid #D8D8DB;
+  border-radius: 0 !important;
   overflow: hidden;
 }
 
 .van-tabbar-item--active {
-  color: var(--h-primary) !important;
+  color: #303030 !important;
 }
 
 .van-tabbar-item__icon {
@@ -263,9 +284,9 @@ input[type="reset"],
   background: var(--h-primary);
 }
 
-/* Dialog */
+/* Dialog - Datum */
 .van-dialog {
-  border-radius: var(--h-radius-lg) !important;
+  border-radius: 8px !important;
 }
 
 .van-dialog__header {
@@ -277,26 +298,26 @@ input[type="reset"],
   color: var(--h-text-secondary);
 }
 
-/* Popup */
+/* Popup - Datum */
 .van-popup {
-  border-radius: var(--h-radius-lg) var(--h-radius-lg) 0 0 !important;
+  border-radius: 8px 8px 0 0 !important;
 }
 
-/* Switch */
+/* Switch - Datum Dark */
 .van-switch--on {
-  background: var(--h-primary) !important;
+  background: #303030 !important;
 }
 
-/* Checkbox */
+/* Checkbox - Datum Dark */
 .van-checkbox__icon--checked {
-  background: var(--h-primary) !important;
-  border-color: var(--h-primary) !important;
+  background: #303030 !important;
+  border-color: #303030 !important;
 }
 
-/* Radio */
+/* Radio - Datum Dark */
 .van-radio__icon--checked {
-  background: var(--h-primary) !important;
-  border-color: var(--h-primary) !important;
+  background: #303030 !important;
+  border-color: #303030 !important;
 }
 
 /* Loading */
@@ -318,7 +339,7 @@ input[type="reset"],
 }
 
 .h-gradient-primary {
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  background: #303030;
 }
 
 .h-text-primary {
@@ -331,4 +352,69 @@ input[type="reset"],
 
 .h-text-light {
   color: var(--h-text-light);
+}
+
+
+/* ========================================
+   GLOBAL V2 CULINARY OVERRIDES (PWA)
+   ======================================== */
+
+/* Card V2 */
+.h-card {
+  background: var(--h-bg-card);
+  border-radius: 14px;
+  border: 1px solid #F0F0F0;
+  padding: var(--h-spacing-lg);
+  box-shadow: none;
+}
+
+/* Vant Cell Group V2 */
+.van-cell-group {
+  border-radius: 14px !important;
+}
+
+/* Vant Card V2 */
+.van-card {
+  border-radius: 14px !important;
+}
+
+/* Vant Dialog V2 */
+.van-dialog {
+  border-radius: 16px !important;
+}
+
+/* Vant Button consistent sizing */
+.van-button--normal {
+  height: 36px;
+  font-size: 13px;
+  border-radius: 8px !important;
+}
+
+.van-button--large {
+  height: 44px;
+  font-size: 15px;
+  border-radius: 10px !important;
+}
+
+/* Vant Tag V2 */
+.van-tag {
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  padding: 2px 8px !important;
+}
+
+/* Vant Field V2 */
+.van-field__control {
+  font-size: 14px;
+}
+
+/* Vant Switch V2 */
+.van-switch--on {
+  background: #C94A3A !important;
+}
+
+/* Vant Checkbox V2 */
+.van-checkbox__icon--checked {
+  background: #C94A3A !important;
+  border-color: #C94A3A !important;
 }

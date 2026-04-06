@@ -17,7 +17,7 @@
     <!-- Moon icon (light mode - click to go dark) -->
     <span v-else class="theme-icon-wrap">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#5A4372" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="#303030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </span>
   </button>
@@ -33,20 +33,20 @@ const { isDark, toggle } = useDarkMode()
 .theme-toggle {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
-  border: 1px solid rgba(90, 67, 114, 0.25);
+  border-radius: 6px;
+  border: 1px solid rgba(48, 48, 48, 0.2);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  background-color: #F4F7FE;
+  background-color: #F0F0F0;
   padding: 0;
   flex-shrink: 0;
 }
 
 .theme-toggle--dark {
-  background-color: #1B254B;
+  background-color: #303030;
   border-color: rgba(255, 215, 0, 0.35);
 }
 
@@ -60,7 +60,7 @@ const { isDark, toggle } = useDarkMode()
 }
 
 .theme-toggle:focus-visible {
-  outline: 2px solid #5A4372;
+  outline: 2px solid #303030;
   outline-offset: 2px;
 }
 

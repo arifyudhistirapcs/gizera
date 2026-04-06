@@ -46,6 +46,7 @@ var allValidRoles = map[string]bool{
 	"driver":           true,
 	"asisten_lapangan": true,
 	"kebersihan":       true,
+	"sekolah":          true,
 }
 
 // CreateUserRequest holds the data needed to create a new user

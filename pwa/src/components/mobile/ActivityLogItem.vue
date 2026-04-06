@@ -236,8 +236,8 @@ const statusClass = computed(() => {
 }
 
 .activity-log-item__status--primary {
-  color: #5A4372;
-  background: rgba(90, 67, 114, 0.12);
+  color: #303030;
+  background: rgba(48, 48, 48, 0.12);
 }
 
 .activity-log-item__status--default {

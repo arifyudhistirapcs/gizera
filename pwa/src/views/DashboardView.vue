@@ -6,17 +6,9 @@
 
       <!-- Loading State -->
       <template v-if="dashboardStore.loading">
-        <div class="metrics-grid">
-          <SkeletonCard :rows="2" />
-          <SkeletonCard :rows="2" />
-          <SkeletonCard :rows="2" />
-          <SkeletonCard :rows="2" />
-          <SkeletonCard :rows="2" />
-          <SkeletonCard :rows="2" />
-          <SkeletonCard :rows="2" />
-        </div>
-        <div class="section-block">
-          <SkeletonCard :rows="4" />
+        <div class="dashboard-loading">
+          <LottiePlayer src="/lottie/loading-cooking.json" width="100px" height="100px" />
+          <p class="dashboard-loading__text">Memuat data...</p>
         </div>
       </template>
 
@@ -36,7 +28,7 @@
           <!-- Row 1: 4 cards -->
           <MetricCard
             icon="apps-o"
-            iconColor="#5A4372"
+            iconColor="#FDEAE7"
             label="Porsi Disiapkan"
             :value="dashboardStore.summary.porsiDisiapkan"
             :trend="dashboardStore.summary.porsiDisiapkanTrend"
@@ -44,7 +36,7 @@
           />
           <MetricCard
             icon="logistics"
-            iconColor="#5A4372"
+            iconColor="#D1FAE5"
             label="Delivery Rate"
             :value="`${dashboardStore.summary.deliveryRate}%`"
             :trend="dashboardStore.summary.deliveryRateTrend"
@@ -52,7 +44,7 @@
           />
           <MetricCard
             icon="bag-o"
-            iconColor="#5A4372"
+            iconColor="#FEF3C7"
             label="Ketersediaan Stok"
             :value="`${dashboardStore.summary.ketersediaanStok}%`"
             :trend="dashboardStore.summary.stokKritisTrend"
@@ -60,7 +52,7 @@
           />
           <MetricCard
             icon="success"
-            iconColor="#4CAF50"
+            iconColor="#D1FAE5"
             label="On-Time Delivery"
             :value="`${dashboardStore.summary.onTimeDelivery}%`"
             :trend="dashboardStore.summary.onTimeDeliveryTrend"
@@ -70,7 +62,7 @@
           <!-- Row 2: 3 cards -->
           <MetricCard
             icon="star-o"
-            iconColor="#FFA726"
+            iconColor="#FDEAE7"
             label="Rating Keseluruhan"
             :value="`${dashboardStore.summary.ratingKeseluruhan}/5`"
             :trend="dashboardStore.summary.ratingKeseluruhanTrend"
@@ -78,7 +70,7 @@
           />
           <MetricCard
             icon="fire-o"
-            iconColor="#66BB6A"
+            iconColor="#D1FAE5"
             label="Rating Menu"
             :value="`${dashboardStore.summary.ratingMenu}/5`"
             :trend="dashboardStore.summary.ratingMenuTrend"
@@ -86,7 +78,7 @@
           />
           <MetricCard
             icon="logistics"
-            iconColor="#42A5F5"
+            iconColor="#D1FAE5"
             label="Rating Layanan"
             :value="`${dashboardStore.summary.ratingLayanan}/5`"
             :trend="dashboardStore.summary.ratingLayananTrend"
@@ -137,7 +129,7 @@
         <div class="detail-card h-card supplier-card">
           <h3 class="section-title">Top 5 Supplier</h3>
           <div v-if="dashboardStore.topSuppliers.length === 0" class="empty-state">
-            <p class="empty-state__text">Belum ada data supplier</p>
+            <MobileEmptyState lottie="/lottie/empty-box.json" description="Belum ada data supplier" />
           </div>
           <div v-else class="supplier-list">
             <div
@@ -162,7 +154,7 @@
           <div class="detail-card h-card">
             <h3 class="section-title">Detail Produksi</h3>
             <div v-if="dashboardStore.detailProduksi.length === 0" class="empty-state">
-              <p class="empty-state__text">No data</p>
+              <MobileEmptyState description="Belum ada data" />
             </div>
             <div v-else class="detail-table">
               <div class="detail-table-header">
@@ -190,7 +182,7 @@
           <div class="detail-card h-card">
             <h3 class="section-title">Detail Pengiriman & Pengambilan</h3>
             <div v-if="dashboardStore.detailPengiriman.length === 0" class="empty-state">
-              <p class="empty-state__text">No data</p>
+              <MobileEmptyState description="Belum ada data" />
             </div>
             <div v-else class="detail-table">
               <div class="detail-table-header">
@@ -218,7 +210,7 @@
           <div class="detail-card h-card">
             <h3 class="section-title">Detail Pencucian</h3>
             <div v-if="dashboardStore.detailPencucian.length === 0" class="empty-state">
-              <p class="empty-state__text">No data</p>
+              <MobileEmptyState description="Belum ada data" />
             </div>
             <div v-else class="detail-table">
               <div class="detail-table-header">
@@ -246,7 +238,7 @@
           <div class="detail-card h-card stok-kritis-card">
             <h3 class="section-title">Stok Kritis ({{ dashboardStore.stokKritis.length }} Item)</h3>
             <div v-if="dashboardStore.stokKritis.length === 0" class="empty-state">
-              <p class="empty-state__text">Tidak ada stok kritis</p>
+              <MobileEmptyState description="Tidak ada stok kritis" />
             </div>
             <div v-else>
               <div class="stok-kritis-grid">
@@ -279,6 +271,8 @@ import { ref, onMounted } from 'vue'
 import { useDashboardStore } from '@/stores/dashboard'
 import MetricCard from '@/components/mobile/MetricCard.vue'
 import SkeletonCard from '@/components/mobile/SkeletonCard.vue'
+import MobileEmptyState from '@/components/common/MobileEmptyState.vue'
+import LottiePlayer from '@/components/common/LottiePlayer.vue'
 
 const dashboardStore = useDashboardStore()
 const refreshing = ref(false)
@@ -324,6 +318,22 @@ onMounted(() => {
   padding-right: var(--h-spacing-lg);
 }
 
+/* Dashboard Loading */
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 8px;
+  padding: 40px 0;
+}
+
+.dashboard-loading__text {
+  font-size: 13px;
+  color: var(--h-text-secondary);
+}
+
 /* Metrics Grid (7 cards in 2 rows) */
 .metrics-grid {
   display: grid;
@@ -367,7 +377,7 @@ onMounted(() => {
   grid-template-columns: 2fr 1fr 1.2fr;
   gap: var(--h-spacing-sm);
   padding: var(--h-spacing-sm) 0;
-  border-bottom: 2px solid var(--h-border-light);
+  border-bottom: 2px solid #D8D8DB;
   font-size: 11px;
   font-weight: 600;
   color: var(--h-text-secondary);
@@ -434,7 +444,8 @@ onMounted(() => {
   justify-content: space-between;
   align-items: flex-start;
   padding: var(--h-spacing-md);
-  background: var(--h-bg-light);
+  background: #FFFFFF;
+  border: 1px solid var(--h-border-color);
   border-radius: var(--h-radius-md);
   border-left: 3px solid var(--h-error);
 }
@@ -521,7 +532,8 @@ onMounted(() => {
   align-items: center;
   gap: var(--h-spacing-md);
   padding: var(--h-spacing-md);
-  background: var(--h-bg-light);
+  background: #FFFFFF;
+  border: 1px solid var(--h-border-color);
   border-radius: var(--h-radius-md);
   border-left: 4px solid;
 }
@@ -578,7 +590,7 @@ onMounted(() => {
 
 .arus-kas-value {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
 }
 
@@ -618,7 +630,8 @@ onMounted(() => {
   align-items: center;
   gap: var(--h-spacing-md);
   padding: var(--h-spacing-md);
-  background: var(--h-bg-light);
+  background: #FFFFFF;
+  border: 1px solid var(--h-border-color);
   border-radius: var(--h-radius-md);
 }
 
@@ -630,32 +643,32 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  font-weight: 700;
-  color: #fff;
+  font-weight: 600;
+  color: #303030;
   flex-shrink: 0;
 }
 
 .supplier-rank.rank-1 {
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  background: #FDEAE7;
+  color: #C94A3A;
 }
 
 .supplier-rank.rank-2 {
-  background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
-  box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .supplier-rank.rank-3 {
-  background: linear-gradient(135deg, #CD7F32 0%, #B8732D 100%);
-  box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
+  background: #D1FAE5;
+  color: #1E8A6E;
 }
 
 .supplier-rank.rank-4 {
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  background: #F0F0F0;
 }
 
 .supplier-rank.rank-5 {
-  background: linear-gradient(135deg, #74788C 0%, #5A4372 100%);
+  background: #F0F0F0;
 }
 
 .supplier-info {

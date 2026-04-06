@@ -155,8 +155,7 @@ const formattedDueDate = computed(() => {
 }
 
 .h-kanban-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--h-shadow-lg);
+  box-shadow: var(--h-shadow-md);
 }
 
 /* Drag Handle */
@@ -315,8 +314,8 @@ const formattedDueDate = computed(() => {
 }
 
 .dark .h-kanban-card__status-badge--backlog {
-  background: rgba(116, 120, 140, 0.2);
-  color: #ACA9B0;
+  background: rgba(107, 107, 107, 0.2);
+  color: #D8D8DB;
 }
 
 .dark .h-kanban-card__status-badge--in-progress {
@@ -335,8 +334,8 @@ const formattedDueDate = computed(() => {
 }
 
 .dark .h-kanban-card__status-badge--default {
-  background: rgba(116, 120, 140, 0.2);
-  color: #ACA9B0;
+  background: rgba(107, 107, 107, 0.2);
+  color: #D8D8DB;
 }
 
 .dark .h-kanban-card__due-date {

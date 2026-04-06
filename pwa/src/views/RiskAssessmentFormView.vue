@@ -43,7 +43,7 @@
         <div class="progress-bar-wrapper">
           <van-progress
             :percentage="progressPercentage"
-            :color="progressPercentage === 100 ? '#05CD99' : '#5A4372'"
+            :color="progressPercentage === 100 ? '#05CD99' : '#303030'"
             stroke-width="8"
           />
         </div>
@@ -630,7 +630,7 @@ onUnmounted(() => {
 <style scoped>
 .risk-form-container {
   min-height: 100vh;
-  background-color: #F8FDEA;
+  background-color: #E8EDE5;
   padding-top: 46px;
   padding-bottom: 80px;
 }
@@ -667,7 +667,7 @@ onUnmounted(() => {
 
 .section-title {
   font-weight: bold;
-  background-color: #5A4372;
+  background-color: #303030;
   color: white;
 }
 
@@ -736,7 +736,7 @@ onUnmounted(() => {
 .category-title {
   font-size: 14px;
   font-weight: 600;
-  color: #322837;
+  color: #303030;
   flex: 1;
   margin-right: 8px;
 }
@@ -782,7 +782,7 @@ onUnmounted(() => {
 
 .score-text {
   font-size: 12px;
-  color: #5A4372;
+  color: #303030;
   font-weight: 500;
 }
 
@@ -839,7 +839,7 @@ onUnmounted(() => {
 /* Vant overrides */
 :deep(.van-stepper--round .van-stepper__minus),
 :deep(.van-stepper--round .van-stepper__plus) {
-  background-color: #5A4372;
+  background-color: #303030;
 }
 
 :deep(.van-progress__pivot) {

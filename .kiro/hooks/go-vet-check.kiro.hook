@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Go Vet Check",
+  "description": "Runs go vet on backend internal packages after Go files are edited to catch common mistakes",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "backend/**/*.go"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd backend && go vet ./internal/... 2>&1 | head -20",
+    "timeout": 30
+  }
+}

@@ -534,7 +534,7 @@ onUnmounted(() => {
 }
 
 .recipe-card.status-pending { border-left-color: #FFB547; }
-.recipe-card.status-cooking { border-left-color: #5A4372; }
+.recipe-card.status-cooking { border-left-color: #303030; }
 .recipe-card.status-ready { border-left-color: #05CD99; }
 
 .recipe-card__header {
@@ -564,7 +564,7 @@ onUnmounted(() => {
 }
 
 .recipe-card__status-badge.status-pending { background: rgba(255, 181, 71, 0.1); color: #FFB547; }
-.recipe-card__status-badge.status-cooking { background: rgba(90, 67, 114, 0.1); color: #5A4372; }
+.recipe-card__status-badge.status-cooking { background: rgba(48, 48, 48, 0.1); color: #303030; }
 .recipe-card__status-badge.status-ready { background: rgba(5, 205, 153, 0.1); color: #05CD99; }
 
 .status-dot {
@@ -593,7 +593,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: var(--h-spacing-4);
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  background: #303030;
   border-radius: var(--h-radius-md);
   color: white;
 }
@@ -863,7 +863,7 @@ onUnmounted(() => {
 .dark .kanban-column-title { color: var(--h-text-primary); }
 .dark .column-icon { color: var(--h-primary-light); }
 .dark .recipe-card__name { color: var(--h-text-primary); }
-.dark .recipe-card__portions { background: linear-gradient(135deg, #6a5382 0%, #4d3b63 100%); }
+.dark .recipe-card__portions { background: #404040; }
 .dark .portion-size-item.portion-small { background: rgba(255, 181, 71, 0.15); border-color: #FFB547; }
 .dark .portion-size-item.portion-large { background: rgba(24, 144, 255, 0.15); border-color: #1890FF; }
 .dark .size-badge { background: var(--h-bg-card); }

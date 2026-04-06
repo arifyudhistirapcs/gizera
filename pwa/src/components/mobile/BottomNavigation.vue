@@ -1,54 +1,19 @@
 <template>
   <div class="bottom-navigation-wrapper">
     <div class="bottom-navigation">
-      <!-- Left half -->
-      <div class="nav-half nav-half--left">
-        <div
-          v-for="item in leftItems"
-          :key="item.name"
-          :class="['nav-item', { 'nav-item--active': isActive(item) }]"
-          @click="onNavClick(item)"
-        >
-          <van-icon
-            :name="isActive(item) ? item.activeIcon : item.icon"
-            :color="isActive(item) ? activeColor : inactiveColor"
-            size="22"
-          />
-          <span class="nav-item__label">{{ item.label }}</span>
-        </div>
+      <div
+        v-for="item in allItems"
+        :key="item.name"
+        :class="['nav-item', { 'nav-item--active': isActive(item) }]"
+        @click="onNavClick(item)"
+      >
+        <van-icon
+          :name="isActive(item) ? item.activeIcon : item.icon"
+          :color="isActive(item) ? activeColor : inactiveColor"
+          size="22"
+        />
+        <span class="nav-item__label">{{ item.label }}</span>
       </div>
-
-      <!-- Center spacer for floating button -->
-      <div class="nav-center-spacer"></div>
-
-      <!-- Right half -->
-      <div class="nav-half nav-half--right">
-        <div
-          v-for="item in rightItems"
-          :key="item.name"
-          :class="['nav-item', { 'nav-item--active': isActive(item) }]"
-          @click="onNavClick(item)"
-        >
-          <van-icon
-            :name="isActive(item) ? item.activeIcon : item.icon"
-            :color="isActive(item) ? activeColor : inactiveColor"
-            size="22"
-          />
-          <span class="nav-item__label">{{ item.label }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Floating Center Button -->
-    <div
-      :class="['floating-center-btn', { 'floating-center-btn--active': isActive(centerItem) }]"
-      @click="onNavClick(centerItem)"
-    >
-      <van-icon
-        :name="isActive(centerItem) ? centerItem.activeIcon : centerItem.icon"
-        color="#FFFFFF"
-        size="28"
-      />
     </div>
   </div>
 </template>
@@ -62,8 +27,8 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
-const activeColor = '#5A4372'
-const inactiveColor = '#ACA9B0'
+const activeColor = '#C94A3A'
+const inactiveColor = '#6B6B6B'
 
 const NAV_CONFIG = {
   dashboard: { name: 'dashboard', label: 'Home', icon: 'wap-home-o', activeIcon: 'wap-home', route: '/dashboard' },
@@ -161,25 +126,16 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 100;
-  pointer-events: none;
 }
 
 .bottom-navigation {
-  height: 64px;
+  height: 56px;
   background: #FFFFFF;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-  border-radius: 24px 24px 0 0;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  pointer-events: auto;
-}
-
-.nav-half {
-  flex: 1;
+  border-top: 1px solid #D8D8DB;
   display: flex;
   align-items: center;
   justify-content: space-evenly;
+  padding: 0;
 }
 
 .nav-item {
@@ -201,61 +157,11 @@ onMounted(() => {
 }
 
 .nav-item--active .nav-item__label {
-  color: #5A4372;
+  color: #C94A3A;
   font-weight: 600;
 }
 
 .nav-item--active :deep(.van-icon) {
   transform: scale(1.1);
-}
-
-.nav-center-spacer {
-  width: 80px;
-  flex-shrink: 0;
-}
-
-/* Floating Center Button */
-.floating-center-btn {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #6B4E9B 0%, #5A4372 100%);
-  box-shadow: 0 8px 24px rgba(90, 67, 114, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  pointer-events: auto;
-}
-
-.floating-center-btn:active {
-  transform: translateX(-50%) scale(0.95);
-}
-
-.floating-center-btn--active {
-  background: linear-gradient(135deg, #7B5EAB 0%, #6A5382 100%);
-  box-shadow: 0 12px 32px rgba(90, 67, 114, 0.5);
-}
-
-/* Add pulse animation for center button */
-@keyframes pulse {
-  0% {
-    box-shadow: 0 8px 24px rgba(90, 67, 114, 0.4);
-  }
-  50% {
-    box-shadow: 0 8px 24px rgba(90, 67, 114, 0.6), 0 0 0 8px rgba(90, 67, 114, 0.1);
-  }
-  100% {
-    box-shadow: 0 8px 24px rgba(90, 67, 114, 0.4);
-  }
-}
-
-.floating-center-btn:hover {
-  animation: pulse 2s infinite;
 }
 </style>

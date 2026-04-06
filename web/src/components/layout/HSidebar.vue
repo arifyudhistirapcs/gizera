@@ -40,7 +40,7 @@
             :class="{ 'active': isGroupActive(item), 'expanded': expandedGroups.includes(item.key) }"
             @click="toggleGroup(item.key)"
           >
-            <component :is="item.icon" class="menu-icon" />
+            <span class="menu-emoji">{{ item.emoji }}</span>
             <span v-if="!isCollapsed" class="menu-label">{{ item.label }}</span>
             <DownOutlined
               v-if="!isCollapsed"
@@ -62,7 +62,7 @@
                 class="submenu-item"
                 :class="{ 'active': isActive(child.route) }"
               >
-                <component :is="child.icon" class="submenu-icon" />
+                <span class="submenu-emoji">{{ child.emoji }}</span>
                 <span class="submenu-label">{{ child.label }}</span>
               </router-link>
             </div>
@@ -76,11 +76,21 @@
           class="menu-item"
           :class="{ 'active': isActive(item.route) }"
         >
-          <component :is="item.icon" class="menu-icon" />
+          <span class="menu-emoji">{{ item.emoji }}</span>
           <span v-if="!isCollapsed" class="menu-label">{{ item.label }}</span>
         </router-link>
       </template>
     </nav>
+
+    <!-- Sidebar Promo Card (hidden) -->
+    <!--
+    <div v-if="!isCollapsed" class="sidebar-promo">
+      <div class="sidebar-promo__icon">📊</div>
+      <div class="sidebar-promo__text">Laporan Harian</div>
+      <div class="sidebar-promo__sub">Lihat ringkasan hari ini</div>
+      <button class="sidebar-promo__btn" @click="router.push('/monitoring-activity')">Lihat Laporan</button>
+    </div>
+    -->
 
     <!-- User Info -->
     <div v-if="!isCollapsed" class="user-info">
@@ -206,6 +216,7 @@ const multiTenantMenuItems = [
   {
     key: 'dashboard-bgn',
     label: 'Dashboard BGN',
+    emoji: '🌐',
     icon: GlobalOutlined,
     route: '/dashboard-bgn',
     module: 'dashboard_bgn'
@@ -213,6 +224,7 @@ const multiTenantMenuItems = [
   {
     key: 'dashboard-yayasan',
     label: 'Dashboard Yayasan',
+    emoji: '📊',
     icon: FundOutlined,
     route: '/dashboard-yayasan',
     module: 'dashboard_yayasan'
@@ -220,6 +232,7 @@ const multiTenantMenuItems = [
   {
     key: 'manajemen-yayasan',
     label: 'Manajemen Yayasan',
+    emoji: '🏛️',
     icon: BankOutlined,
     route: '/yayasan',
     module: 'manajemen_yayasan'
@@ -227,6 +240,7 @@ const multiTenantMenuItems = [
   {
     key: 'manajemen-sppg',
     label: 'Manajemen SPPG',
+    emoji: '🏪',
     icon: ShopOutlined,
     route: '/sppg',
     module: 'manajemen_sppg'
@@ -234,6 +248,7 @@ const multiTenantMenuItems = [
   {
     key: 'manajemen-user',
     label: 'Manajemen User',
+    emoji: '👥',
     icon: TeamOutlined,
     route: '/users',
     module: 'manajemen_user'
@@ -247,6 +262,7 @@ const operationalMenuItems = [
   {
     key: 'dashboard',
     label: 'Dashboard',
+    emoji: '🏠',
     icon: HomeOutlined,
     route: '/dashboard',
     roles: ['kepala_sppg', 'akuntan', 'ahli_gizi', 'pengadaan'],
@@ -255,6 +271,7 @@ const operationalMenuItems = [
   {
     key: 'monitoring',
     label: 'Monitoring Aktivitas',
+    emoji: '📊',
     icon: MonitorOutlined,
     route: '/monitoring-activity',
     roles: ['kepala_sppg', 'akuntan', 'ahli_gizi', 'pengadaan', 'chef', 'packing', 'driver', 'asisten_lapangan'],
@@ -263,6 +280,7 @@ const operationalMenuItems = [
   {
     key: 'reviews',
     label: 'Ulasan & Rating',
+    emoji: '⭐',
     icon: StarOutlined,
     route: '/reviews',
     roles: ['kepala_sppg', 'akuntan'],
@@ -271,6 +289,7 @@ const operationalMenuItems = [
   {
     key: 'display',
     label: 'Display / KDS',
+    emoji: '🍳',
     icon: DashboardOutlined,
     roles: ['kepala_sppg', 'ahli_gizi', 'chef', 'packing', 'kebersihan'],
     operational: true,
@@ -278,6 +297,7 @@ const operationalMenuItems = [
       {
         key: 'kds-cooking',
         label: 'Dapur',
+        emoji: '🔥',
         icon: FireOutlined,
         route: '/kds/cooking',
         roles: ['kepala_sppg', 'ahli_gizi', 'chef']
@@ -285,6 +305,7 @@ const operationalMenuItems = [
       {
         key: 'kds-packing',
         label: 'Pengemasan',
+        emoji: '📦',
         icon: InboxOutlined,
         route: '/kds/packing',
         roles: ['kepala_sppg', 'ahli_gizi', 'chef', 'packing']
@@ -292,6 +313,7 @@ const operationalMenuItems = [
       {
         key: 'kds-cleaning',
         label: 'Kebersihan',
+        emoji: '🧹',
         icon: ClearOutlined,
         route: '/kds/cleaning',
         roles: ['kepala_sppg', 'kebersihan']
@@ -301,6 +323,7 @@ const operationalMenuItems = [
   {
     key: 'menu',
     label: 'Menu & Komponen',
+    emoji: '📋',
     icon: FileTextOutlined,
     roles: ['kepala_sppg', 'ahli_gizi', 'chef'],
     operational: true,
@@ -308,6 +331,7 @@ const operationalMenuItems = [
       {
         key: 'menu-planning',
         label: 'Perencanaan Menu',
+        emoji: '📅',
         icon: CalendarOutlined,
         route: '/menu-planning',
         roles: ['kepala_sppg', 'ahli_gizi']
@@ -315,6 +339,7 @@ const operationalMenuItems = [
       {
         key: 'recipes',
         label: 'Manajemen Menu',
+        emoji: '📝',
         icon: FileTextOutlined,
         route: '/recipes',
         roles: ['kepala_sppg', 'ahli_gizi']
@@ -322,6 +347,7 @@ const operationalMenuItems = [
       {
         key: 'semi-finished',
         label: 'Manajemen Komponen',
+        emoji: '🥘',
         icon: InboxOutlined,
         route: '/semi-finished',
         roles: ['kepala_sppg', 'ahli_gizi', 'chef']
@@ -331,6 +357,7 @@ const operationalMenuItems = [
   {
     key: 'supply-chain',
     label: 'Supply Chain',
+    emoji: '🛒',
     icon: ShoppingOutlined,
     roles: ['kepala_sppg', 'pengadaan'],
     operational: true,
@@ -338,6 +365,7 @@ const operationalMenuItems = [
       {
         key: 'suppliers',
         label: 'Supplier',
+        emoji: '🏪',
         icon: ShopOutlined,
         route: '/suppliers',
         roles: ['kepala_sppg', 'pengadaan']
@@ -345,6 +373,7 @@ const operationalMenuItems = [
       {
         key: 'purchase-orders',
         label: 'Purchase Order',
+        emoji: '🛍️',
         icon: ShoppingCartOutlined,
         route: '/purchase-orders',
         roles: ['kepala_sppg', 'pengadaan']
@@ -352,6 +381,7 @@ const operationalMenuItems = [
       {
         key: 'goods-receipts',
         label: 'Penerimaan Barang',
+        emoji: '📥',
         icon: InboxOutlined,
         route: '/goods-receipts',
         roles: ['kepala_sppg', 'pengadaan']
@@ -359,6 +389,7 @@ const operationalMenuItems = [
       {
         key: 'inventory',
         label: 'Manajemen Bahan Baku',
+        emoji: '🗄️',
         icon: DatabaseOutlined,
         route: '/inventory',
         roles: ['kepala_sppg', 'pengadaan', 'akuntan']
@@ -368,6 +399,7 @@ const operationalMenuItems = [
   {
     key: 'logistics',
     label: 'Logistik',
+    emoji: '🚚',
     icon: CarOutlined,
     roles: ['kepala_sppg', 'driver', 'asisten'],
     operational: true,
@@ -375,6 +407,7 @@ const operationalMenuItems = [
       {
         key: 'schools',
         label: 'Data Sekolah',
+        emoji: '🏫',
         icon: EnvironmentOutlined,
         route: '/schools',
         roles: ['kepala_sppg', 'driver', 'asisten']
@@ -382,6 +415,7 @@ const operationalMenuItems = [
       {
         key: 'delivery-tasks',
         label: 'Tugas Pengiriman & Pengambilan',
+        emoji: '📍',
         icon: CarOutlined,
         route: '/delivery-tasks',
         roles: ['kepala_sppg', 'driver', 'asisten']
@@ -391,6 +425,7 @@ const operationalMenuItems = [
   {
     key: 'sdm',
     label: 'SDM',
+    emoji: '👥',
     icon: TeamOutlined,
     roles: ['kepala_sppg', 'akuntan'],
     operational: true,
@@ -398,6 +433,7 @@ const operationalMenuItems = [
       {
         key: 'employees',
         label: 'Data Karyawan',
+        emoji: '👤',
         icon: UserOutlined,
         route: '/employees',
         roles: ['kepala_sppg', 'akuntan']
@@ -405,6 +441,7 @@ const operationalMenuItems = [
       {
         key: 'attendance-report',
         label: 'Laporan Absensi',
+        emoji: '⏰',
         icon: ClockCircleOutlined,
         route: '/attendance-report',
         roles: ['kepala_sppg', 'akuntan']
@@ -412,6 +449,7 @@ const operationalMenuItems = [
       {
         key: 'attendance-config',
         label: 'Konfigurasi Absensi',
+        emoji: '⚙️',
         icon: ControlOutlined,
         route: '/attendance-config',
         roles: ['kepala_sppg', 'akuntan']
@@ -421,6 +459,7 @@ const operationalMenuItems = [
   {
     key: 'finance',
     label: 'Keuangan',
+    emoji: '💰',
     icon: DollarOutlined,
     roles: ['kepala_sppg', 'akuntan'],
     operational: true,
@@ -428,6 +467,7 @@ const operationalMenuItems = [
       {
         key: 'assets',
         label: 'Aset Dapur',
+        emoji: '🏦',
         icon: BankOutlined,
         route: '/assets',
         roles: ['kepala_sppg', 'akuntan']
@@ -435,6 +475,7 @@ const operationalMenuItems = [
       {
         key: 'cash-flow',
         label: 'Arus Kas',
+        emoji: '📈',
         icon: LineChartOutlined,
         route: '/cash-flow',
         roles: ['kepala_sppg', 'akuntan']
@@ -442,6 +483,7 @@ const operationalMenuItems = [
       {
         key: 'financial-reports',
         label: 'Laporan Keuangan',
+        emoji: '📄',
         icon: FileTextOutlined,
         route: '/financial-reports',
         roles: ['kepala_sppg', 'akuntan']
@@ -451,6 +493,7 @@ const operationalMenuItems = [
   {
     key: 'risk-assessment',
     label: 'Risk Assessment',
+    emoji: '🛡️',
     icon: SafetyCertificateOutlined,
     route: '/risk-assessment',
     roles: ['kepala_yayasan', 'superadmin']
@@ -458,12 +501,14 @@ const operationalMenuItems = [
   {
     key: 'system',
     label: 'Sistem',
+    emoji: '⚙️',
     icon: SettingOutlined,
     roles: ['kepala_sppg', 'superadmin'],
     children: [
       {
         key: 'audit-trail',
         label: 'Audit Trail',
+        emoji: '📋',
         icon: AuditOutlined,
         route: '/audit-trail',
         roles: ['kepala_sppg', 'superadmin']
@@ -471,6 +516,7 @@ const operationalMenuItems = [
       {
         key: 'system-config',
         label: 'Konfigurasi',
+        emoji: '🔧',
         icon: ControlOutlined,
         route: '/system-config',
         roles: ['kepala_sppg', 'superadmin']
@@ -606,12 +652,14 @@ watch(() => props.collapsed, (newValue) => {
 <style scoped>
 .h-sidebar {
   position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 280px;
-  background-color: var(--h-bg-secondary, #FFFFFF);
-  border-right: 1px solid var(--h-border-color, #E9EDF7);
+  top: 12px;
+  left: 12px;
+  bottom: 12px;
+  width: 220px;
+  background-color: #FFFFFF;
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   transition: width 300ms ease;
@@ -621,34 +669,38 @@ watch(() => props.collapsed, (newValue) => {
 
 /* Dark mode */
 .dark .h-sidebar {
-  background-color: #111C44;
-  border-right-color: #1B254B;
+  background-color: #252525;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Collapsed state */
 .h-sidebar.collapsed {
-  width: 80px;
+  width: 72px;
 }
 
 /* Mobile: hidden by default (will be used inside MobileDrawer) */
 .h-sidebar.mobile {
   position: static;
-  width: 280px;
-  border-right: none;
+  width: 220px;
+  border-radius: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  box-shadow: none;
 }
 
-/* Logo Area - 64px height */
+/* Logo Area - compact */
 .sidebar-logo {
-  height: 120px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px 10px 16px;
-  border-bottom: 1px solid var(--h-border-color, #E9EDF7);
+  padding: 8px 12px;
+  border-bottom: none;
 }
 
 .dark .sidebar-logo {
-  border-bottom-color: #1B254B;
+  /* no border in floating sidebar */
 }
 
 .collapsed .sidebar-logo {
@@ -674,17 +726,17 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .collapse-btn:hover {
-  background-color: #F4F7FE;
-  color: var(--h-text-primary, #322837);
+  background-color: #F7F8FA;
+  color: #303030;
 }
 
 .dark .collapse-btn {
-  color: #ACA9B0;
+  color: #D8D8DB;
 }
 
 .dark .collapse-btn:hover {
-  background-color: #1B254B;
-  color: #F8FDEA;
+  background-color: #303030;
+  color: #F7F8FA;
 }
 
 .collapse-btn:active {
@@ -700,14 +752,14 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .logo-img {
-  height: 200px;
-  max-height: 100px;
-  width: 300px;
+  height: 40px;
+  max-height: 40px;
+  width: auto;
   object-fit: contain;
 }
 
 .logo-img-collapsed {
-  height: 60px;
+  height: 32px;
   width: auto;
   object-fit: contain;
 }
@@ -722,7 +774,7 @@ watch(() => props.collapsed, (newValue) => {
   /* Smooth scrolling */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: rgba(90, 67, 114, 0.3) transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -734,7 +786,7 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background-color: rgba(90, 67, 114, 0.3);
+  background-color: rgba(0, 0, 0, 0.15);
   border-radius: 2px;
 }
 
@@ -743,57 +795,60 @@ watch(() => props.collapsed, (newValue) => {
   margin-bottom: 4px;
 }
 
-/* Menu Item - 44px height */
+/* Menu Item - 42px height */
 .menu-item {
-  height: 44px;
+  height: 42px;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  margin: 0 12px;
-  border-radius: 12px;
+  padding: 0 14px;
+  margin: 2px 8px;
+  border-radius: 10px;
   cursor: pointer;
   text-decoration: none;
-  color: var(--h-text-secondary, #74788C);
+  color: #303030;
   transition: all 0.2s ease;
   position: relative;
+  font-size: 13px;
 }
 
 .menu-item:hover {
-  background-color: #F4F7FE;
-  color: var(--h-text-primary, #322837);
+  background-color: #F7F8FA;
+  color: #303030;
 }
 
 .dark .menu-item:hover {
-  background-color: #1B254B;
-  color: #F8FDEA;
+  background-color: #303030;
+  color: #F7F8FA;
 }
 
-/* Active state - purple bg + white text */
+/* Active state - Culinary Coral bg + white text */
 .menu-item.active {
-  background-color: #5A4372;
+  background-color: #C94A3A;
   color: #FFFFFF;
 }
 
 .dark .menu-item.active {
-  background-color: #5A4372;
+  background-color: #C94A3A;
   color: #FFFFFF;
 }
 
-/* Menu Icon - 20px */
-.menu-icon {
-  font-size: 20px;
-  min-width: 20px;
-  margin-right: 12px;
+/* Menu Emoji - 16px */
+.menu-emoji {
+  font-size: 16px;
+  min-width: 22px;
+  text-align: center;
+  margin-right: 8px;
+  line-height: 1;
   transition: margin 300ms ease;
 }
 
-.collapsed .menu-icon {
+.collapsed .menu-emoji {
   margin-right: 0;
 }
 
-/* Menu Label - 14px medium */
+/* Menu Label - 13px medium */
 .menu-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -814,51 +869,53 @@ watch(() => props.collapsed, (newValue) => {
 
 /* Submenu */
 .submenu {
-  padding-left: 8px;
+  padding-left: 0;
   overflow: hidden;
 }
 
 .submenu-item {
-  height: 40px;
+  height: 38px;
   display: flex;
   align-items: center;
-  padding: 0 16px 0 44px;
-  margin: 2px 12px;
-  border-radius: 12px;
+  padding: 0 12px 0 28px;
+  margin: 2px 8px;
+  border-radius: 10px;
   cursor: pointer;
   text-decoration: none;
-  color: var(--h-text-secondary, #74788C);
+  color: #303030;
   transition: all 0.2s ease;
 }
 
 .submenu-item:hover {
-  background-color: #F4F7FE;
-  color: var(--h-text-primary, #322837);
+  background-color: #F7F8FA;
+  color: #303030;
 }
 
 .dark .submenu-item:hover {
-  background-color: #1B254B;
-  color: #F8FDEA;
+  background-color: #303030;
+  color: #F7F8FA;
 }
 
 .submenu-item.active {
-  background-color: #5A4372;
+  background-color: #C94A3A;
   color: #FFFFFF;
 }
 
 .dark .submenu-item.active {
-  background-color: #5A4372;
+  background-color: #C94A3A;
   color: #FFFFFF;
 }
 
-.submenu-icon {
-  font-size: 16px;
-  min-width: 16px;
-  margin-right: 12px;
+.submenu-emoji {
+  font-size: 13px;
+  min-width: 18px;
+  text-align: center;
+  margin-right: 8px;
+  line-height: 1;
 }
 
 .submenu-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
@@ -888,13 +945,13 @@ watch(() => props.collapsed, (newValue) => {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 20px;
-  margin: 0 12px;
-  border-top: 1px solid var(--h-border-color, #E9EDF7);
+  padding: 12px 14px;
+  margin: 0 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .dark .user-info {
-  border-top-color: #1B254B;
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .user-info--collapsed {
@@ -904,12 +961,12 @@ watch(() => props.collapsed, (newValue) => {
 
 .user-info__avatar {
   font-size: 20px;
-  color: #5A4372;
+  color: #303030;
   flex-shrink: 0;
 }
 
 .dark .user-info__avatar {
-  color: #B68FE8;
+  color: #F7F8FA;
 }
 
 .user-info__details {
@@ -927,7 +984,7 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .dark .user-info__name {
-  color: #F8FDEA;
+  color: #F7F8FA;
 }
 
 .user-info__role {
@@ -939,23 +996,23 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .dark .user-info__role {
-  color: #ACA9B0;
+  color: #D8D8DB;
 }
 
 /* Logout Button */
 .logout-button {
-  height: 44px;
-  margin: 12px;
+  height: 42px;
+  margin: 8px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   background-color: transparent;
   color: var(--h-text-secondary, #74788C);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  font-size: 14px;
+  gap: 8px;
+  font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
 }
@@ -966,7 +1023,7 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .dark .logout-button {
-  color: #ACA9B0;
+  color: #D8D8DB;
 }
 
 .dark .logout-button:hover {
@@ -984,5 +1041,51 @@ watch(() => props.collapsed, (newValue) => {
 
 .logout-label {
   white-space: nowrap;
+}
+
+/* Sidebar Promo Card */
+.sidebar-promo {
+  margin: 8px;
+  padding: 14px;
+  background: #303030;
+  border-radius: 12px;
+  color: #fff;
+  text-align: center;
+}
+
+.sidebar-promo__icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.sidebar-promo__text {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sidebar-promo__sub {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.sidebar-promo__btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 16px;
+  background: #C94A3A;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: auto;
+  min-width: auto;
+  transition: background 0.2s ease;
+}
+
+.sidebar-promo__btn:hover {
+  background: #A33D30;
 }
 </style>

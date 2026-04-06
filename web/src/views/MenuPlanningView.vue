@@ -88,6 +88,7 @@
                   class="menu-item h-card-hover"
                   draggable="true"
                   @dragstart="onDragStart($event, item)"
+                  @click="showDetailModal(item)"
                 >
                   <div v-if="item.recipe?.photo_url" class="menu-item-photo">
                     <img :src="item.recipe.photo_url" :alt="item.recipe.name" />
@@ -95,6 +96,8 @@
                   <div class="menu-item-content">
                     <div class="menu-item-name">{{ item.recipe?.name }}</div>
                     <div class="menu-item-portions">{{ item.portions }} porsi</div>
+                    <!-- Portion summary hidden -->
+                    <!--
                     <div v-if="item.school_allocations && item.school_allocations.length > 0" class="menu-item-portion-summary">
                       <template v-if="getTotalSmallPortions(item.school_allocations) > 0">
                         <span class="portion-badge">Kecil: {{ getTotalSmallPortions(item.school_allocations) }}</span>
@@ -103,7 +106,9 @@
                         <span class="portion-badge">Besar: {{ getTotalLargePortions(item.school_allocations) }}</span>
                       </template>
                     </div>
-                    <div v-if="item.school_allocations && item.school_allocations.length > 0" class="menu-item-allocations">
+                    -->
+                    <!-- School allocations hidden for cleaner UI -->
+                    <!-- <div v-if="item.school_allocations && item.school_allocations.length > 0" class="menu-item-allocations">
                       <div v-for="schoolAlloc in getGroupedAllocations(item.school_allocations)" :key="schoolAlloc.school_id" class="allocation-item">
                         <span class="school-name">{{ schoolAlloc.school_name }}</span>
                         <span class="school-portions">
@@ -123,10 +128,10 @@
                           </template>
                         </span>
                       </div>
-                    </div>
-                    <div v-else class="menu-item-allocations no-allocations">
+                    </div> -->
+                    <!-- <div v-else class="menu-item-allocations no-allocations">
                       <span class="no-allocation-text">Belum ada alokasi</span>
-                    </div>
+                    </div> -->
                   </div>
                   <div class="menu-item-actions">
                     <a-button
@@ -160,7 +165,8 @@
                 </a-button>
               </div>
 
-              <!-- Daily Nutrition Summary -->
+              <!-- Nutrition summary hidden for cleaner UI -->
+              <!--
               <div class="nutrition-summary">
                 <div class="nutrition-item">
                   <span class="label">Kalori:</span>
@@ -183,6 +189,7 @@
                   </a-tag>
                 </div>
               </div>
+              -->
             </div>
           </a-col>
         </a-row>
@@ -239,6 +246,47 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- Detail Menu Modal -->
+    <a-modal
+      v-model:visible="detailModalVisible"
+      :title="detailItem?.recipe?.name || 'Detail Menu'"
+      :footer="null"
+      width="500px"
+    >
+      <div v-if="detailItem" style="display:flex;flex-direction:column;gap:16px;">
+        <div v-if="detailItem.recipe?.photo_url" style="text-align:center;">
+          <img :src="detailItem.recipe.photo_url" :alt="detailItem.recipe?.name" style="width:200px;height:200px;border-radius:16px;object-fit:cover;margin:0 auto;display:block;" />
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:22px;font-weight:700;color:#303030;">{{ detailItem.portions }} porsi</div>
+          <div style="font-size:13px;color:#6B6B6B;margin-top:4px;">{{ dayjs(detailItem.date).format('dddd, DD MMMM YYYY') }}</div>
+        </div>
+        <div v-if="detailItem.school_allocations && detailItem.school_allocations.length > 0">
+          <div style="font-size:14px;font-weight:700;color:#303030;margin-bottom:10px;">📍 Alokasi per Sekolah</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div
+              v-for="schoolAlloc in getGroupedAllocations(detailItem.school_allocations)"
+              :key="schoolAlloc.school_id"
+              style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F7F8FA;border-radius:10px;"
+            >
+              <span style="font-size:13px;font-weight:500;color:#303030;">{{ schoolAlloc.school_name }}</span>
+              <span style="font-size:13px;font-weight:700;color:#303030;">
+                <template v-if="schoolAlloc.portions_small > 0">
+                  <span style="background:#FDEAE7;color:#C94A3A;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:4px;">K: {{ schoolAlloc.portions_small }}</span>
+                </template>
+                <template v-if="schoolAlloc.portions_large > 0">
+                  <span style="background:#D1FAE5;color:#1E8A6E;padding:2px 8px;border-radius:4px;font-size:11px;">B: {{ schoolAlloc.portions_large }}</span>
+                </template>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div v-else style="text-align:center;color:#6B6B6B;font-size:13px;padding:16px 0;">
+          Belum ada alokasi sekolah
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -287,6 +335,13 @@ const isAllocationValid = ref(false)
 const draggedItem = ref(null)
 const editingMenuItem = ref(null)
 const allocationComponentKey = ref(0) // Key to force re-render
+const detailModalVisible = ref(false)
+const detailItem = ref(null)
+
+const showDetailModal = (item) => {
+  detailItem.value = item
+  detailModalVisible.value = true
+}
 
 // Minimum nutrition standards per portion
 const MIN_CALORIES_PER_PORTION = 600
@@ -961,91 +1016,88 @@ onMounted(() => {
 
 /* Week Selector */
 .week-selector {
-  padding: var(--h-spacing-5);
+  padding: 16px 20px;
   margin-bottom: 16px;
+  border-radius: 14px;
 }
 
-/* Weekly Calendar */
-.weekly-calendar {
-  margin-top: 0;
-}
-
-/* Day Card */
+/* Day Card — Modern, proportional */
 .day-card {
-  min-height: 400px;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
   padding: 16px;
-  transition: all var(--h-transition-base);
+  border-radius: 14px !important;
+  border: 1px solid #F0F0F0 !important;
+  transition: all 0.2s ease;
+}
+
+.day-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .day-card.today {
-  border: 2px solid var(--h-primary);
-  box-shadow: 0 0 0 4px rgba(90, 67, 114, 0.1);
+  border: 2px solid #C94A3A !important;
+  box-shadow: 0 0 0 3px rgba(201, 74, 58, 0.1);
 }
 
-/* Day Header */
+/* Day Header — Compact */
 .day-header {
   text-align: center;
-  padding-bottom: var(--h-spacing-3);
-  border-bottom: 2px solid var(--h-border-color);
-  margin-bottom: var(--h-spacing-4);
+  padding-bottom: 10px;
+  border-bottom: 1px solid #F0F0F0;
+  margin-bottom: 12px;
 }
 
 .day-name {
-  font-size: var(--h-text-base);
-  font-weight: var(--h-font-bold);
-  color: var(--h-text-primary);
-  margin-bottom: var(--h-spacing-1);
+  font-size: 16px;
+  font-weight: 700;
+  color: #303030;
+  margin-bottom: 2px;
 }
 
 .day-date {
-  font-size: var(--h-text-sm);
-  font-weight: var(--h-font-medium);
-  color: var(--h-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B6B6B;
 }
 
 /* Menu Items Container */
 .menu-items-container {
   flex: 1;
-  min-height: 250px;
+  min-height: 100px;
   display: flex;
   flex-direction: column;
-  gap: var(--h-spacing-3);
-  margin-bottom: var(--h-spacing-4);
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-/* Menu Item */
+/* Menu Item — Compact, clean */
 .menu-item {
-  background: var(--h-bg-light);
-  padding: var(--h-spacing-3);
-  border-radius: var(--h-radius-md);
+  background: #FAFAFA;
+  padding: 10px;
+  border-radius: 10px;
   cursor: move;
   display: flex;
-  gap: var(--h-spacing-3);
+  gap: 10px;
   align-items: flex-start;
-  transition: all var(--h-transition-base);
-  border: 1px solid var(--h-border-light);
+  transition: all 0.2s ease;
+  border: 1px solid #F0F0F0;
 }
 
 .menu-item:hover {
-  background: var(--h-bg-secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.menu-item:active {
-  cursor: grabbing;
-  opacity: 0.7;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
 .menu-item-photo {
   flex-shrink: 0;
-  width: 70px;
-  height: 70px;
-  border-radius: var(--h-radius-sm);
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
   overflow: hidden;
-  background: var(--h-bg-secondary);
+  background: #F0F0F0;
 }
 
 .menu-item-photo img {
@@ -1058,255 +1110,187 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--h-spacing-2);
+  gap: 3px;
   min-width: 0;
 }
 
 .menu-item-actions {
   display: flex;
-  gap: var(--h-spacing-1);
+  gap: 2px;
   flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.menu-item:hover .menu-item-actions {
+  opacity: 1;
 }
 
 .menu-item-name {
-  font-weight: var(--h-font-semibold);
-  font-size: var(--h-text-sm);
-  color: var(--h-text-primary);
-  line-height: var(--h-leading-tight);
+  font-weight: 600;
+  font-size: 13px;
+  color: #303030;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .menu-item-portions {
-  font-size: var(--h-text-xs);
-  color: var(--h-text-secondary);
-  font-weight: var(--h-font-medium);
+  font-size: 11px;
+  color: #6B6B6B;
+  font-weight: 500;
 }
 
 .menu-item-portion-summary {
   display: flex;
-  gap: var(--h-spacing-2);
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .portion-badge {
-  padding: 2px 8px;
-  background: rgba(90, 67, 114, 0.1);
-  border: 1px solid rgba(90, 67, 114, 0.2);
-  border-radius: var(--h-radius-sm);
-  font-size: var(--h-text-xs);
-  font-weight: var(--h-font-semibold);
-  color: var(--h-primary);
+  padding: 1px 6px;
+  background: #FDEAE7;
+  border: none;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #C94A3A;
 }
 
+/* School Allocations — Compact */
 .menu-item-allocations {
   display: flex;
   flex-direction: column;
-  gap: var(--h-spacing-1);
+  gap: 2px;
+  max-height: 80px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .allocation-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: var(--h-text-xs);
-  padding: var(--h-spacing-1) var(--h-spacing-2);
-  background: var(--h-bg-primary);
-  border-radius: var(--h-radius-sm);
+  font-size: 11px;
+  padding: 2px 6px;
+  background: #F7F8FA;
+  border-radius: 4px;
 }
 
 .allocation-item .school-name {
-  color: var(--h-text-secondary);
-  font-weight: var(--h-font-medium);
+  color: #6B6B6B;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
 }
 
 .allocation-item .school-portions {
-  color: var(--h-primary);
-  font-weight: var(--h-font-semibold);
+  color: #303030;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: var(--h-spacing-1);
+  gap: 2px;
+  font-size: 10px;
 }
 
-.portion-detail {
-  white-space: nowrap;
-}
-
-.portion-separator {
-  color: var(--h-text-light);
-  margin: 0 2px;
-}
+.portion-detail { white-space: nowrap; }
+.portion-separator { color: #D8D8DB; margin: 0 1px; }
 
 .no-allocations {
-  font-size: var(--h-text-xs);
-  color: var(--h-error);
+  font-size: 11px;
+  color: #C94A3A;
   font-style: italic;
 }
 
 .no-allocation-text {
-  padding: var(--h-spacing-1) var(--h-spacing-2);
+  padding: 2px 6px;
 }
 
 /* Add Menu Button */
 .add-menu-button {
   margin-top: auto;
-  height: 40px;
-  border-radius: var(--h-radius-md);
-  border-color: var(--h-border-color);
-  color: var(--h-text-secondary);
-  font-weight: var(--h-font-medium);
-  transition: all var(--h-transition-base);
+  height: 36px;
+  border-radius: 8px;
+  border-color: #D8D8DB;
+  color: #6B6B6B;
+  font-weight: 500;
+  font-size: 13px;
 }
 
 .add-menu-button:hover {
-  border-color: var(--h-primary);
-  color: var(--h-primary);
-  background: rgba(90, 67, 114, 0.05);
+  border-color: #C94A3A;
+  color: #C94A3A;
+  background: rgba(201, 74, 58, 0.04);
 }
 
-/* Nutrition Summary */
+/* Nutrition Summary — Compact */
 .nutrition-summary {
-  padding-top: var(--h-spacing-4);
-  border-top: 2px solid var(--h-border-color);
+  padding-top: 10px;
+  border-top: 1px solid #F0F0F0;
   display: flex;
   flex-direction: column;
-  gap: var(--h-spacing-2);
+  gap: 4px;
 }
 
 .nutrition-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: var(--h-text-sm);
+  font-size: 12px;
 }
 
 .nutrition-item .label {
-  color: var(--h-text-secondary);
-  font-weight: var(--h-font-medium);
+  color: #6B6B6B;
+  font-weight: 500;
 }
 
 .nutrition-item .value {
-  font-weight: var(--h-font-semibold);
-  color: var(--h-text-primary);
+  font-weight: 600;
+  color: #303030;
 }
 
 .nutrition-item .value.valid {
-  color: var(--h-success);
+  color: #1E8A6E;
 }
 
 .nutrition-item .value.invalid {
-  color: var(--h-warning);
+  color: #D97706;
 }
 
 .validation-status {
-  margin-top: var(--h-spacing-2);
+  margin-top: 4px;
   text-align: center;
 }
 
-/* Responsive - Tablet */
+/* Responsive */
 @media (max-width: 1024px) {
-  .day-card {
-    min-height: 400px;
-  }
+  .day-card { min-height: 300px; }
 }
 
-/* Responsive - Mobile */
 @media (max-width: 767px) {
   .menu-planning-header {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--h-spacing-3);
+    gap: 10px;
   }
-  
-  .week-selector :deep(.ant-row) {
-    flex-direction: column;
-    gap: var(--h-spacing-3);
-  }
-  
-  .week-selector :deep(.ant-col) {
-    text-align: left !important;
-  }
-  
-  .day-card {
-    min-height: 350px;
-  }
-  
-  .menu-item-photo {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .menu-item-name {
-    font-size: var(--h-text-xs);
-  }
+  .week-selector :deep(.ant-row) { flex-direction: column; gap: 10px; }
+  .week-selector :deep(.ant-col) { text-align: left !important; }
+  .day-card { min-height: 280px; }
+  .menu-item-photo { width: 44px; height: 44px; }
 }
 
-/* Dark Mode Support */
-.dark .day-header {
-  border-bottom-color: var(--h-border-color);
-}
-
-.dark .day-name {
-  color: var(--h-text-primary);
-}
-
-.dark .day-date {
-  color: var(--h-text-secondary);
-}
-
-.dark .menu-item {
-  background: rgba(163, 174, 208, 0.05);
-  border-color: var(--h-border-color);
-}
-
-.dark .menu-item:hover {
-  background: rgba(163, 174, 208, 0.1);
-}
-
-.dark .menu-item-name {
-  color: var(--h-text-primary);
-}
-
-.dark .menu-item-portions {
-  color: var(--h-text-secondary);
-}
-
-.dark .portion-badge {
-  background: rgba(90, 67, 114, 0.2);
-  border-color: rgba(90, 67, 114, 0.3);
-  color: var(--h-primary-light);
-}
-
-.dark .allocation-item {
-  background: rgba(163, 174, 208, 0.05);
-}
-
-.dark .allocation-item .school-name {
-  color: var(--h-text-secondary);
-}
-
-.dark .allocation-item .school-portions {
-  color: var(--h-primary-light);
-}
-
-.dark .add-menu-button {
-  border-color: var(--h-border-color);
-  color: var(--h-text-secondary);
-}
-
-.dark .add-menu-button:hover {
-  border-color: var(--h-primary-light);
-  color: var(--h-primary-light);
-  background: rgba(90, 67, 114, 0.1);
-}
-
-.dark .nutrition-summary {
-  border-top-color: var(--h-border-color);
-}
-
-.dark .nutrition-item .label {
-  color: var(--h-text-secondary);
-}
-
-.dark .nutrition-item .value {
-  color: var(--h-text-primary);
-}
+/* Dark Mode */
+.dark .day-card { background: #252525; border-color: #404040 !important; }
+.dark .day-card.today { border-color: #C94A3A !important; }
+.dark .day-header { border-bottom-color: #404040; }
+.dark .day-name { color: #F7F8FA; }
+.dark .menu-item { background: #303030; border-color: #404040; }
+.dark .menu-item:hover { background: #353535; }
+.dark .menu-item-name { color: #F7F8FA; }
+.dark .allocation-item { background: #353535; }
+.dark .nutrition-summary { border-top-color: #404040; }
 </style>

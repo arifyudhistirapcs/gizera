@@ -47,7 +47,7 @@ const isDrawerOpen = ref(false)
 
 .open-button {
   padding: 12px 24px;
-  background-color: var(--h-primary, #5A4372);
+  background-color: var(--h-primary, #303030);
   color: white;
   border: none;
   border-radius: 8px;
@@ -116,6 +116,6 @@ const isDrawerOpen = ref(false)
 }
 
 .dark .nav-item:hover {
-  background-color: var(--h-bg-secondary-dark, #3D2B53);
+  background-color: var(--h-bg-secondary-dark, #252525);
 }
 </style>

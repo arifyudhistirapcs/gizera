@@ -52,7 +52,7 @@
     <div v-else-if="task" class="detail-view__content">
       <!-- Progress Steps -->
       <div class="detail-view__card">
-        <van-steps :active="activeStep" active-color="#5A4372">
+        <van-steps :active="activeStep" active-color="#303030">
           <van-step>Assign</van-step>
           <van-step>Jalan</van-step>
           <van-step>Sampai</van-step>
@@ -604,7 +604,7 @@ onUnmounted(() => {
 
 .detail-view__card-title {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   margin-bottom: var(--h-spacing-md);
 }

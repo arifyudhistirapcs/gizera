@@ -269,10 +269,9 @@
             </a-card>
 
             <!-- No Missing Ompreng -->
-            <a-empty
+            <HEmptyState
               v-else-if="!loadingReports"
               description="Tidak ada ompreng yang hilang"
-              :image="Empty.PRESENTED_IMAGE_SIMPLE"
             />
           </a-space>
         </a-tab-pane>
@@ -379,6 +378,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message, Empty } from 'ant-design-vue'
+import HEmptyState from '@/components/common/HEmptyState.vue'
 import {
   InboxOutlined,
   HomeOutlined,

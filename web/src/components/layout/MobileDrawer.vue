@@ -196,7 +196,7 @@ onUnmounted(() => {
 
 /* Dark mode support */
 .dark .mobile-drawer {
-  background-color: var(--h-bg-secondary-dark, #111C44);
+  background-color: var(--h-bg-secondary-dark, #252525);
 }
 
 /* Fade transition untuk overlay */

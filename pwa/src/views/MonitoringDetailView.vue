@@ -332,7 +332,7 @@ onMounted(() => {
 
 .school-name {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   margin: 0 0 var(--h-spacing-lg) 0;
 }
@@ -454,8 +454,8 @@ onMounted(() => {
 }
 
 .status-primary {
-  color: #5A4372;
-  background: rgba(90, 67, 114, 0.12);
+  color: #303030;
+  background: rgba(48, 48, 48, 0.12);
 }
 
 .status-default {

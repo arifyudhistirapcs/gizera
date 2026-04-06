@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Chart background -->
+  <rect x="15" y="15" width="90" height="70" rx="6" fill="#E8EDE5"/>
+  <!-- Y axis -->
+  <line x1="30" y1="25" x2="30" y2="75" stroke="#D8D8DB" stroke-width="1.5"/>
+  <!-- X axis -->
+  <line x1="30" y1="75" x2="95" y2="75" stroke="#D8D8DB" stroke-width="1.5"/>
+  <!-- Bar chart -->
+  <rect x="38" y="55" width="10" height="20" rx="2" fill="#CCE2C8"/>
+  <rect x="52" y="40" width="10" height="35" rx="2" fill="#303030"/>
+  <rect x="66" y="48" width="10" height="27" rx="2" fill="#CCE2C8"/>
+  <rect x="80" y="32" width="10" height="43" rx="2" fill="#303030"/>
+  <!-- Trend line -->
+  <polyline points="43,52 57,37 71,45 85,28" stroke="#6B6B6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dots on trend -->
+  <circle cx="43" cy="52" r="3" fill="#6B6B6B"/>
+  <circle cx="57" cy="37" r="3" fill="#6B6B6B"/>
+  <circle cx="71" cy="45" r="3" fill="#6B6B6B"/>
+  <circle cx="85" cy="28" r="3" fill="#6B6B6B"/>
+  <!-- Legend dots -->
+  <circle cx="30" cy="98" r="4" fill="#CCE2C8"/>
+  <rect x="38" y="95" width="20" height="6" rx="2" fill="#D8D8DB"/>
+  <circle cx="68" cy="98" r="4" fill="#303030"/>
+  <rect x="76" y="95" width="20" height="6" rx="2" fill="#D8D8DB"/>
+</svg>

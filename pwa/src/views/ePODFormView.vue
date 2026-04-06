@@ -1,5 +1,10 @@
 <template>
   <div class="epod-form">
+    <!-- Success Animation Overlay -->
+    <div v-if="showSuccessAnimation" class="success-overlay">
+      <LottiePlayer src="/lottie/success-check.json" width="120px" height="120px" :loop="false" />
+    </div>
+
     <!-- Navigation Bar -->
     <van-nav-bar 
       title="Bukti Pengiriman Digital" 
@@ -60,7 +65,7 @@
     <div v-else-if="deliveryTask" class="epod-form__content">
       <!-- Progress Steps Card -->
       <div class="epod-form__card">
-        <van-steps :active="formProgress" active-color="#5A4372">
+        <van-steps :active="formProgress" active-color="#303030">
           <van-step>Lokasi</van-step>
           <van-step>Foto</van-step>
           <van-step>Penerima</van-step>
@@ -528,6 +533,7 @@ import { showToast, showConfirmDialog, showSuccessToast } from 'vant'
 import { validateSignatureQuality, compressSignature, getSignatureSize } from '@/utils/signatureValidator'
 import db from '@/services/db'
 import SyncStatusModal from '@/components/SyncStatusModal.vue'
+import LottiePlayer from '@/components/common/LottiePlayer.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -538,6 +544,7 @@ const deliveryTasksStore = useDeliveryTasksStore()
 const isLoading = ref(false)
 const isSubmitting = ref(false)
 const isCapturingGPS = ref(false)
+const showSuccessAnimation = ref(false)
 const isOnline = ref(navigator.onLine)
 const deliveryTask = ref(null)
 
@@ -1419,6 +1426,7 @@ const submitePOD = async () => {
       
       // Handle different submission results
       if (result.success) {
+        showSuccessAnimation.value = true
         if (result.synced) {
           showSuccessToast('✅ Bukti pengiriman berhasil dikirim dan status pengiriman diperbarui')
         } else if (result.offline) {
@@ -1576,6 +1584,26 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Success Animation Overlay */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .epod-form {
   min-height: 100vh;
   background-color: var(--h-bg-primary);
@@ -1604,7 +1632,7 @@ onUnmounted(() => {
 
 .epod-form__card-title {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   margin-bottom: var(--h-spacing-md);
   display: flex;
@@ -1944,7 +1972,7 @@ onUnmounted(() => {
 .capture-btn {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, var(--h-primary), var(--h-accent));
+  background: #303030;
 }
 
 .camera-info {

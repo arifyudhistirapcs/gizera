@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" fill="none">
+  <!-- Magnifying glass circle -->
+  <circle cx="90" cy="65" r="35" stroke="#D8D8DB" stroke-width="4" fill="#E8EDE5"/>
+  <circle cx="90" cy="65" r="28" fill="#CCE2C8" opacity="0.3"/>
+  <!-- Handle -->
+  <line x1="115" y1="90" x2="145" y2="120" stroke="#6B6B6B" stroke-width="6" stroke-linecap="round"/>
+  <!-- X mark inside glass (nothing found) -->
+  <line x1="78" y1="55" x2="102" y2="75" stroke="#6B6B6B" stroke-width="3" stroke-linecap="round"/>
+  <line x1="102" y1="55" x2="78" y2="75" stroke="#6B6B6B" stroke-width="3" stroke-linecap="round"/>
+  <!-- Decorative dots -->
+  <circle cx="40" cy="40" r="4" fill="#CCE2C8" opacity="0.5"/>
+  <circle cx="155" cy="50" r="3" fill="#D8D8DB"/>
+  <circle cx="50" cy="110" r="3" fill="#D8D8DB"/>
+  <!-- Shadow -->
+  <ellipse cx="100" cy="140" rx="45" ry="5" fill="#D8D8DB" opacity="0.3"/>
+</svg>

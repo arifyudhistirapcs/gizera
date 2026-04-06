@@ -1,218 +1,122 @@
 <template>
   <div class="dashboard-bgn">
-    <a-page-header title="Dashboard BGN" sub-title="Monitoring agregat nasional" />
+    <div v-if="loading && !dashboard" class="dashboard-loading">
+      <a-skeleton active :paragraph="{ rows: 4 }" />
+    </div>
 
-    <!-- Filters -->
-    <a-card style="margin-bottom: 20px">
-      <a-row :gutter="16" align="middle">
-        <a-col :xs="24" :sm="8" :md="6">
-          <a-form-item label="Yayasan" style="margin-bottom: 0">
-            <a-select
-              v-model:value="filters.yayasan_id"
-              placeholder="Semua Yayasan"
-              allow-clear
-              show-search
-              :filter-option="filterOption"
-              :options="yayasanOptions"
-              @change="handleFilterChange"
-              style="width: 100%"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="8" :md="6">
-          <a-form-item label="SPPG" style="margin-bottom: 0">
-            <a-select
-              v-model:value="filters.sppg_id"
-              placeholder="Semua SPPG"
-              allow-clear
-              show-search
-              :filter-option="filterOption"
-              :options="sppgFilteredOptions"
-              @change="handleFilterChange"
-              style="width: 100%"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="8" :md="6">
-          <a-form-item label="Rentang Tanggal" style="margin-bottom: 0">
-            <a-range-picker
-              v-model:value="dateRange"
-              format="DD/MM/YYYY"
-              @change="handleFilterChange"
-              style="width: 100%"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="8" :md="6">
-          <a-space>
-            <a-button @click="fetchDashboard" :loading="loading">
-              <template #icon><ReloadOutlined /></template>
-              Refresh
-            </a-button>
-            <a-button @click="handleExport" :loading="exporting">
-              <template #icon><DownloadOutlined /></template>
-              Export
-            </a-button>
-          </a-space>
-        </a-col>
-      </a-row>
-    </a-card>
-
-    <!-- Peta Sebaran (paling atas setelah filter) -->
-    <a-card style="margin-bottom: 20px">
-      <template #title>
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px">
-          <span>Peta Sebaran</span>
-          <a-checkbox-group v-model:value="mapLayers">
-            <a-checkbox v-for="opt in mapLayerOptions" :key="opt.value" :value="opt.value">
-              <span :style="{ display: 'inline-flex', alignItems: 'center', gap: '4px' }">
-                <span :style="{ width: '10px', height: '10px', borderRadius: '50%', background: opt.color, display: 'inline-block' }"></span>
-                {{ opt.label }}
-              </span>
-            </a-checkbox>
-          </a-checkbox-group>
+    <template v-else>
+      <div class="bento">
+        <!-- Hero -->
+        <div class="bento__hero">
+          <div class="hero-content">
+            <div class="hero-left">
+              <h2 class="hero-greeting">📊 Dashboard BGN</h2>
+              <p class="hero-subtitle">Monitoring agregat nasional</p>
+            </div>
+            <div class="hero-metrics">
+              <div class="hero-metric">
+                <span class="hero-metric__label">Yayasan</span>
+                <span class="hero-metric__value">{{ dashboard?.total_yayasan || 0 }}</span>
+              </div>
+              <div class="hero-metric">
+                <span class="hero-metric__label">SPPG</span>
+                <span class="hero-metric__value">{{ dashboard?.total_sppg || 0 }}</span>
+              </div>
+              <div class="hero-metric">
+                <span class="hero-metric__label">Porsi</span>
+                <span class="hero-metric__value">{{ dashboard?.aggregated_production?.total_portions || 0 }}</span>
+              </div>
+              <div class="hero-metric">
+                <span class="hero-metric__label">Rating</span>
+                <span class="hero-metric__value">{{ (dashboard?.aggregated_review?.average_overall || 0).toFixed(1) }}</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </template>
-      <OrganizationMap :markers="filteredMapMarkers" :height="450" />
-    </a-card>
 
-    <!-- Drill-down indicator -->
-    <a-alert
-      v-if="filters.yayasan_id"
-      type="info"
-      show-icon
-      closable
-      style="margin-bottom: 20px"
-      @close="resetFilters"
-    >
-      <template #message>
-        Menampilkan data untuk Yayasan: <strong>{{ selectedYayasanName }}</strong>
-        <a-button type="link" size="small" @click="resetFilters">← Kembali ke semua Yayasan</a-button>
-      </template>
-    </a-alert>
-
-    <!-- Metric Cards -->
-    <a-row :gutter="[16, 16]" style="margin-bottom: 20px">
-      <a-col :xs="12" :sm="6">
-        <a-card :loading="loading">
-          <a-statistic
-            title="Total Porsi Diproduksi"
-            :value="dashboard?.aggregated_production?.total_portions || 0"
-            :value-style="{ color: '#3f8600' }"
-          />
-          <div class="stat-sub">
-            Tingkat penyelesaian: {{ formatPercent(dashboard?.aggregated_production?.completion_rate) }}
+        <!-- Filters: full width -->
+        <div class="bento__filters">
+          <div class="filter-row">
+            <a-select v-model:value="filters.yayasan_id" placeholder="Semua Yayasan" allow-clear show-search :filter-option="filterOption" :options="yayasanOptions" @change="handleFilterChange" style="width:180px;" size="small" />
+            <a-select v-model:value="filters.sppg_id" placeholder="Semua SPPG" allow-clear show-search :filter-option="filterOption" :options="sppgFilteredOptions" @change="handleFilterChange" style="width:180px;" size="small" />
+            <a-range-picker v-model:value="dateRange" format="DD/MM" @change="handleFilterChange" size="small" style="width:200px;" />
+            <a-button @click="fetchDashboard" :loading="loading" size="small"><template #icon><ReloadOutlined /></template></a-button>
+            <a-button @click="handleExport" :loading="exporting" size="small"><template #icon><DownloadOutlined /></template></a-button>
           </div>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card :loading="loading">
-          <a-statistic
-            title="Total Pengiriman"
-            :value="dashboard?.aggregated_delivery?.total_deliveries || 0"
-          />
-          <div class="stat-sub">
-            Tepat waktu: {{ formatPercent(dashboard?.aggregated_delivery?.on_time_rate) }}
-          </div>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card :loading="loading">
-          <a-statistic
-            title="Total Pengeluaran"
-            :value="dashboard?.aggregated_financial?.total_spent || 0"
-            prefix="Rp"
-            :precision="0"
-          />
-          <div class="stat-sub">
-            Penyerapan: {{ formatPercent(dashboard?.aggregated_financial?.absorption_rate) }}
-          </div>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card :loading="loading">
-          <a-statistic
-            title="Rata-rata Review"
-            :value="dashboard?.aggregated_review?.average_overall || 0"
-            :precision="1"
-            suffix="/ 5"
-          />
-          <div class="stat-sub">
-            {{ dashboard?.aggregated_review?.total_reviews || 0 }} ulasan
-          </div>
-        </a-card>
-      </a-col>
-    </a-row>
+        </div>
 
-    <!-- Summary Info -->
-    <a-row :gutter="16" style="margin-bottom: 20px">
-      <a-col :span="12">
-        <a-card :loading="loading">
-          <a-statistic title="Total Yayasan" :value="dashboard?.total_yayasan || 0" />
-        </a-card>
-      </a-col>
-      <a-col :span="12">
-        <a-card :loading="loading">
-          <a-statistic title="Total SPPG" :value="dashboard?.total_sppg || 0" />
-        </a-card>
-      </a-col>
-    </a-row>
+        <!-- Drill-down alert -->
+        <div v-if="filters.yayasan_id" class="bento__alert">
+          <a-alert type="info" show-icon closable @close="resetFilters">
+            <template #message>
+              Yayasan: <strong>{{ selectedYayasanName }}</strong>
+              <a-button type="link" size="small" @click="resetFilters">← Reset</a-button>
+            </template>
+          </a-alert>
+        </div>
 
-    <!-- Yayasan Performance Table -->
-    <a-card title="Daftar Yayasan — Ringkasan Performa" style="margin-bottom: 20px">
-      <a-table
-        :columns="yayasanColumns"
-        :data-source="dashboard?.yayasan_summaries || []"
-        :loading="loading"
-        :pagination="{ pageSize: 10 }"
-        row-key="yayasan_id"
-        size="middle"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'yayasan_kode'">
-            <a-tag color="blue">{{ record.yayasan_kode }}</a-tag>
-          </template>
-          <template v-if="column.key === 'total_spent'">
-            {{ formatCurrency(record.total_spent) }}
-          </template>
-          <template v-if="column.key === 'average_review_rating'">
-            {{ record.average_review_rating?.toFixed(1) || '-' }} / 5
-          </template>
-          <template v-if="column.key === 'action'">
-            <a-button size="small" type="link" @click="drillDownYayasan(record)">
-              Detail →
-            </a-button>
-          </template>
-        </template>
-      </a-table>
-    </a-card>
+        <!-- Peta: 2 cols -->
+        <div class="bento__map">
+          <div class="map-header">
+            <h3 class="bento__title">🗺️ Peta Sebaran</h3>
+            <div class="map-legend">
+              <label v-for="opt in mapLayerOptions" :key="opt.value" class="map-legend__item" @click="toggleLayer(opt.value)">
+                <span class="map-legend__dot" :style="{ background: mapLayers.includes(opt.value) ? opt.color : '#D8D8DB' }"></span>
+                <span class="map-legend__label">{{ opt.label }}</span>
+              </label>
+            </div>
+          </div>
+          <OrganizationMap :markers="filteredMapMarkers" :height="280" />
+        </div>
 
-    <!-- SPPG Performance Table -->
-    <a-card title="Daftar SPPG — Ringkasan Performa" style="margin-bottom: 20px">
-      <a-table
-        :columns="sppgColumns"
-        :data-source="dashboard?.sppg_summaries || []"
-        :loading="loading"
-        :pagination="{ pageSize: 10 }"
-        row-key="sppg_id"
-        size="middle"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'sppg_kode'">
-            <a-tag color="green">{{ record.sppg_kode }}</a-tag>
-          </template>
-          <template v-if="column.key === 'delivery_rate'">
-            {{ formatPercent(record.delivery_rate) }}
-          </template>
-          <template v-if="column.key === 'budget_absorption'">
-            {{ formatPercent(record.budget_absorption) }}
-          </template>
-          <template v-if="column.key === 'average_review_rating'">
-            {{ record.average_review_rating?.toFixed(1) || '-' }} / 5
-          </template>
-        </template>
-      </a-table>
-    </a-card>
+        <!-- Metrics: 1 col -->
+        <div class="bento__metrics">
+          <h3 class="bento__title">📈 Performa</h3>
+          <div class="compact-stat">
+            <span class="compact-stat__label">Total Pengiriman</span>
+            <span class="compact-stat__value">{{ dashboard?.aggregated_delivery?.total_deliveries || 0 }}</span>
+          </div>
+          <div class="compact-stat">
+            <span class="compact-stat__label">Tepat Waktu</span>
+            <span class="compact-stat__value">{{ formatPercent(dashboard?.aggregated_delivery?.on_time_rate) }}</span>
+          </div>
+          <div class="compact-stat">
+            <span class="compact-stat__label">Pengeluaran</span>
+            <span class="compact-stat__value" style="font-size:18px;">{{ formatCurrency(dashboard?.aggregated_financial?.total_spent || 0) }}</span>
+          </div>
+          <div class="compact-stat">
+            <span class="compact-stat__label">Penyerapan</span>
+            <span class="compact-stat__value">{{ formatPercent(dashboard?.aggregated_financial?.absorption_rate) }}</span>
+          </div>
+        </div>
+
+        <!-- Yayasan Table: 2 cols -->
+        <div class="bento__table1">
+          <h3 class="bento__title">🏛️ Performa Yayasan</h3>
+          <a-table :columns="yayasanColumns" :data-source="dashboard?.yayasan_summaries || []" :loading="loading" :pagination="{ pageSize: 5, size: 'small' }" row-key="yayasan_id" size="small">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'yayasan_kode'"><a-tag color="blue" style="font-size:11px;">{{ record.yayasan_kode }}</a-tag></template>
+              <template v-if="column.key === 'total_spent'">{{ formatCurrency(record.total_spent) }}</template>
+              <template v-if="column.key === 'average_review_rating'">{{ record.average_review_rating?.toFixed(1) || '-' }}/5</template>
+              <template v-if="column.key === 'action'"><a-button size="small" type="link" @click="drillDownYayasan(record)">Detail →</a-button></template>
+            </template>
+          </a-table>
+        </div>
+
+        <!-- SPPG Table: 1 col -->
+        <div class="bento__table2">
+          <h3 class="bento__title">🏪 Performa SPPG</h3>
+          <a-table :columns="sppgColumns" :data-source="dashboard?.sppg_summaries || []" :loading="loading" :pagination="{ pageSize: 5, size: 'small' }" row-key="sppg_id" size="small">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'sppg_kode'"><a-tag color="green" style="font-size:11px;">{{ record.sppg_kode }}</a-tag></template>
+              <template v-if="column.key === 'delivery_rate'">{{ formatPercent(record.delivery_rate) }}</template>
+              <template v-if="column.key === 'budget_absorption'">{{ formatPercent(record.budget_absorption) }}</template>
+              <template v-if="column.key === 'average_review_rating'">{{ record.average_review_rating?.toFixed(1) || '-' }}/5</template>
+            </template>
+          </a-table>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -225,6 +129,7 @@ import organizationService from '@/services/organizationService'
 import schoolService from '@/services/schoolService'
 import supplierService from '@/services/supplierService'
 import OrganizationMap from '@/components/OrganizationMap.vue'
+import LottiePlayer from '@/components/common/LottiePlayer.vue'
 
 const loading = ref(false)
 const exporting = ref(false)
@@ -236,10 +141,17 @@ const supplierList = ref([])
 const dateRange = ref([])
 
 const mapLayers = ref(['Yayasan', 'SPPG', 'Sekolah', 'Supplier'])
+
+const toggleLayer = (layer) => {
+  const idx = mapLayers.value.indexOf(layer)
+  if (idx > -1) mapLayers.value.splice(idx, 1)
+  else mapLayers.value.push(layer)
+}
+
 const mapLayerOptions = [
-  { label: 'Yayasan', value: 'Yayasan', color: '#722ed1' },
+  { label: 'Yayasan', value: 'Yayasan', color: '#303030' },
   { label: 'SPPG', value: 'SPPG', color: '#52c41a' },
-  { label: 'Sekolah', value: 'Sekolah', color: '#1890ff' },
+  { label: 'Sekolah', value: 'Sekolah', color: '#3B82F6' },
   { label: 'Supplier', value: 'Supplier', color: '#fa8c16' }
 ]
 
@@ -527,9 +439,52 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.stat-sub {
-  font-size: 12px;
-  color: #888;
-  margin-top: 4px;
+.dashboard-bgn { min-height: 100%; }
+.dashboard-loading { padding: 40px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+.bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.bento > * { background: #fff; border-radius: 14px; padding: 20px; border: 1px solid #F0F0F0; min-width: 0; overflow: hidden; }
+
+.bento__hero { grid-column: 1 / -1; border: none; background: linear-gradient(135deg, #C94A3A 0%, #D4553E 50%, #1E8A6E 100%); color: #fff; padding: 24px 28px; }
+.bento__filters { grid-column: 1 / -1; padding: 14px 20px; }
+.bento__alert { grid-column: 1 / -1; padding: 0; background: transparent; border: none; }
+.bento__map { grid-column: 1 / 3; }
+.bento__metrics { grid-column: 3 / 4; }
+.bento__table1 { grid-column: 1 / 3; }
+.bento__table2 { grid-column: 3 / 4; }
+
+@media (max-width: 1024px) {
+  .bento { grid-template-columns: 1fr 1fr; }
+  .bento__hero, .bento__filters, .bento__alert, .bento__map, .bento__metrics, .bento__table1, .bento__table2 { grid-column: 1 / -1; }
 }
+@media (max-width: 768px) { .bento { grid-template-columns: 1fr; } .bento > * { grid-column: 1 / -1 !important; } }
+
+.hero-content { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.hero-greeting { font-size: 26px; font-weight: 700; margin: 0 0 4px; color: #fff; }
+.hero-subtitle { font-size: 14px; opacity: 0.85; margin: 0; color: rgba(255,255,255,0.85); }
+.hero-metrics { display: flex; gap: 12px; }
+.hero-metric { background: rgba(255,255,255,0.18); backdrop-filter: blur(4px); border-radius: 10px; padding: 12px 18px; min-width: 90px; text-align: center; }
+.hero-metric__label { display: block; font-size: 11px; opacity: 0.75; margin-bottom: 2px; }
+.hero-metric__value { display: block; font-size: 26px; font-weight: 700; }
+@media (max-width: 768px) { .hero-content { flex-direction: column; align-items: flex-start; } .hero-metrics { flex-wrap: wrap; } }
+
+.bento__title { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #303030; }
+.filter-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.map-header .bento__title { margin-bottom: 0; }
+.map-legend { display: flex; gap: 12px; }
+.map-legend__item { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 12px; }
+.map-legend__dot { width: 10px; height: 10px; border-radius: 50%; transition: background 0.2s; }
+.map-legend__label { font-weight: 500; color: #303030; }
+
+.compact-stat { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-bottom: 1px solid #F0F0F0; }
+.compact-stat:last-child { border-bottom: none; }
+.compact-stat__label { font-size: 13px; color: #6B6B6B; }
+.compact-stat__value { font-size: 22px; font-weight: 700; color: #303030; }
+
+.dashboard-bgn :deep(.ant-table) { font-size: 13px; }
+.dashboard-bgn :deep(.ant-table-thead > tr > th) { background: #F7F8FA !important; color: #6B6B6B !important; font-weight: 500; font-size: 11px; padding: 8px 12px; }
+.dashboard-bgn :deep(.ant-table-tbody > tr > td) { padding: 8px 12px; border-bottom: 1px solid #F0F0F0; }
+.dashboard-bgn :deep(.ant-table-tbody > tr:hover > td) { background: #F7F8FA !important; }
 </style>

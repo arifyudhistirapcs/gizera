@@ -195,7 +195,7 @@ const openMedia = () => {
 }
 
 .dark .stage-line {
-  background: var(--h-border-color-dark, #5A4372);
+  background: var(--h-border-color-dark, #404040);
 }
 
 .stage-indicator {
@@ -212,7 +212,7 @@ const openMedia = () => {
 }
 
 .dark .stage-indicator {
-  background: var(--h-bg-card-dark, #3D2B53);
+  background: var(--h-bg-card-dark, #252525);
 }
 
 .stage-indicator.completed {
@@ -221,9 +221,9 @@ const openMedia = () => {
 }
 
 .stage-indicator.in-progress {
-  color: var(--h-primary, #5A4372);
+  color: var(--h-primary, #303030);
   font-size: 24px;
-  border: 2px solid var(--h-primary, #5A4372);
+  border: 2px solid var(--h-primary, #303030);
   animation: pulse-border 2s ease-in-out infinite;
 }
 
@@ -232,15 +232,15 @@ const openMedia = () => {
 }
 
 .dark .stage-indicator.pending {
-  border-color: var(--h-border-color-dark, #5A4372);
+  border-color: var(--h-border-color-dark, #404040);
 }
 
 @keyframes pulse-border {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(90, 67, 114, 0.4);
+    box-shadow: 0 0 0 0 rgba(48, 48, 48, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(90, 67, 114, 0);
+    box-shadow: 0 0 0 8px rgba(48, 48, 48, 0);
   }
 }
 
@@ -252,7 +252,7 @@ const openMedia = () => {
 }
 
 .dark .empty-circle {
-  background: var(--h-bg-card-dark, #3D2B53);
+  background: var(--h-bg-card-dark, #252525);
 }
 
 .stage-content {
@@ -293,7 +293,7 @@ const openMedia = () => {
 
 .dark .stage-timestamp {
   color: var(--h-text-secondary-dark, #ACA9B0);
-  background: rgba(90, 67, 114, 0.2);
+  background: rgba(48, 48, 48, 0.2);
 }
 
 .stage-description {
@@ -350,7 +350,7 @@ const openMedia = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(90, 67, 114, 0.8);
+  background: rgba(48, 48, 48, 0.8);
   border-radius: 50%;
   width: 64px;
   height: 64px;
@@ -361,7 +361,7 @@ const openMedia = () => {
 }
 
 .media-video:hover .play-button {
-  background: rgba(90, 67, 114, 0.95);
+  background: rgba(48, 48, 48, 0.95);
   transform: translate(-50%, -50%) scale(1.1);
 }
 
@@ -381,7 +381,7 @@ const openMedia = () => {
 
 .dark .stage-user {
   color: var(--h-text-secondary-dark, #ACA9B0);
-  background: rgba(90, 67, 114, 0.2);
+  background: rgba(48, 48, 48, 0.2);
 }
 
 .media-modal-content {

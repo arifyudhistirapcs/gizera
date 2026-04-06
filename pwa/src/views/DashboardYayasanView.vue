@@ -43,25 +43,25 @@
         <div class="metrics-grid">
           <MetricCard
             icon="apps-o"
-            iconColor="#5A4372"
+            iconColor="#F0F0F0"
             label="Total Porsi"
             :value="dashboard.aggregated_production?.total_portions || 0"
           />
           <MetricCard
             icon="logistics"
-            iconColor="#4CAF50"
+            iconColor="#F0F0F0"
             label="Delivery Rate"
             :value="`${(dashboard.aggregated_delivery?.completion_rate || 0).toFixed(1)}%`"
           />
           <MetricCard
             icon="balance-o"
-            iconColor="#FF9800"
+            iconColor="#F0F0F0"
             label="Penyerapan Anggaran"
             :value="`${(dashboard.aggregated_financial?.absorption_rate || 0).toFixed(1)}%`"
           />
           <MetricCard
             icon="star-o"
-            iconColor="#FFA726"
+            iconColor="#F0F0F0"
             label="Rata-rata Rating"
             :value="`${(dashboard.aggregated_review?.average_overall || 0).toFixed(1)}/5`"
           />

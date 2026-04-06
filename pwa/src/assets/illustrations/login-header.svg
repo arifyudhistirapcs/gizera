@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" fill="none">
+  <!-- Background shape -->
+  <rect x="20" y="10" width="280" height="100" rx="8" fill="#E8EDE5"/>
+  <!-- Pot -->
+  <rect x="50" y="45" width="40" height="28" rx="4" fill="#303030"/>
+  <rect x="46" y="40" width="48" height="8" rx="2" fill="#6B6B6B"/>
+  <!-- Steam -->
+  <path d="M60 35 Q58 25 60 18" stroke="#CCE2C8" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M70 32 Q68 22 70 15" stroke="#CCE2C8" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M80 35 Q78 25 80 18" stroke="#CCE2C8" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Plate -->
+  <ellipse cx="160" cy="70" rx="28" ry="10" fill="#D8D8DB"/>
+  <ellipse cx="160" cy="68" rx="22" ry="7" fill="#CCE2C8"/>
+  <circle cx="155" cy="65" r="4" fill="#303030" opacity="0.2"/>
+  <circle cx="165" cy="66" r="3" fill="#303030" opacity="0.2"/>
+  <!-- Truck -->
+  <rect x="220" y="50" width="45" height="22" rx="3" fill="#303030"/>
+  <rect x="210" y="55" width="14" height="17" rx="3" fill="#6B6B6B"/>
+  <circle cx="225" cy="74" r="5" fill="#D8D8DB"/>
+  <circle cx="225" cy="74" r="2.5" fill="#303030"/>
+  <circle cx="255" cy="74" r="5" fill="#D8D8DB"/>
+  <circle cx="255" cy="74" r="2.5" fill="#303030"/>
+  <!-- Food box on truck -->
+  <rect x="228" y="44" width="14" height="10" rx="2" fill="#CCE2C8"/>
+</svg>

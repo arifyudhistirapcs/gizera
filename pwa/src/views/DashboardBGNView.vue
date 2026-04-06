@@ -10,7 +10,7 @@
 
       <!-- Breadcrumb indicator -->
       <div class="breadcrumb">
-        <van-tag type="danger" size="medium">
+        <van-tag type="primary" size="medium">
           <van-icon name="flag-o" /> BGN
         </van-tag>
         <van-tag v-if="selectedYayasan" type="primary" size="medium" style="margin-left: 6px;">
@@ -46,7 +46,7 @@
         <div class="metrics-grid">
           <MetricCard
             icon="apps-o"
-            iconColor="#5A4372"
+            iconColor="#F0F0F0"
             label="Total Porsi"
             :value="dashboard.aggregated_production?.total_portions || 0"
           />
@@ -95,7 +95,7 @@
         <div v-if="!route.params.yayasan_id" class="detail-card h-card">
           <h3 class="section-title">Daftar Yayasan ({{ dashboard.total_yayasan || 0 }})</h3>
           <div v-if="!yayasanList.length" class="empty-state">
-            <p class="empty-state__text">Belum ada data Yayasan</p>
+            <MobileEmptyState description="Belum ada data Yayasan" />
           </div>
           <van-cell-group v-else inset>
             <van-cell
@@ -158,6 +158,7 @@ import dashboardAggregatedService from '@/services/dashboardAggregatedService'
 import { cacheDashboardData, getCachedDashboardData } from '@/services/db'
 import MetricCard from '@/components/mobile/MetricCard.vue'
 import SkeletonCard from '@/components/mobile/SkeletonCard.vue'
+import MobileEmptyState from '@/components/common/MobileEmptyState.vue'
 
 const route = useRoute()
 const router = useRouter()

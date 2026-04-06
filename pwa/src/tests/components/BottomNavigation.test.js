@@ -175,11 +175,11 @@ describe('BottomNavigation', () => {
       expect(wrapper.find('.bottom-navigation').exists()).toBe(true)
     })
 
-    it('configures active color as #5A4372', () => {
+    it('configures active color as #303030', () => {
       mockUserRole = 'driver'
       const wrapper = mountNav()
       const tabbar = wrapper.findComponent(VanTabbarStub)
-      expect(tabbar.props('activeColor')).toBe('#5A4372')
+      expect(tabbar.props('activeColor')).toBe('#303030')
     })
 
     it('configures inactive color as #ACA9B0', () => {

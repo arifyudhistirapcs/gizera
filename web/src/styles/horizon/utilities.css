@@ -18,8 +18,8 @@
  */
 .h-card {
   background: var(--h-bg-card);
-  border-radius: var(--h-radius-lg);
-  box-shadow: var(--h-shadow-card);
+  border-radius: 14px;
+  border: 1px solid #F0F0F0;
   padding: var(--h-spacing-6);
 }
 
@@ -34,8 +34,7 @@
 }
 
 .h-card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--h-shadow-xl);
+  background: var(--h-bg-light);
 }
 
 /* ========================================
@@ -48,7 +47,7 @@
  * - 135 degree angle
  */
 .h-gradient-primary {
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  background: #303030;
 }
 
 /* ========================================

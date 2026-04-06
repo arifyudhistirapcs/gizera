@@ -85,7 +85,7 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'name'">
             <a-space>
-              <EnvironmentOutlined style="color: #5A4372" />
+              <EnvironmentOutlined style="color: #303030" />
               <span style="font-weight: 500;">{{ record.name }}</span>
             </a-space>
           </template>

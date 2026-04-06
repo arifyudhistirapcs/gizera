@@ -7,8 +7,8 @@
 
 // Color palette based on Horizon UI design system
 const HORIZON_COLORS = {
-  primary: '#5A4372',      // Primary Purple
-  accent: '#3D2B53',       // Accent Purple
+  primary: '#303030',      // Primary Dark (Datum)
+  accent: '#6B6B6B',       // Accent Gray (Datum)
   mediumGray: '#74788C',   // Medium Gray
   lightGray: '#ACA9B0',    // Light Gray
   darkText: '#322837',     // Dark text (light mode)

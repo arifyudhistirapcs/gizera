@@ -5,36 +5,45 @@
 
 .dark {
   /* ========================================
-     BACKGROUND COLORS
+     BACKGROUND COLORS — Datum Dark
      ======================================== */
   
-  --h-bg-primary: #322837;         /* Dark purple-gray background */
-  --h-bg-secondary: #3D2B53;       /* Dark purple */
-  --h-bg-card: #3D2B53;            /* Card background dark */
-  --h-bg-light: #1B254B;           /* Darker background for inputs/search */
+  --h-bg-primary: #1A1A1A;         /* Dark neutral background */
+  --h-bg-secondary: #252525;       /* Secondary dark surface */
+  --h-bg-card: #252525;            /* Card background dark */
+  --h-bg-light: #303030;           /* Lighter dark for inputs/search */
   
   /* ========================================
-     TEXT COLORS
+     TEXT COLORS — Datum Dark
      ======================================== */
   
-  --h-text-primary: #F8FDEA;       /* Cream text on dark */
-  --h-text-secondary: #ACA9B0;     /* Light gray text */
-  --h-text-light: #74788C;         /* Medium gray for hints */
+  --h-text-primary: #F7F8FA;       /* Light text on dark */
+  --h-text-secondary: #D8D8DB;     /* Muted light text */
+  --h-text-light: #6B6B6B;         /* Medium gray for hints */
   
   /* ========================================
-     BORDER COLORS
+     BORDER COLORS — Datum Dark
      ======================================== */
   
-  --h-border-color: #5A4372;       /* Purple border */
-  --h-border-light: #4a3562;       /* Darker purple border */
+  --h-border-color: #404040;       /* Neutral dark border */
+  --h-border-light: #505050;       /* Lighter dark border */
   
   /* ========================================
-     SHADOWS (Adjusted for dark mode)
+     SEMANTIC COLORS — Culinary V2 Dark
      ======================================== */
   
-  --h-shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.3);
-  --h-shadow-md: 0px 4px 6px rgba(0, 0, 0, 0.4);
-  --h-shadow-lg: 0px 10px 15px rgba(0, 0, 0, 0.5);
-  --h-shadow-xl: 0px 20px 25px rgba(0, 0, 0, 0.6);
-  --h-shadow-card: 0px 18px 40px rgba(0, 0, 0, 0.4);
+  --h-success: #2AAF8A;            /* Lighter mint for dark bg */
+  --h-success-light: #1E8A6E;
+  --h-error: #E06050;              /* Lighter coral for dark bg */
+  --h-error-light: #C94A3A;
+  
+  /* ========================================
+     SHADOWS — Datum Dark (minimal)
+     ======================================== */
+  
+  --h-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --h-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --h-shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --h-shadow-xl: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --h-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
 }

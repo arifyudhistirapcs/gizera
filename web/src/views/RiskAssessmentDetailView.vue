@@ -87,7 +87,7 @@
           </div>
         </a-card>
       </template>
-      <a-empty v-else-if="!loading" description="Data tidak ditemukan" />
+      <HEmptyState v-else-if="!loading" description="Data tidak ditemukan" />
     </a-spin>
   </div>
 </template>
@@ -98,6 +98,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import riskAssessmentService from '@/services/riskAssessmentService'
+import HEmptyState from '@/components/common/HEmptyState.vue'
 
 const route = useRoute()
 const router = useRouter()

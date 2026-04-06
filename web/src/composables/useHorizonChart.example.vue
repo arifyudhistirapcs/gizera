@@ -109,7 +109,7 @@ button {
 }
 
 button:hover {
-  background: var(--h-primary, #5A4372);
+  background: var(--h-primary, #303030);
   color: white;
   transform: scale(1.02);
 }

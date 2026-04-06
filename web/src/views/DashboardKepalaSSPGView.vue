@@ -1,339 +1,169 @@
 <template>
   <div class="dashboard-sspg">
-    <!-- Peta Sebaran Sekolah & Supplier -->
-    <div class="map-section" style="margin-bottom: 20px">
-      <div class="h-card" style="padding: 20px">
-        <h3 class="section-title" style="margin-bottom: 16px">Peta Sebaran Sekolah & Supplier</h3>
-        <OrganizationMap :markers="sppgMapMarkers" :height="400" />
-      </div>
+    <!-- Loading -->
+    <div v-if="loading" class="dashboard-loading">
+      <a-skeleton active :paragraph="{ rows: 4 }" />
     </div>
 
-    <!-- KPI Stats Row -->
-    <div class="kpi-section">
-      <div class="section-header">
-        <h3 class="section-title">Performa</h3>
-      </div>
-      <div class="stats-row">
-        <HStatCard
-          :icon="AppstoreOutlined"
-          icon-bg="linear-gradient(135deg, #5A4372 0%, #3D2B53 100%)"
-          label="Porsi Disiapkan"
-          :value="String(kpis.portions_prepared)"
-          change="porsi hari ini"
-          change-type="increase"
-          :loading="loading"
-        />
-        <HStatCard
-          :icon="CarOutlined"
-          icon-bg="linear-gradient(135deg, #74788C 0%, #5A4372 100%)"
-          label="Delivery Rate"
-          :value="`${kpis.delivery_rate}%`"
-          :change="`${delivery.total_deliveries} pengiriman hari ini`"
-          change-type="increase"
-          :loading="loading"
-        />
-        <HStatCard
-          :icon="InboxOutlined"
-          icon-bg="linear-gradient(135deg, #3D2B53 0%, #5A4372 100%)"
-          label="Ketersediaan Stok"
-          :value="`${kpis.stock_availability}%`"
-          :change="`${criticalStockItems.length} item kritis`"
-          :change-type="criticalStockItems.length > 0 ? 'decrease' : 'increase'"
-          :loading="loading"
-        />
-        <HStatCard
-          :icon="CheckCircleOutlined"
-          icon-bg="linear-gradient(135deg, #05CD99 0%, #52c41a 100%)"
-          label="On-Time Delivery"
-          :value="`${kpis.on_time_delivery_rate}%`"
-          :change="`${delivery.total_deliveries} pengiriman tepat waktu`"
-          change-type="increase"
-          :loading="loading"
-        />
-      </div>
-    </div>
+    <template v-else>
+      <!-- BENTO GRID -->
+      <div class="bento">
 
-    <!-- Rating Stats Row -->
-    <div class="rating-section">
-      <div class="section-header">
-        <h3 class="section-title">Ulasan</h3>
-      </div>
-      <div class="stats-row rating-row">
-        <HStatCard
-          :icon="StarOutlined"
-          icon-bg="linear-gradient(135deg, #faad14 0%, #d48806 100%)"
-          label="Rating Keseluruhan"
-          :value="`${reviewSummary.average_overall_rating?.toFixed(1) || '0.0'} / 5`"
-          :change="`${reviewSummary.total_reviews || 0} ulasan`"
-          change-type="increase"
-          :loading="loading"
-        />
-        <HStatCard
-          :icon="CoffeeOutlined"
-          icon-bg="linear-gradient(135deg, #52c41a 0%, #389e0d 100%)"
-          label="Rating Menu"
-          :value="`${reviewSummary.average_menu_rating?.toFixed(1) || '0.0'} / 5`"
-          change="kualitas makanan"
-          change-type="increase"
-          :loading="loading"
-        />
-        <HStatCard
-          :icon="CarOutlined"
-          icon-bg="linear-gradient(135deg, #1890ff 0%, #096dd9 100%)"
-          label="Rating Layanan"
-          :value="`${reviewSummary.average_service_rating?.toFixed(1) || '0.0'} / 5`"
-          change="kualitas pengiriman"
-          change-type="increase"
-          :loading="loading"
-        />
-      </div>
-    </div>
-
-    <!-- Cash Flow Stats Row with Date Range Filter -->
-    <div class="cash-flow-section">
-      <div class="section-header">
-        <h3 class="section-title">Arus Kas</h3>
-        <a-range-picker
-          v-model:value="cashFlowDateRange"
-          format="DD/MM/YYYY"
-          @change="handleCashFlowDateChange"
-          :placeholder="['Tanggal Mulai', 'Tanggal Akhir']"
-          style="width: 280px;"
-        />
-      </div>
-      <div class="stats-row cash-flow-row">
-        <HStatCard
-          :icon="ArrowUpOutlined"
-          icon-bg="linear-gradient(135deg, #52c41a 0%, #389e0d 100%)"
-          label="Total Pemasukan"
-          :value="formatCurrency(cashFlowSummary.total_income || 0)"
-          :change="cashFlowDateRangeText"
-          change-type="increase"
-          :loading="loadingCashFlow"
-        />
-        <HStatCard
-          :icon="ArrowDownOutlined"
-          icon-bg="linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%)"
-          label="Total Pengeluaran"
-          :value="formatCurrency(cashFlowSummary.total_expense || 0)"
-          :change="cashFlowDateRangeText"
-          change-type="decrease"
-          :loading="loadingCashFlow"
-        />
-        <HStatCard
-          :icon="DollarOutlined"
-          icon-bg="linear-gradient(135deg, #1890ff 0%, #096dd9 100%)"
-          label="Arus Kas Bersih"
-          :value="formatCurrency(cashFlowSummary.net_cash_flow || 0)"
-          :change="cashFlowDateRangeText"
-          :change-type="(cashFlowSummary.net_cash_flow || 0) >= 0 ? 'increase' : 'decrease'"
-          :loading="loadingCashFlow"
-        />
-      </div>
-    </div>
-
-    <!-- Top 5 Suppliers Section -->
-    <div class="top-suppliers-section">
-      <div class="section-header">
-        <h3 class="section-title">Top 5 Supplier</h3>
-        <a-button 
-          type="link" 
-          @click="goToSuppliers"
-          style="color: #5A4372;"
-        >
-          Lihat Semua
-          <RightOutlined />
-        </a-button>
-      </div>
-      <div class="top-suppliers-list">
-        <div
-          v-for="(supplier, index) in topSuppliers"
-          :key="supplier.id"
-          class="supplier-card h-card"
-        >
-          <div class="supplier-rank" :class="`supplier-rank--${index + 1}`">
-            {{ index + 1 }}
-          </div>
-          <div class="supplier-info">
-            <div class="supplier-name">{{ supplier.name }}</div>
-            <div class="supplier-meta">
-              <span class="supplier-orders">{{ supplier.total_orders }} Order</span>
-              <span class="supplier-amount">{{ formatCurrency(supplier.total_amount) }}</span>
+        <!-- Hero: spans full width -->
+        <div class="bento__hero">
+          <div class="hero-content">
+            <div class="hero-left">
+              <h2 class="hero-greeting">Selamat {{ getGreeting() }}, {{ userName }}! 👋</h2>
+              <p class="hero-subtitle">{{ todayFormatted }}</p>
+            </div>
+            <img src="@/assets/illustrations/hero-cooking.svg" alt="" class="hero-illustration" />
+            <div class="hero-metrics">
+              <div class="hero-metric">
+                <span class="hero-metric__label">Porsi</span>
+                <span class="hero-metric__value">{{ kpis.portions_prepared }}</span>
+              </div>
+              <div class="hero-metric">
+                <span class="hero-metric__label">Delivery</span>
+                <span class="hero-metric__value">{{ kpis.delivery_rate }}%</span>
+              </div>
+              <div class="hero-metric">
+                <span class="hero-metric__label">On-Time</span>
+                <span class="hero-metric__value">{{ kpis.on_time_delivery_rate }}%</span>
+              </div>
+              <div class="hero-metric">
+                <span class="hero-metric__label">Stok</span>
+                <span class="hero-metric__value">{{ kpis.stock_availability }}%</span>
+              </div>
             </div>
           </div>
-          <div class="supplier-progress">
-            <a-progress
-              :percent="Math.round((supplier.total_amount / topSuppliers[0].total_amount) * 100)"
-              :stroke-color="getRankColor(index)"
-              :show-info="false"
+        </div>
+
+        <!-- Peta: large, spans 2 cols -->
+        <div class="bento__map">
+          <div class="map-header">
+            <h3 class="bento__title">🗺️ Peta Sebaran</h3>
+            <div class="map-legend">
+              <label class="map-legend__item" @click="toggleMapLayer('Sekolah')">
+                <span class="map-legend__dot" :style="{ background: mapLayers.includes('Sekolah') ? '#3B82F6' : '#D8D8DB' }"></span>
+                <span class="map-legend__label">Sekolah ({{ schoolsList.length }})</span>
+              </label>
+              <label class="map-legend__item" @click="toggleMapLayer('Supplier')">
+                <span class="map-legend__dot" :style="{ background: mapLayers.includes('Supplier') ? '#fa8c16' : '#D8D8DB' }"></span>
+                <span class="map-legend__label">Supplier ({{ suppliersList.length }})</span>
+              </label>
+            </div>
+          </div>
+          <OrganizationMap :markers="filteredSppgMapMarkers" :height="280" />
+        </div>
+
+        <!-- Rating: 1 col, stacked -->
+        <div class="bento__rating">
+          <h3 class="bento__title">⭐ Ulasan</h3>
+          <div class="compact-stat">
+            <span class="compact-stat__label">Keseluruhan</span>
+            <span class="compact-stat__value">{{ reviewSummary.average_overall_rating?.toFixed(1) || '0.0' }}<small>/5</small></span>
+          </div>
+          <div class="compact-stat">
+            <span class="compact-stat__label">Menu</span>
+            <span class="compact-stat__value">{{ reviewSummary.average_menu_rating?.toFixed(1) || '0.0' }}<small>/5</small></span>
+          </div>
+          <div class="compact-stat">
+            <span class="compact-stat__label">Layanan</span>
+            <span class="compact-stat__value">{{ reviewSummary.average_service_rating?.toFixed(1) || '0.0' }}<small>/5</small></span>
+          </div>
+          <div class="compact-stat__footer">{{ reviewSummary.total_reviews || 0 }} ulasan total</div>
+        </div>
+
+        <!-- Chart Produksi: 1 col -->
+        <div class="bento__chart1">
+          <h3 class="bento__title">🍳 Produksi</h3>
+          <div ref="productionChartRef" style="width:100%;height:220px;"></div>
+        </div>
+
+        <!-- Chart Pengiriman: 1 col -->
+        <div class="bento__chart2">
+          <h3 class="bento__title">🚚 Pengiriman</h3>
+          <div ref="deliveryChartRef" style="width:100%;height:220px;"></div>
+        </div>
+
+        <!-- Chart Pencucian: 1 col -->
+        <div class="bento__chart3">
+          <h3 class="bento__title">🧹 Pencucian</h3>
+          <div ref="cleaningChartRef" style="width:100%;height:220px;"></div>
+        </div>
+
+        <!-- Arus Kas: spans 2 cols -->
+        <div class="bento__cashflow">
+          <div class="bento__title-row">
+            <h3 class="bento__title">💰 Arus Kas</h3>
+            <a-range-picker
+              v-model:value="cashFlowDateRange"
+              format="DD/MM"
+              @change="handleCashFlowDateChange"
               size="small"
+              style="width: 200px;"
             />
           </div>
-        </div>
-      </div>
-      <div v-if="topSuppliers.length === 0 && !loading" class="no-suppliers">
-        <InboxOutlined style="font-size: 24px; color: #A3AED0; margin-right: 8px;" />
-        <span>Belum ada data supplier</span>
-      </div>
-    </div>
-
-    <!-- Charts Row -->
-    <div class="activity-section">
-      <div class="section-header">
-        <h3 class="section-title">Aktivitas</h3>
-      </div>
-      <div class="charts-row">
-        <HChartCard
-          title="Status Produksi"
-          subtitle="Resep & Packing hari ini"
-          :height="320"
-          :loading="loading"
-          class="chart-card"
-        >
-          <div ref="productionChartRef" class="chart-container"></div>
-        </HChartCard>
-
-        <HChartCard
-          title="Status Pengiriman & Pengambilan"
-        subtitle="Progress delivery hari ini"
-        :height="320"
-        :loading="loading"
-        class="chart-card"
-      >
-        <div ref="deliveryChartRef" class="chart-container"></div>
-      </HChartCard>
-
-      <HChartCard
-        title="Status Pencucian"
-        subtitle="Progress kebersihan hari ini"
-        :height="320"
-        :loading="loading"
-        class="chart-card"
-      >
-        <div ref="cleaningChartRef" class="chart-container"></div>
-      </HChartCard>
-      </div>
-    </div>
-
-    <!-- Production, Delivery & Cleaning Detail Tables -->
-    <div class="tables-row">
-      <div class="table-section">
-        <h3 class="section-title">Detail Produksi</h3>
-        <HDataTable
-          :columns="productionColumns"
-          :data-source="productionTableData"
-          :loading="loading"
-          :pagination="false"
-          :mobile-card-view="true"
-          class="data-table"
-        >
-          <template #cell-status="{ text }">
-            <span class="status-badge" :class="`status-badge--${getStatusType(text)}`">
-              <span class="status-dot"></span>
-              <span>{{ text }}</span>
-            </span>
-          </template>
-        </HDataTable>
-      </div>
-
-      <div class="table-section">
-        <h3 class="section-title">Detail Pengiriman & Pengambilan</h3>
-        <HDataTable
-          :columns="deliveryColumns"
-          :data-source="deliveryTableData"
-          :loading="loading"
-          :pagination="false"
-          :mobile-card-view="true"
-          class="data-table"
-        >
-          <template #cell-status="{ text }">
-            <span class="status-badge" :class="`status-badge--${getStatusType(text)}`">
-              <span class="status-dot"></span>
-              <span>{{ text }}</span>
-            </span>
-          </template>
-        </HDataTable>
-      </div>
-
-      <div class="table-section">
-        <h3 class="section-title">Detail Pencucian</h3>
-        <HDataTable
-          :columns="cleaningColumns"
-          :data-source="cleaningTableData"
-          :loading="loading"
-          :pagination="false"
-          :mobile-card-view="true"
-          class="data-table"
-        >
-          <template #cell-status="{ text }">
-            <span class="status-badge" :class="`status-badge--${getStatusType(text)}`">
-              <span class="status-dot"></span>
-              <span>{{ text }}</span>
-            </span>
-          </template>
-        </HDataTable>
-      </div>
-    </div>
-
-    <!-- Critical Stock Section -->
-    <div v-if="criticalStockItems.length > 0" class="critical-stock-section">
-      <div class="section-header">
-        <h3 class="section-title">
-          <WarningOutlined style="color: #EE5D50; margin-right: 8px;" />
-          Stok Kritis ({{ criticalStockItems.length }} item)
-        </h3>
-        <a-button 
-          v-if="criticalStockItems.length > 6"
-          type="link" 
-          @click="goToInventory"
-          style="color: #5A4372;"
-        >
-          Lihat Lainnya
-          <RightOutlined />
-        </a-button>
-      </div>
-      <div class="critical-stock-grid">
-        <div
-          v-for="item in displayedCriticalStock"
-          :key="item.ingredient_id"
-          class="critical-stock-card h-card"
-        >
-          <div class="critical-stock-header">
-            <span class="critical-stock-name">{{ item.ingredient_name }}</span>
-            <span
-              class="critical-stock-badge"
-              :class="item.current_stock <= item.min_threshold * 0.5 ? 'critical-stock-badge--danger' : 'critical-stock-badge--warning'"
-            >
-              {{ item.current_stock <= item.min_threshold * 0.5 ? 'Kritis' : 'Rendah' }}
-            </span>
-          </div>
-          <div class="critical-stock-info">
-            <div class="critical-stock-value">
-              <span class="critical-stock-current">{{ item.current_stock }}</span>
-              <span class="critical-stock-unit">{{ item.unit }}</span>
+          <div class="cashflow-grid">
+            <div class="cashflow-item cashflow-item--income">
+              <span class="cashflow-item__label">Pemasukan</span>
+              <span class="cashflow-item__value">{{ formatCurrency(cashFlowSummary.total_income || 0) }}</span>
             </div>
-            <div class="critical-stock-minimum">
-              Min: {{ item.min_threshold }} {{ item.unit }}
+            <div class="cashflow-item cashflow-item--expense">
+              <span class="cashflow-item__label">Pengeluaran</span>
+              <span class="cashflow-item__value">{{ formatCurrency(cashFlowSummary.total_expense || 0) }}</span>
+            </div>
+            <div class="cashflow-item cashflow-item--net">
+              <span class="cashflow-item__label">Bersih</span>
+              <span class="cashflow-item__value" :class="{ 'text-error': (cashFlowSummary.net_cash_flow || 0) < 0 }">{{ formatCurrency(cashFlowSummary.net_cash_flow || 0) }}</span>
             </div>
           </div>
-          <a-progress
-            :percent="Math.min(100, Math.round((item.current_stock / item.min_threshold) * 100))"
-            :stroke-color="item.current_stock <= item.min_threshold * 0.5 ? '#EE5D50' : '#FFB547'"
-            :show-info="false"
-            size="small"
-          />
-          <div v-if="item.days_remaining" class="critical-stock-days">
-            ~{{ item.days_remaining.toFixed(1) }} hari tersisa
+        </div>
+
+        <!-- Supplier: 1 col -->
+        <div class="bento__supplier">
+          <div class="bento__title-row">
+            <h3 class="bento__title">🏪 Top Supplier</h3>
+            <a-button type="link" size="small" @click="goToSuppliers" style="color:#303030;padding:0;">Semua →</a-button>
+          </div>
+          <div v-if="topSuppliers.length === 0" style="color:#6B6B6B;font-size:13px;padding:12px 0;">Belum ada data</div>
+          <div v-else class="supplier-compact-list">
+            <div v-for="(s, i) in topSuppliers.slice(0, 3)" :key="s.id" class="supplier-compact">
+              <span class="supplier-compact__rank" :class="`rank-${i+1}`">{{ i+1 }}</span>
+              <span class="supplier-compact__name">{{ s.name }}</span>
+              <span class="supplier-compact__amount">{{ formatCurrency(s.total_amount) }}</span>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Empty state if no critical stock -->
-    <div v-else-if="!loading" class="no-critical-stock">
-      <CheckCircleOutlined style="font-size: 24px; color: #05CD99; margin-right: 8px;" />
-      <span>Semua stok dalam kondisi aman</span>
-    </div>
+        <!-- Stok Kritis: spans full width, compact -->
+        <div v-if="criticalStockItems.length > 0" class="bento__stock">
+          <div class="bento__title-row">
+            <h3 class="bento__title">⚠️ Stok Kritis ({{ criticalStockItems.length }})</h3>
+            <a-button v-if="criticalStockItems.length > 4" type="link" size="small" @click="goToInventory" style="color:#303030;padding:0;">Lihat Semua →</a-button>
+          </div>
+          <div class="stock-compact-grid">
+            <div v-for="item in criticalStockItems.slice(0, 4)" :key="item.ingredient_id" class="stock-compact">
+              <div class="stock-compact__info">
+                <span class="stock-compact__name">{{ item.ingredient_name }}</span>
+                <span class="stock-compact__qty">{{ item.current_stock }} {{ item.unit }}</span>
+              </div>
+              <a-progress
+                :percent="Math.min(100, Math.round((item.current_stock / item.min_threshold) * 100))"
+                :stroke-color="item.current_stock <= item.min_threshold * 0.5 ? '#C94A3A' : '#D97706'"
+                :show-info="false"
+                size="small"
+                style="width:80px;"
+              />
+            </div>
+          </div>
+        </div>
+        <div v-else class="bento__stock-ok">
+          ✅ Semua stok dalam kondisi aman
+        </div>
+
+      </div>
+    </template>
   </div>
 </template>
 
@@ -367,7 +197,9 @@ import { ref as dbRef, onValue, off } from 'firebase/database'
 import dayjs from 'dayjs'
 import OrganizationMap from '@/components/OrganizationMap.vue'
 import api from '@/services/api'
+import { useAuthStore } from '@/stores/auth'
 
+const authStore = useAuthStore()
 const router = useRouter()
 const dashboard = ref(null)
 const loading = ref(true)
@@ -391,6 +223,39 @@ const deliveryChartRef = ref(null)
 const cleaningChartRef = ref(null)
 
 let dashboardListener = null
+
+// Map layer toggles
+const mapLayers = ref(['Sekolah', 'Supplier'])
+
+const toggleMapLayer = (layer) => {
+  const idx = mapLayers.value.indexOf(layer)
+  if (idx > -1) {
+    mapLayers.value.splice(idx, 1)
+  } else {
+    mapLayers.value.push(layer)
+  }
+}
+
+const filteredSppgMapMarkers = computed(() => {
+  return sppgMapMarkers.value.filter(m => mapLayers.value.includes(m.type))
+})
+
+// Hero section helpers
+const userName = computed(() => authStore.user?.full_name || 'User')
+
+const todayFormatted = computed(() => {
+  return new Date().toLocaleDateString('id-ID', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  })
+})
+
+const getGreeting = () => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Pagi'
+  if (hour < 15) return 'Siang'
+  if (hour < 18) return 'Sore'
+  return 'Malam'
+}
 
 // Computed helpers for safe access
 const kpis = computed(() => dashboard.value?.today_kpis || {
@@ -448,8 +313,8 @@ const formatCurrency = (value) => {
 
 // Get rank color for progress bar
 const getRankColor = (index) => {
-  const colors = ['#FFD700', '#C0C0C0', '#CD7F32', '#5A4372', '#74788C']
-  return colors[index] || '#A3AED0'
+  const colors = ['#FFD700', '#C0C0C0', '#CD7F32', '#303030', '#6B6B6B']
+  return colors[index] || '#6B6B6B'
 }
 
 // Load cash flow summary
@@ -549,13 +414,13 @@ const updateCharts = () => {
     { value: p.recipes_pending, name: 'Menunggu', itemStyle: { color: '#A3AED0' } },
     { value: p.recipes_cooking, name: 'Sedang Dimasak', itemStyle: { color: '#FFB547' } },
     { value: p.recipes_ready, name: 'Selesai Dimasak', itemStyle: { color: '#05CD99' } },
-    { value: p.packing_pending, name: 'Siap Packing', itemStyle: { color: '#9F7AEA' } },
-    { value: p.packing_in_progress, name: 'Sedang Packing', itemStyle: { color: '#5A4372' } },
-    { value: p.packing_ready, name: 'Selesai Packing', itemStyle: { color: '#3D2B53' } },
+    { value: p.packing_pending, name: 'Siap Packing', itemStyle: { color: '#6B6B6B' } },
+    { value: p.packing_in_progress, name: 'Sedang Packing', itemStyle: { color: '#303030' } },
+    { value: p.packing_ready, name: 'Selesai Packing', itemStyle: { color: '#202020' } },
   ].filter(item => item.value > 0)
 
   // If no data, show a "no data" placeholder
-  const finalPieData = pieData.length > 0 ? pieData : [{ value: 1, name: 'Belum ada data', itemStyle: { color: '#E9EDF7' } }]
+  const finalPieData = pieData.length > 0 ? pieData : [{ value: 1, name: 'Belum ada data', itemStyle: { color: '#F0F0F0' } }]
 
   setProductionOption({
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
@@ -577,7 +442,7 @@ const updateCharts = () => {
   const deliveryLabels = deliveryBreakdown.map(item => item.status_label)
   const deliveryData = deliveryBreakdown.map((item, index) => {
     // Assign colors based on status
-    const colors = ['#A3AED0', '#FFB547', '#9F7AEA', '#05CD99', '#5A4372', '#3D2B53']
+    const colors = ['#A3AED0', '#FFB547', '#6B6B6B', '#05CD99', '#303030', '#202020']
     return {
       value: item.count,
       itemStyle: { color: colors[index % colors.length], borderRadius: [0, 4, 4, 0] }
@@ -586,7 +451,7 @@ const updateCharts = () => {
 
   // If no data, show placeholder
   const finalDeliveryLabels = deliveryLabels.length > 0 ? deliveryLabels : ['Belum ada data']
-  const finalDeliveryData = deliveryData.length > 0 ? deliveryData : [{ value: 0, itemStyle: { color: '#E9EDF7', borderRadius: [0, 4, 4, 0] } }]
+  const finalDeliveryData = deliveryData.length > 0 ? deliveryData : [{ value: 0, itemStyle: { color: '#F0F0F0', borderRadius: [0, 4, 4, 0] } }]
 
   setDeliveryOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
@@ -617,7 +482,7 @@ const updateCharts = () => {
   ].filter(item => item.value > 0)
 
   // If no data, show a "no data" placeholder
-  const finalCleaningData = cleaningPieData.length > 0 ? cleaningPieData : [{ value: 1, name: 'Belum ada data', itemStyle: { color: '#E9EDF7' } }]
+  const finalCleaningData = cleaningPieData.length > 0 ? cleaningPieData : [{ value: 1, name: 'Belum ada data', itemStyle: { color: '#F0F0F0' } }]
 
   setCleaningOption({
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
@@ -798,256 +663,128 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.dashboard-sspg {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
+.dashboard-sspg { min-height: 100%; }
+.dashboard-loading { padding: 40px; }
 
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-}
-.stats-row.rating-row {
-  grid-template-columns: repeat(3, 1fr);
-}
-.stats-row.cash-flow-row {
-  grid-template-columns: repeat(3, 1fr);
-}
-@media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); gap: 16px; } .stats-row.rating-row { grid-template-columns: repeat(3, 1fr); } .stats-row.cash-flow-row { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 768px) { .stats-row { grid-template-columns: 1fr; gap: 12px; } .stats-row.rating-row { grid-template-columns: 1fr; } .stats-row.cash-flow-row { grid-template-columns: 1fr; } }
-
-.cash-flow-section { margin-top: 4px; }
-
-.rating-section { margin-top: 4px; }
-
-.activity-section { margin-top: 4px; }
-
-.kpi-section { margin-top: 4px; }
-
-.charts-row {
+/* === BENTO GRID === */
+.bento {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-top: 16px;
-}
-@media (max-width: 1024px) { .charts-row { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
-@media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; gap: 16px; } }
-
-.chart-container {
-  width: 100%;
-  height: 100%;
-  min-height: 280px;
-}
-@media (max-width: 768px) { .chart-container { min-height: 240px; } }
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--h-text-primary, #322837);
-  margin: 0;
-  display: flex;
-  align-items: center;
-}
-.dark .section-title { color: var(--h-text-primary-dark, #F8FDEA); }
-
-.tables-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-@media (max-width: 1024px) { .tables-row { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
-@media (max-width: 768px) { .tables-row { grid-template-columns: 1fr; gap: 16px; } }
-
-.table-section { display: flex; flex-direction: column; }
-
-.table-section .section-title {
-  margin-bottom: 16px;
-}
-
-.critical-stock-section { margin-top: 4px; }
-
-.critical-stock-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: auto;
   gap: 16px;
 }
-@media (max-width: 1024px) { .critical-stock-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 768px) { .critical-stock-grid { grid-template-columns: 1fr; } }
 
-.critical-stock-card { display: flex; flex-direction: column; gap: 10px; }
-
-.critical-stock-header { display: flex; justify-content: space-between; align-items: center; }
-
-.critical-stock-name { font-size: 14px; font-weight: 600; color: var(--h-text-primary, #322837); }
-.dark .critical-stock-name { color: var(--h-text-primary-dark, #F8FDEA); }
-
-.critical-stock-badge { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 12px; }
-.critical-stock-badge--danger { background: rgba(238, 93, 80, 0.15); color: #EE5D50; }
-.critical-stock-badge--warning { background: rgba(255, 181, 71, 0.15); color: #FFB547; }
-
-.critical-stock-info { display: flex; justify-content: space-between; align-items: baseline; }
-.critical-stock-value { display: flex; align-items: baseline; gap: 4px; }
-.critical-stock-current { font-size: 24px; font-weight: 700; color: var(--h-text-primary, #322837); }
-.dark .critical-stock-current { color: var(--h-text-primary-dark, #F8FDEA); }
-.critical-stock-unit { font-size: 13px; color: var(--h-text-secondary, #74788C); }
-.critical-stock-minimum { font-size: 12px; color: var(--h-text-secondary, #74788C); }
-.critical-stock-days { font-size: 11px; color: var(--h-text-secondary, #74788C); font-style: italic; }
-
-.no-critical-stock {
-  display: flex;
-  align-items: center;
-  padding: 16px 20px;
-  background: rgba(5, 205, 153, 0.08);
-  border-radius: 12px;
-  font-size: 14px;
-  color: #05CD99;
-  font-weight: 500;
-}
-
-.status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; }
-.status-dot { width: 6px; height: 6px; border-radius: 50%; }
-.status-badge--success { background: rgba(5, 205, 153, 0.1); color: #05CD99; }
-.status-badge--success .status-dot { background: #05CD99; }
-.status-badge--warning { background: rgba(255, 181, 71, 0.1); color: #FFB547; }
-.status-badge--warning .status-dot { background: #FFB547; }
-.status-badge--default { background: rgba(163, 174, 208, 0.1); color: #74788C; }
-.status-badge--default .status-dot { background: #74788C; }
-
-/* Top Suppliers Section */
-.top-suppliers-section { margin-top: 4px; }
-
-.top-suppliers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.supplier-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-}
-
-.supplier-rank {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.supplier-rank--1 {
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-}
-
-.supplier-rank--2 {
-  background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(192, 192, 192, 0.3);
-}
-
-.supplier-rank--3 {
-  background: linear-gradient(135deg, #CD7F32 0%, #B8732D 100%);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.3);
-}
-
-.supplier-rank--4 {
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
-  color: #fff;
-}
-
-.supplier-rank--5 {
-  background: linear-gradient(135deg, #74788C 0%, #5A4372 100%);
-  color: #fff;
-}
-
-.supplier-info {
-  flex: 1;
+.bento > * {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid #F0F0F0;
   min-width: 0;
-}
-
-.supplier-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--h-text-primary, #322837);
-  margin-bottom: 4px;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-}
-.dark .supplier-name { color: var(--h-text-primary-dark, #F8FDEA); }
-
-.supplier-meta {
-  display: flex;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--h-text-secondary, #74788C);
 }
 
-.supplier-orders {
-  font-weight: 500;
-}
+/* Grid placement */
+.bento__hero    { grid-column: 1 / -1; border: none; }
+.bento__map     { grid-column: 1 / 3; }
+.bento__rating  { grid-column: 3 / 4; }
+.bento__chart1  { grid-column: 1 / 2; }
+.bento__chart2  { grid-column: 2 / 3; }
+.bento__chart3  { grid-column: 3 / 4; }
+.bento__cashflow { grid-column: 1 / 3; }
+.bento__supplier { grid-column: 3 / 4; }
+.bento__stock   { grid-column: 1 / -1; }
+.bento__stock-ok { grid-column: 1 / -1; text-align: center; color: #1E8A6E; font-weight: 600; font-size: 14px; }
 
-.supplier-amount {
-  font-weight: 600;
-  color: var(--h-text-primary, #322837);
-}
-.dark .supplier-amount { color: var(--h-text-primary-dark, #F8FDEA); }
-
-.supplier-progress {
-  width: 120px;
-  flex-shrink: 0;
-}
-
-.no-suppliers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 20px;
-  background: rgba(163, 174, 208, 0.08);
-  border-radius: 12px;
-  font-size: 14px;
-  color: #A3AED0;
-  font-weight: 500;
+@media (max-width: 1024px) {
+  .bento { grid-template-columns: 1fr 1fr; }
+  .bento__hero { grid-column: 1 / -1; }
+  .bento__map { grid-column: 1 / -1; }
+  .bento__rating { grid-column: 1 / -1; }
+  .bento__chart3 { grid-column: 1 / -1; }
+  .bento__cashflow { grid-column: 1 / -1; }
+  .bento__supplier { grid-column: 1 / -1; }
+  .bento__stock { grid-column: 1 / -1; }
 }
 
 @media (max-width: 768px) {
-  .supplier-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .supplier-rank {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-  }
-  
-  .supplier-progress {
-    width: 100%;
-  }
-  
-  .supplier-meta {
-    flex-direction: column;
-    gap: 4px;
-  }
+  .bento { grid-template-columns: 1fr; }
+  .bento > * { grid-column: 1 / -1 !important; }
 }
+
+/* === HERO === */
+.bento__hero {
+  background: linear-gradient(135deg, #C94A3A 0%, #D4553E 50%, #1E8A6E 100%);
+  color: #fff;
+  padding: 24px 28px;
+}
+.hero-content { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.hero-greeting { font-size: 26px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.5px; color: #FFFFFF; }
+.hero-subtitle { font-size: 14px; opacity: 0.9; margin: 0; color: rgba(255,255,255,0.85); }
+.hero-illustration { height: 90px; width: auto; opacity: 0.9; flex-shrink: 0; }
+.hero-metrics { display: flex; gap: 12px; }
+.hero-metric { background: rgba(255,255,255,0.18); backdrop-filter: blur(4px); border-radius: 10px; padding: 12px 18px; min-width: 100px; text-align: center; }
+.hero-metric__label { display: block; font-size: 11px; opacity: 0.75; margin-bottom: 2px; }
+.hero-metric__value { display: block; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+@media (max-width: 768px) {
+  .hero-content { flex-direction: column; align-items: flex-start; }
+  .hero-metrics { flex-wrap: wrap; }
+  .hero-metric { min-width: 80px; padding: 10px 14px; }
+  .hero-metric__value { font-size: 20px; }
+  .hero-illustration { display: none; }
+}
+
+/* === TITLES === */
+.bento__title { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #303030; }
+.bento__title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.bento__title-row .bento__title { margin-bottom: 0; }
+
+/* === MAP HEADER === */
+.map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.map-header .bento__title { margin-bottom: 0; }
+.map-legend { display: flex; gap: 16px; }
+.map-legend__item { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; color: #303030; }
+.map-legend__item:hover { opacity: 0.8; }
+.map-legend__dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; transition: background 0.2s; }
+.map-legend__label { font-weight: 500; }
+
+/* === COMPACT STATS (Rating) === */
+.compact-stat { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-bottom: 1px solid #F0F0F0; }
+.compact-stat:last-of-type { border-bottom: none; }
+.compact-stat__label { font-size: 14px; color: #6B6B6B; }
+.compact-stat__value { font-size: 24px; font-weight: 700; color: #303030; }
+.compact-stat__value small { font-size: 14px; font-weight: 400; color: #6B6B6B; }
+.compact-stat__footer { font-size: 12px; color: #6B6B6B; margin-top: 8px; text-align: center; }
+
+/* === CASHFLOW === */
+.cashflow-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.cashflow-item { padding: 14px; border-radius: 10px; }
+.cashflow-item--income { background: #D1FAE5; }
+.cashflow-item--expense { background: #FDEAE7; }
+.cashflow-item--net { background: #DBEAFE; }
+.cashflow-item__label { display: block; font-size: 12px; color: #6B6B6B; margin-bottom: 4px; }
+.cashflow-item__value { display: block; font-size: 18px; font-weight: 700; color: #303030; }
+.text-error { color: #C94A3A !important; }
+
+/* === SUPPLIER COMPACT === */
+.supplier-compact-list { display: flex; flex-direction: column; gap: 8px; }
+.supplier-compact { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F0F0F0; }
+.supplier-compact:last-child { border-bottom: none; }
+.supplier-compact__rank { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.supplier-compact__rank.rank-1 { background: #FDEAE7; color: #C94A3A; }
+.supplier-compact__rank.rank-2 { background: #FEF3C7; color: #D97706; }
+.supplier-compact__rank.rank-3 { background: #D1FAE5; color: #1E8A6E; }
+.supplier-compact__name { flex: 1; font-size: 13px; font-weight: 600; color: #303030; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.supplier-compact__amount { font-size: 12px; color: #6B6B6B; flex-shrink: 0; }
+
+/* === STOCK COMPACT === */
+.stock-compact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 1024px) { .stock-compact-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .stock-compact-grid { grid-template-columns: 1fr; } }
+.stock-compact { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: #FFF; border: 1px solid #F0F0F0; border-radius: 10px; border-left: 3px solid #C94A3A; }
+.stock-compact__info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stock-compact__name { font-size: 13px; font-weight: 600; color: #303030; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stock-compact__qty { font-size: 12px; color: #C94A3A; font-weight: 600; }
+
+/* === SKELETON === */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 </style>

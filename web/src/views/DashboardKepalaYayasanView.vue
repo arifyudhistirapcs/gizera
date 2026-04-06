@@ -1,151 +1,96 @@
 <template>
   <div class="dashboard-kepala-yayasan">
-    <a-page-header title="Dashboard Kepala Yayasan" :sub-title="dashboard?.yayasan_nama || ''" />
+    <div v-if="loading && !dashboard" class="dashboard-loading">
+      <a-skeleton active :paragraph="{ rows: 4 }" />
+    </div>
 
-    <!-- Filters -->
-    <a-card style="margin-bottom: 20px">
-      <a-row :gutter="16" align="middle">
-        <a-col v-if="needsYayasanSelector" :xs="24" :sm="8" :md="6">
-          <a-form-item label="Yayasan" style="margin-bottom: 0">
-            <a-select
-              v-model:value="filters.yayasan_id"
-              placeholder="Pilih Yayasan"
-              show-search
-              :filter-option="filterOption"
-              :options="yayasanList.map(y => ({ value: y.id, label: y.kode + ' - ' + y.nama }))"
-              @change="handleFilterChange"
-              style="width: 100%"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="8" :md="6">
-          <a-form-item label="SPPG" style="margin-bottom: 0">
-            <a-select
-              v-model:value="filters.sppg_id"
-              placeholder="Semua SPPG"
-              allow-clear
-              show-search
-              :filter-option="filterOption"
-              :options="sppgOptions"
-              @change="handleFilterChange"
-              style="width: 100%"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="8" :md="6">
-          <a-form-item label="Rentang Tanggal" style="margin-bottom: 0">
-            <a-range-picker
-              v-model:value="dateRange"
-              format="DD/MM/YYYY"
-              @change="handleFilterChange"
-              style="width: 100%"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :xs="24" :sm="8" :md="6">
-          <a-space>
-            <a-button @click="fetchDashboard" :loading="loading">
-              <template #icon><ReloadOutlined /></template>
-              Refresh
-            </a-button>
-            <a-button @click="handleExport" :loading="exporting">
-              <template #icon><DownloadOutlined /></template>
-              Export
-            </a-button>
-          </a-space>
-        </a-col>
-      </a-row>
-    </a-card>
+    <template v-else>
+      <div class="bento">
+        <!-- Hero -->
+        <div class="bento__hero">
+          <div class="hero-content">
+            <div class="hero-left">
+              <h2 class="hero-greeting">🏛️ Dashboard Yayasan</h2>
+              <p class="hero-subtitle">{{ dashboard?.yayasan_nama || 'Monitoring Yayasan' }}</p>
+            </div>
+            <div class="hero-metrics">
+              <div class="hero-metric">
+                <span class="hero-metric__label">SPPG</span>
+                <span class="hero-metric__value">{{ dashboard?.total_sppg || 0 }}</span>
+              </div>
+              <div class="hero-metric">
+                <span class="hero-metric__label">Porsi</span>
+                <span class="hero-metric__value">{{ dashboard?.aggregated_production?.total_portions || 0 }}</span>
+              </div>
+              <div class="hero-metric">
+                <span class="hero-metric__label">Rating</span>
+                <span class="hero-metric__value">{{ (dashboard?.aggregated_review?.average_overall || 0).toFixed(1) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- Metric Cards -->
-    <a-row :gutter="[16, 16]" style="margin-bottom: 20px">
-      <a-col :xs="12" :sm="6">
-        <a-card :loading="loading">
-          <a-statistic
-            title="Total Porsi Diproduksi"
-            :value="dashboard?.aggregated_production?.total_portions || 0"
-            :value-style="{ color: '#3f8600' }"
-          />
-          <div class="stat-sub">
-            Tingkat penyelesaian: {{ formatPercent(dashboard?.aggregated_production?.completion_rate) }}
+        <!-- Filters -->
+        <div class="bento__filters">
+          <div class="filter-row">
+            <a-select v-if="needsYayasanSelector" v-model:value="filters.yayasan_id" placeholder="Pilih Yayasan" show-search :filter-option="filterOption" :options="yayasanList.map(y => ({ value: y.id, label: y.kode + ' - ' + y.nama }))" @change="handleFilterChange" style="width:200px;" size="small" />
+            <a-select v-model:value="filters.sppg_id" placeholder="Semua SPPG" allow-clear show-search :filter-option="filterOption" :options="sppgOptions" @change="handleFilterChange" style="width:180px;" size="small" />
+            <a-range-picker v-model:value="dateRange" format="DD/MM" @change="handleFilterChange" size="small" style="width:200px;" />
+            <a-button @click="fetchDashboard" :loading="loading" size="small"><template #icon><ReloadOutlined /></template></a-button>
+            <a-button @click="handleExport" :loading="exporting" size="small"><template #icon><DownloadOutlined /></template></a-button>
           </div>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card :loading="loading">
-          <a-statistic
-            title="Total Pengiriman"
-            :value="dashboard?.aggregated_delivery?.total_deliveries || 0"
-          />
-          <div class="stat-sub">
-            Tepat waktu: {{ formatPercent(dashboard?.aggregated_delivery?.on_time_rate) }}
-          </div>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card :loading="loading">
-          <a-statistic
-            title="Total Pengeluaran"
-            :value="dashboard?.aggregated_financial?.total_spent || 0"
-            prefix="Rp"
-            :precision="0"
-          />
-          <div class="stat-sub">
-            Penyerapan: {{ formatPercent(dashboard?.aggregated_financial?.absorption_rate) }}
-          </div>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card :loading="loading">
-          <a-statistic
-            title="Rata-rata Review"
-            :value="dashboard?.aggregated_review?.average_overall || 0"
-            :precision="1"
-            suffix="/ 5"
-          />
-          <div class="stat-sub">
-            {{ dashboard?.aggregated_review?.total_reviews || 0 }} ulasan
-          </div>
-        </a-card>
-      </a-col>
-    </a-row>
+        </div>
 
-    <!-- SPPG Summary -->
-    <a-card :loading="loading" style="margin-bottom: 20px">
-      <a-statistic title="Total SPPG di bawah Yayasan" :value="dashboard?.total_sppg || 0" />
-    </a-card>
+        <!-- Metrics: 2 cols -->
+        <div class="bento__metrics-wide">
+          <h3 class="bento__title">📈 Performa Agregat</h3>
+          <div class="metrics-grid">
+            <div class="metric-compact">
+              <span class="metric-compact__icon" style="background:#FDEAE7;">🍽️</span>
+              <div>
+                <div class="metric-compact__value">{{ dashboard?.aggregated_production?.total_portions || 0 }}</div>
+                <div class="metric-compact__label">Total Porsi</div>
+              </div>
+            </div>
+            <div class="metric-compact">
+              <span class="metric-compact__icon" style="background:#D1FAE5;">🚚</span>
+              <div>
+                <div class="metric-compact__value">{{ dashboard?.aggregated_delivery?.total_deliveries || 0 }}</div>
+                <div class="metric-compact__label">Pengiriman</div>
+              </div>
+            </div>
+            <div class="metric-compact">
+              <span class="metric-compact__icon" style="background:#FEF3C7;">💰</span>
+              <div>
+                <div class="metric-compact__value" style="font-size:16px;">{{ formatPercent(dashboard?.aggregated_financial?.absorption_rate) }}</div>
+                <div class="metric-compact__label">Penyerapan</div>
+              </div>
+            </div>
+            <div class="metric-compact">
+              <span class="metric-compact__icon" style="background:#DBEAFE;">⭐</span>
+              <div>
+                <div class="metric-compact__value">{{ (dashboard?.aggregated_review?.average_overall || 0).toFixed(1) }}</div>
+                <div class="metric-compact__label">Rating</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- SPPG Performance Table -->
-    <a-card title="Daftar SPPG — Ringkasan Performa">
-      <a-table
-        :columns="sppgColumns"
-        :data-source="dashboard?.sppg_summaries || []"
-        :loading="loading"
-        :pagination="{ pageSize: 10 }"
-        row-key="sppg_id"
-        size="middle"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'sppg_kode'">
-            <a-tag color="blue">{{ record.sppg_kode }}</a-tag>
-          </template>
-          <template v-if="column.key === 'delivery_rate'">
-            {{ formatPercent(record.delivery_rate) }}
-          </template>
-          <template v-if="column.key === 'budget_absorption'">
-            {{ formatPercent(record.budget_absorption) }}
-          </template>
-          <template v-if="column.key === 'average_review_rating'">
-            {{ record.average_review_rating?.toFixed(1) || '-' }} / 5
-          </template>
-          <template v-if="column.key === 'action'">
-            <a-button size="small" type="link" @click="drillDownSPPG(record)">
-              Detail →
-            </a-button>
-          </template>
-        </template>
-      </a-table>
-    </a-card>
+        <!-- SPPG Table: full width -->
+        <div class="bento__table-full">
+          <h3 class="bento__title">🏪 Performa SPPG</h3>
+          <a-table :columns="sppgColumns" :data-source="dashboard?.sppg_summaries || []" :loading="loading" :pagination="{ pageSize: 10, size: 'small' }" row-key="sppg_id" size="small">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'sppg_kode'"><a-tag color="blue" style="font-size:11px;">{{ record.sppg_kode }}</a-tag></template>
+              <template v-if="column.key === 'delivery_rate'">{{ formatPercent(record.delivery_rate) }}</template>
+              <template v-if="column.key === 'budget_absorption'">{{ formatPercent(record.budget_absorption) }}</template>
+              <template v-if="column.key === 'average_review_rating'">{{ record.average_review_rating?.toFixed(1) || '-' }}/5</template>
+              <template v-if="column.key === 'action'"><a-button size="small" type="link" @click="drillDownSPPG(record)">Detail →</a-button></template>
+            </template>
+          </a-table>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -310,9 +255,40 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.stat-sub {
-  font-size: 12px;
-  color: #888;
-  margin-top: 4px;
-}
+.dashboard-kepala-yayasan { min-height: 100%; }
+.dashboard-loading { padding: 40px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+.bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.bento > * { background: #fff; border-radius: 14px; padding: 20px; border: 1px solid #F0F0F0; min-width: 0; overflow: hidden; }
+
+.bento__hero { grid-column: 1 / -1; border: none; background: linear-gradient(135deg, #C94A3A 0%, #D4553E 50%, #1E8A6E 100%); color: #fff; padding: 24px 28px; }
+.bento__filters { grid-column: 1 / -1; padding: 14px 20px; }
+.bento__metrics-wide { grid-column: 1 / -1; }
+.bento__table-full { grid-column: 1 / -1; }
+
+@media (max-width: 768px) { .bento { grid-template-columns: 1fr; } .bento > * { grid-column: 1 / -1 !important; } }
+
+.hero-content { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.hero-greeting { font-size: 26px; font-weight: 700; margin: 0 0 4px; color: #fff; }
+.hero-subtitle { font-size: 14px; opacity: 0.85; margin: 0; color: rgba(255,255,255,0.85); }
+.hero-metrics { display: flex; gap: 12px; }
+.hero-metric { background: rgba(255,255,255,0.18); backdrop-filter: blur(4px); border-radius: 10px; padding: 12px 18px; min-width: 90px; text-align: center; }
+.hero-metric__label { display: block; font-size: 11px; opacity: 0.75; margin-bottom: 2px; }
+.hero-metric__value { display: block; font-size: 26px; font-weight: 700; }
+@media (max-width: 768px) { .hero-content { flex-direction: column; align-items: flex-start; } .hero-metrics { flex-wrap: wrap; } }
+
+.bento__title { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #303030; }
+.filter-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 768px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+.metric-compact { display: flex; align-items: center; gap: 12px; padding: 14px; background: #fff; border: 1px solid #F0F0F0; border-radius: 12px; }
+.metric-compact__icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.metric-compact__value { font-size: 22px; font-weight: 700; color: #303030; }
+.metric-compact__label { font-size: 12px; color: #6B6B6B; }
+
+.dashboard-kepala-yayasan :deep(.ant-table) { font-size: 13px; }
+.dashboard-kepala-yayasan :deep(.ant-table-thead > tr > th) { background: #F7F8FA !important; color: #6B6B6B !important; font-weight: 500; font-size: 11px; padding: 8px 12px; }
+.dashboard-kepala-yayasan :deep(.ant-table-tbody > tr > td) { padding: 8px 12px; border-bottom: 1px solid #F0F0F0; }
+.dashboard-kepala-yayasan :deep(.ant-table-tbody > tr:hover > td) { background: #F7F8FA !important; }
 </style>

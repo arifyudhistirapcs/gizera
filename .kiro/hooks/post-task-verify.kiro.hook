@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Post-Task Verification",
+  "description": "After completing a spec task, run relevant tests to verify the implementation works correctly",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The task just completed. Run verification: (1) If backend files were changed, run `go build ./internal/...` in backend/ to verify compilation, (2) If test files exist for the changed code, run them, (3) Check for any diagnostics errors in the changed files. Report any issues found."
+  }
+}

@@ -61,7 +61,7 @@
             title="Pilih Tanggal"
           >
             <template #confirm>
-              <span style="color: #5A4372;">Konfirmasi</span>
+              <span style="color: #303030;">Konfirmasi</span>
             </template>
           </van-date-picker>
         </van-popup>
@@ -92,14 +92,15 @@
         </div>
 
         <!-- Loading State -->
-        <div v-if="isLoading" class="tasks-view__skeleton-list">
-          <SkeletonCard v-for="n in 3" :key="n" :rows="3" />
+        <div v-if="isLoading" class="tasks-view__loading">
+          <LottiePlayer src="/lottie/loading-cooking.json" width="100px" height="100px" />
+          <p class="tasks-view__loading-text">Memuat tugas...</p>
         </div>
 
         <!-- Empty State -->
-        <van-empty
+        <MobileEmptyState
           v-else-if="filteredTasks.length === 0"
-          image="search"
+          lottie="/lottie/empty-box.json"
           :description="`Tidak ada tugas ${activeTab === 'delivery' ? 'pengiriman' : 'pengambilan'} untuk tanggal yang dipilih`"
         />
 
@@ -170,7 +171,7 @@
             title="Pilih Tanggal Riwayat"
           >
             <template #confirm>
-              <span style="color: #5A4372;">Konfirmasi</span>
+              <span style="color: #303030;">Konfirmasi</span>
             </template>
           </van-date-picker>
         </van-popup>
@@ -189,6 +190,8 @@ import { showToast } from 'vant'
 import TaskCard from '@/components/mobile/TaskCard.vue'
 import SummaryCard from '@/components/mobile/SummaryCard.vue'
 import SkeletonCard from '@/components/mobile/SkeletonCard.vue'
+import MobileEmptyState from '@/components/common/MobileEmptyState.vue'
+import LottiePlayer from '@/components/common/LottiePlayer.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -498,15 +501,15 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   background: #FFFFFF;
-  color: #74788C;
+  color: #6B6B6B;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.08);
   min-height: 44px;
 }
 
 .tasks-view__tab--active {
-  background: #5A4372;
+  background: #303030;
   color: #FFFFFF;
-  box-shadow: 0px 4px 12px rgba(90, 67, 114, 0.3);
+  box-shadow: none;
 }
 
 /* Date Filter */
@@ -526,6 +529,22 @@ onUnmounted(() => {
   margin-bottom: var(--h-spacing-lg);
 }
 
+/* Loading state */
+.tasks-view__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 8px;
+  padding: 40px 0;
+}
+
+.tasks-view__loading-text {
+  font-size: 13px;
+  color: var(--h-text-secondary);
+}
+
 /* Skeleton list */
 .tasks-view__skeleton-list {
   display: flex;
@@ -543,7 +562,7 @@ onUnmounted(() => {
 
 .tasks-view__section-title {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   margin: 0 0 var(--h-spacing-md) 0;
 }
@@ -578,7 +597,7 @@ onUnmounted(() => {
 
 .tasks-view__perf-value {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
 }
 

@@ -116,7 +116,8 @@ const handleNotificationClick = () => {
 .horizon-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--h-bg-primary, #F4F7FE);
+  background-color: var(--h-bg-primary, #E8EDE5);
+  padding: 12px;
   transition: background-color 0.2s ease;
 }
 
@@ -130,19 +131,20 @@ const handleNotificationClick = () => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Allow content to shrink */
-  
-  /* Desktop: adjust for sidebar width (280px expanded, 80px collapsed) */
-  margin-left: 280px;
+  min-width: 0;
+  margin-left: 240px; /* sidebar width (220px) + gap */
   transition: margin-left 300ms ease;
 }
 
 .horizon-main.sidebar-collapsed {
-  margin-left: 80px;
+  margin-left: 92px; /* collapsed (72px) + gap */
 }
 
-/* Mobile: no sidebar margin */
 @media (max-width: 1024px) {
+  .horizon-layout {
+    padding: 0;
+  }
+
   .horizon-main {
     margin-left: 0;
   }
@@ -151,21 +153,18 @@ const handleNotificationClick = () => {
 /* Content Area */
 .horizon-content {
   flex: 1;
-  padding: 28px 24px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  
-  /* Smooth scrolling */
   -webkit-overflow-scrolling: touch;
 }
 
-/* Mobile: reduced padding */
 @media (max-width: 768px) {
   .horizon-content {
-    padding: 20px 16px;
+    padding: 16px;
   }
 }
 

@@ -67,8 +67,8 @@ const statusLabel = computed(() => {
 <style scoped>
 .task-card {
   background: var(--h-bg-card);
-  border-radius: var(--h-radius-lg);
-  box-shadow: var(--h-shadow-card);
+  border-radius: 8px;
+  border: 1px solid var(--h-border-color);
   padding: var(--h-spacing-lg);
   cursor: pointer;
   transition: transform var(--h-transition-base);
@@ -89,8 +89,8 @@ const statusLabel = computed(() => {
   width: 28px;
   height: 28px;
   border-radius: var(--h-radius-full);
-  background: var(--h-primary-lighter);
-  color: var(--h-primary);
+  background: #F0F0F0;
+  color: #303030;
   font-weight: 700;
   font-size: 13px;
   display: flex;
@@ -106,16 +106,17 @@ const statusLabel = computed(() => {
   border: none;
   min-height: auto;
   min-width: auto;
+  border-radius: 4px !important;
 }
 
 .task-card__type-tag--delivery {
-  background: var(--h-success) !important;
-  color: #ffffff !important;
+  background: #DCF0D8 !important;
+  color: #303030 !important;
 }
 
 .task-card__type-tag--pickup {
-  background: var(--h-warning) !important;
-  color: #ffffff !important;
+  background: #FEF3C7 !important;
+  color: #303030 !important;
 }
 
 .task-card__body {
@@ -156,8 +157,8 @@ const statusLabel = computed(() => {
 }
 
 .task-card__status--in_progress {
-  color: var(--h-primary);
-  background: var(--h-primary-lighter);
+  color: #303030;
+  background: #F0F0F0;
 }
 
 .task-card__status--arrived {

@@ -18,7 +18,7 @@
           class="location-picker__result-item"
           @click="selectSearchResult(result)"
         >
-          <EnvironmentOutlined style="margin-right: 6px; color: #5A4372" />
+          <EnvironmentOutlined style="margin-right: 6px; color: #303030" />
           <span>{{ result.display_name }}</span>
         </div>
       </div>

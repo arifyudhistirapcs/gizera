@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-postgres-server",
+        "postgresql://arifyudhistira@localhost:5432/erp_sppg?sslmode=disable"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "query",
+        "list_tables",
+        "describe_table"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "resolve-library-id",
+        "get-library-docs"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "playwright_navigate",
+        "playwright_screenshot",
+        "playwright_click",
+        "playwright_fill",
+        "playwright_evaluate",
+        "playwright_close",
+        "playwright_console_logs",
+        "playwright_console_logs"
+      ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140" fill="none">
+  <!-- List container -->
+  <rect x="30" y="15" width="120" height="95" rx="6" fill="#E8EDE5"/>
+  <!-- List item placeholders (dashed) -->
+  <rect x="42" y="28" width="96" height="14" rx="3" stroke="#D8D8DB" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+  <rect x="42" y="48" width="96" height="14" rx="3" stroke="#D8D8DB" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+  <rect x="42" y="68" width="96" height="14" rx="3" stroke="#D8D8DB" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+  <!-- Center icon -->
+  <circle cx="90" cy="55" r="16" fill="#CCE2C8" opacity="0.4"/>
+  <!-- Clipboard icon -->
+  <rect x="82" y="46" width="16" height="18" rx="2" fill="#6B6B6B" opacity="0.4"/>
+  <rect x="86" y="43" width="8" height="5" rx="1" fill="#6B6B6B" opacity="0.5"/>
+  <!-- Shadow -->
+  <ellipse cx="90" cy="120" rx="40" ry="5" fill="#D8D8DB" opacity="0.3"/>
+</svg>

@@ -126,19 +126,19 @@ defineProps({
 
 /* Icon Container */
 .h-stat-card__icon {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--h-radius-md);
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  background: #F0F0F0;
 }
 
 .h-stat-card__icon-svg {
   font-size: 24px;
-  color: #FFFFFF;
+  color: #303030;
 }
 
 /* Stats Content */
@@ -160,11 +160,12 @@ defineProps({
 
 /* Value */
 .h-stat-card__value {
-  font-size: var(--h-text-2xl);
+  font-size: 28px;
   color: var(--h-text-primary);
-  font-weight: var(--h-font-bold);
-  line-height: var(--h-leading-tight);
+  font-weight: 700;
+  line-height: 1.1;
   word-break: break-word;
+  letter-spacing: -0.5px;
 }
 
 /* Change Indicator */

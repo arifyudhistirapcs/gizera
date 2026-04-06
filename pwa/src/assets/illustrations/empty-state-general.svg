@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140" fill="none">
+  <!-- Box body -->
+  <rect x="50" y="40" width="80" height="60" rx="6" fill="#E8EDE5"/>
+  <!-- Box flaps -->
+  <path d="M50 40 L62 22 L118 22 L130 40" fill="#D8D8DB"/>
+  <path d="M90 22 L90 40" stroke="#E8EDE5" stroke-width="2"/>
+  <!-- Box opening -->
+  <path d="M50 40 L62 27 L90 40" fill="#CCE2C8" opacity="0.5"/>
+  <path d="M130 40 L118 27 L90 40" fill="#CCE2C8" opacity="0.5"/>
+  <!-- Dashed circle -->
+  <circle cx="90" cy="70" r="15" stroke="#D8D8DB" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+  <!-- Question mark -->
+  <text x="90" y="77" text-anchor="middle" font-family="Urbanist, sans-serif" font-size="18" font-weight="600" fill="#6B6B6B">?</text>
+  <!-- Shadow -->
+  <ellipse cx="90" cy="112" rx="40" ry="5" fill="#D8D8DB" opacity="0.3"/>
+</svg>

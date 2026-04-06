@@ -212,7 +212,7 @@ const getProgressColor = (percent) => {
   .h-data-table__wrapper {
     /* Show scroll indicator */
     scrollbar-width: thin;
-    scrollbar-color: var(--h-primary-light) var(--h-bg-light);
+    scrollbar-color: rgba(0, 0, 0, 0.15) var(--h-bg-light);
   }
   
   .h-data-table__wrapper::-webkit-scrollbar {
@@ -225,7 +225,7 @@ const getProgressColor = (percent) => {
   }
   
   .h-data-table__wrapper::-webkit-scrollbar-thumb {
-    background: var(--h-primary-light);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: var(--h-radius-sm);
   }
 }
@@ -264,7 +264,7 @@ const getProgressColor = (percent) => {
 
 /* Row Hover Effect */
 .h-data-table__table :deep(.ant-table-tbody > tr:hover > td) {
-  background: #F8FDEA !important;
+  background: #F7F8FA !important;
   transition: background var(--h-transition-fast);
 }
 
@@ -419,7 +419,7 @@ const getProgressColor = (percent) => {
 
 .h-data-table__mobile-card:active {
   transform: scale(0.98);
-  background: #F8FDEA;
+  background: #F7F8FA;
 }
 
 .h-data-table__mobile-field {
@@ -493,7 +493,7 @@ const getProgressColor = (percent) => {
 }
 
 .dark .h-data-table__table :deep(.ant-table-tbody > tr:hover > td) {
-  background: rgba(90, 67, 114, 0.1) !important;
+  background: rgba(48, 48, 48, 0.1) !important;
 }
 
 .dark .h-data-table__mobile-card {
@@ -502,7 +502,7 @@ const getProgressColor = (percent) => {
 }
 
 .dark .h-data-table__mobile-card:active {
-  background: rgba(90, 67, 114, 0.1);
+  background: rgba(48, 48, 48, 0.1);
 }
 
 .dark .h-data-table__mobile-label {

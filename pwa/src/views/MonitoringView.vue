@@ -26,7 +26,7 @@
           title="Pilih Tanggal"
         >
           <template #confirm>
-            <span style="color: #5A4372;">Konfirmasi</span>
+            <span style="color: #303030;">Konfirmasi</span>
           </template>
         </van-date-picker>
       </van-popup>

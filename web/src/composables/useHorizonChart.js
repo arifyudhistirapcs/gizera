@@ -14,10 +14,10 @@ export function useHorizonChart(chartRef, options = {}) {
     if (dark) {
       return {
         textColor: '#ACA9B0',
-        axisLineColor: '#5A4372',
-        splitLineColor: 'rgba(90, 67, 114, 0.3)',
-        tooltipBg: '#3D2B53',
-        tooltipBorder: '#5A4372',
+        axisLineColor: '#303030',
+        splitLineColor: 'rgba(48, 48, 48, 0.3)',
+        tooltipBg: '#252525',
+        tooltipBorder: '#303030',
         tooltipTextColor: '#F8FDEA',
         legendTextColor: '#F8FDEA',
       }

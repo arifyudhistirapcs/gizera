@@ -4,6 +4,11 @@
       <!-- NavBar -->
       <van-nav-bar title="Absensi" />
 
+      <!-- Success Animation Overlay -->
+      <div v-if="showSuccessAnimation" class="success-overlay">
+        <LottiePlayer src="/lottie/success-check.json" width="120px" height="120px" :loop="false" />
+      </div>
+
       <!-- Header: Employee name + role -->
       <div class="attendance-header">
         <div class="attendance-header__info">
@@ -176,6 +181,7 @@ import SwipeAction from '@/components/mobile/SwipeAction.vue'
 import SummaryCard from '@/components/mobile/SummaryCard.vue'
 import MiniCalendar from '@/components/mobile/MiniCalendar.vue'
 import SkeletonCard from '@/components/mobile/SkeletonCard.vue'
+import LottiePlayer from '@/components/common/LottiePlayer.vue'
 
 const authStore = useAuthStore()
 
@@ -186,6 +192,7 @@ const currentAttendance = ref(null)
 const attendanceHistory = ref([])
 const authorizedNetworks = ref([])
 const selectedDate = ref(new Date())
+const showSuccessAnimation = ref(false)
 
 // Employee name from auth store
 const employeeName = computed(() => authStore.user?.name || 'Karyawan')
@@ -487,6 +494,8 @@ async function performAutoCheckIn() {
         }
       }
       showNotify({ type: 'success', message, duration: 3000 })
+      showSuccessAnimation.value = true
+      setTimeout(() => { showSuccessAnimation.value = false }, 2000)
       attendanceHistory.value = await attendanceService.getAttendanceHistory(30)
       return
     }
@@ -541,6 +550,8 @@ async function performCheckOut() {
           message: `${result.message}\nJam kerja: ${attendanceService.formatWorkHours(result.workHours)}`,
           duration: 3000
         })
+        showSuccessAnimation.value = true
+        setTimeout(() => { showSuccessAnimation.value = false }, 2000)
         await initializeAttendance()
       } else {
         closeToast()
@@ -600,6 +611,26 @@ function formatWorkHours(hours) {
   padding-bottom: 24px;
 }
 
+/* Success Animation Overlay */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Header */
 .attendance-header {
   padding: var(--h-spacing-lg);
@@ -618,7 +649,7 @@ function formatWorkHours(hours) {
 
 .attendance-header__name {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   margin: 0;
   line-height: 1.3;
@@ -688,7 +719,7 @@ function formatWorkHours(hours) {
 
 .status-card__time {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
 }
 
@@ -725,7 +756,7 @@ function formatWorkHours(hours) {
 
 .section-title {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--h-text-primary);
   margin: 0 0 var(--h-spacing-md);
 }
@@ -750,7 +781,7 @@ function formatWorkHours(hours) {
 
 .stat-value {
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .stat-value--success {

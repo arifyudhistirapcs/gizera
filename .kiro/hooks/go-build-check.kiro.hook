@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Go Build Check",
+  "description": "Runs go build on backend internal packages after any Go file is edited to catch compile errors immediately",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "backend/**/*.go"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd backend && go build ./internal/... 2>&1 | head -20",
+    "timeout": 30
+  }
+}

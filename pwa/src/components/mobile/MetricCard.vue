@@ -1,7 +1,7 @@
 <template>
   <div class="metric-card h-card">
     <div class="metric-card__icon" :style="{ backgroundColor: iconColor }">
-      <van-icon :name="icon" size="20" color="#fff" />
+      <van-icon :name="icon" size="20" color="#303030" />
     </div>
     <div class="metric-card__content">
       <span class="metric-card__label">{{ label }}</span>
@@ -24,7 +24,7 @@ const props = defineProps({
   },
   iconColor: {
     type: String,
-    default: '#5A4372'
+    default: '#F0F0F0'
   },
   label: {
     type: String,
@@ -66,14 +66,15 @@ const trendIcon = computed(() => {
   display: flex;
   align-items: flex-start;
   gap: var(--h-spacing-md);
-  padding: var(--h-spacing-md);
+  padding: 16px;
   min-height: 80px;
+  border: 1px solid var(--h-border-color);
 }
 
 .metric-card__icon {
   width: 40px;
   height: 40px;
-  border-radius: var(--h-radius-md);
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,7 +90,7 @@ const trendIcon = computed(() => {
 }
 
 .metric-card__label {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--h-text-secondary);
   font-weight: 500;
   line-height: 1.2;

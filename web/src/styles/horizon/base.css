@@ -4,11 +4,11 @@
  */
 
 /* ========================================
-   GOOGLE FONTS IMPORT - DM Sans
+   GOOGLE FONTS IMPORT - Urbanist
    ======================================== */
 
-/* Import DM Sans with weights: 400 (normal), 500 (medium), 600 (semibold), 700 (bold) */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+/* Import Urbanist with weights: 400 (normal), 500 (medium), 600 (semibold), 700 (bold) */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap');
 
 /* ========================================
    CSS RESET
@@ -222,14 +222,17 @@ h6 {
 
 h1 {
   font-size: var(--h-text-4xl);
+  font-weight: 700;
 }
 
 h2 {
   font-size: var(--h-text-3xl);
+  font-weight: 700;
 }
 
 h3 {
   font-size: var(--h-text-2xl);
+  font-weight: 600;
 }
 
 h4 {
@@ -344,7 +347,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--h-primary);
-  box-shadow: 0 0 0 3px rgba(90, 67, 114, 0.1);
+  box-shadow: 0 0 0 3px rgba(48, 48, 48, 0.1);
 }
 
 input::placeholder,
@@ -525,7 +528,7 @@ textarea {
 
 /* Tap highlight color (iOS) */
 * {
-  -webkit-tap-highlight-color: rgba(90, 67, 114, 0.1);
+  -webkit-tap-highlight-color: rgba(48, 48, 48, 0.1);
 }
 
 /* Prevent text size adjustment on orientation change (iOS) */

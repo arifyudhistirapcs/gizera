@@ -87,10 +87,11 @@
     <!-- Right Side: Branding -->
     <div class="horizon-login__brand-side">
       <div class="horizon-login__brand-content">
+        <div class="horizon-login__brand-decoration">
+          <LottiePlayer src="/lottie/data-flow.json" width="160px" height="160px" :loop="true" />
+        </div>
         <div class="horizon-login__brand-logo">
-          <div class="horizon-login__logo-circle">
-            <span class="horizon-login__logo-text">ERP</span>
-          </div>
+          <img src="@/assets/illustrations/login-branding.svg" alt="ERP SPPG Branding" class="horizon-login__brand-illustration" />
         </div>
         <h2 class="horizon-login__brand-title">ERP SPPG</h2>
         <p class="horizon-login__brand-subtitle">
@@ -107,6 +108,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
+import LottiePlayer from '@/components/common/LottiePlayer.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -219,16 +221,16 @@ const handleLogin = async () => {
 }
 
 .horizon-login__title {
-  font-size: var(--h-text-4xl, 36px);
-  font-weight: var(--h-font-bold, 700);
-  color: var(--h-text-primary, #322837);
+  font-size: var(--h-text-4xl, 32px);
+  font-weight: var(--h-font-bold, 600);
+  color: var(--h-text-primary, #303030);
   margin: 0 0 var(--h-spacing-2, 8px) 0;
   line-height: var(--h-leading-tight, 1.25);
 }
 
 .horizon-login__subtitle {
   font-size: var(--h-text-sm, 14px);
-  color: var(--h-text-secondary, #74788C);
+  color: var(--h-text-secondary, #6B6B6B);
   margin: 0;
   line-height: var(--h-leading-normal, 1.5);
 }
@@ -241,24 +243,24 @@ const handleLogin = async () => {
 .horizon-login__form :deep(.ant-form-item-label > label) {
   font-size: var(--h-text-sm, 14px);
   font-weight: var(--h-font-medium, 500);
-  color: var(--h-text-primary, #322837);
+  color: var(--h-text-primary, #303030);
 }
 
 .horizon-login__input {
-  height: 48px;
-  border-radius: var(--h-radius-md, 12px);
-  font-size: var(--h-text-base, 16px);
-  border: 1px solid var(--h-border-color, #E9EDF7);
+  height: 44px;
+  border-radius: 6px;
+  font-size: var(--h-text-base, 14px);
+  border: 1px solid var(--h-border-color, #D8D8DB);
   transition: all var(--h-transition-base, 200ms);
 }
 
 .horizon-login__input:hover,
 .horizon-login__input:focus {
-  border-color: var(--h-primary, #5A4372);
+  border-color: var(--h-primary, #303030);
 }
 
 .horizon-login__input-icon {
-  color: var(--h-text-secondary, #74788C);
+  color: var(--h-text-secondary, #6B6B6B);
   font-size: var(--h-icon-sm, 20px);
 }
 
@@ -269,46 +271,45 @@ const handleLogin = async () => {
 
 .horizon-login__options :deep(.ant-checkbox-wrapper) {
   font-size: var(--h-text-sm, 14px);
-  color: var(--h-text-secondary, #74788C);
+  color: var(--h-text-secondary, #6B6B6B);
 }
 
 /* Submit Button */
 .horizon-login__submit {
   width: 100%;
   height: 48px;
-  border-radius: var(--h-radius-md, 12px);
-  font-size: var(--h-text-base, 16px);
+  border-radius: 6px;
+  font-size: var(--h-text-base, 14px);
   font-weight: var(--h-font-semibold, 600);
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  background: #C94A3A;
   border: none;
   transition: all var(--h-transition-base, 200ms);
 }
 
 .horizon-login__submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0px 10px 20px rgba(90, 67, 114, 0.3);
+  background: #A33D30;
 }
 
 .horizon-login__submit:active {
-  transform: translateY(0);
+  background: #8B3428;
 }
 
 /* Footer */
 .horizon-login__footer {
   text-align: center;
   padding-top: var(--h-spacing-6, 24px);
-  border-top: 1px solid var(--h-border-color, #E9EDF7);
+  border-top: 1px solid var(--h-border-color, #D8D8DB);
 }
 
 .horizon-login__footer-text {
   font-size: var(--h-text-sm, 14px);
-  color: var(--h-text-secondary, #74788C);
+  color: var(--h-text-secondary, #6B6B6B);
   margin: 0 0 var(--h-spacing-1, 4px) 0;
 }
 
 .horizon-login__footer-subtext {
   font-size: var(--h-text-xs, 12px);
-  color: var(--h-text-light, #ACA9B0);
+  color: var(--h-text-light, #6B6B6B);
   margin: 0;
 }
 
@@ -321,33 +322,10 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #5A4372 0%, #3D2B53 100%);
+  background: linear-gradient(135deg, #C94A3A 0%, #1E8A6E 100%);
   padding: var(--h-spacing-12, 48px);
   position: relative;
   overflow: hidden;
-}
-
-/* Decorative circles */
-.horizon-login__brand-side::before,
-.horizon-login__brand-side::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.horizon-login__brand-side::before {
-  width: 400px;
-  height: 400px;
-  top: -100px;
-  right: -100px;
-}
-
-.horizon-login__brand-side::after {
-  width: 300px;
-  height: 300px;
-  bottom: -80px;
-  left: -80px;
 }
 
 .horizon-login__brand-content {
@@ -356,35 +334,30 @@ const handleLogin = async () => {
   z-index: 1;
 }
 
+.horizon-login__brand-decoration {
+  position: absolute;
+  top: -80px;
+  right: -60px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
 /* Logo */
 .horizon-login__brand-logo {
   margin-bottom: var(--h-spacing-8, 32px);
 }
 
-.horizon-login__logo-circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.horizon-login__logo-text {
-  font-size: var(--h-text-4xl, 36px);
-  font-weight: var(--h-font-bold, 700);
-  color: #FFFFFF;
-  letter-spacing: 2px;
+.horizon-login__brand-illustration {
+  width: 200px;
+  height: auto;
+  max-height: 200px;
+  object-fit: contain;
 }
 
 /* Brand Title */
 .horizon-login__brand-title {
-  font-size: var(--h-text-4xl, 36px);
-  font-weight: var(--h-font-bold, 700);
+  font-size: var(--h-text-4xl, 32px);
+  font-weight: var(--h-font-bold, 600);
   color: #FFFFFF;
   margin: 0 0 var(--h-spacing-4, 16px) 0;
   line-height: var(--h-leading-tight, 1.25);
@@ -448,29 +421,29 @@ const handleLogin = async () => {
    ======================================== */
 
 .dark .horizon-login__form-side {
-  background-color: #322837;
+  background-color: #1A1A1A;
 }
 
 .dark .horizon-login__title {
-  color: var(--h-text-primary-dark, #F8FDEA);
+  color: var(--h-text-primary-dark, #F7F8FA);
 }
 
 .dark .horizon-login__subtitle,
 .dark .horizon-login__footer-text {
-  color: var(--h-text-secondary-dark, #ACA9B0);
+  color: var(--h-text-secondary-dark, #D8D8DB);
 }
 
 .dark .horizon-login__input {
-  background-color: #3D2B53;
-  border-color: #5A4372;
-  color: #F8FDEA;
+  background-color: #252525;
+  border-color: #404040;
+  color: #F7F8FA;
 }
 
 .dark .horizon-login__input::placeholder {
-  color: #ACA9B0;
+  color: #D8D8DB;
 }
 
 .dark .horizon-login__footer {
-  border-top-color: #5A4372;
+  border-top-color: #404040;
 }
 </style>

@@ -4,6 +4,7 @@
       <div class="logo">
         <img src="@/logo/gizera-dark-mobile2.png" alt="GIZERA Logo" class="logo-image" />
       </div>
+      <img src="@/assets/illustrations/login-header.svg" alt="Login illustration" class="login-header__illustration" />
     </div>
 
     <van-form @submit.prevent="handleLogin" class="login-form">
@@ -164,7 +165,7 @@ const handleLogin = async () => {
 <style scoped>
 .login-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--h-primary) 0%, var(--h-accent) 100%);
+  background: #E8EDE5;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -173,32 +174,9 @@ const handleLogin = async () => {
   overflow: hidden;
 }
 
-/* Decorative circles */
-.login-container::before {
-  content: '';
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  top: -100px;
-  right: -100px;
-}
-
-.login-container::after {
-  content: '';
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  bottom: -50px;
-  left: -50px;
-}
-
 .login-header {
   text-align: center;
-  color: #ffffff;
+  color: #303030;
   margin-top: 60px;
   margin-bottom: 40px;
   position: relative;
@@ -213,7 +191,14 @@ const handleLogin = async () => {
   width: 400px;
   max-width: 90vw;
   height: auto;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+.login-header__illustration {
+  width: 200px;
+  max-width: 60vw;
+  height: auto;
+  margin: 0 auto;
+  display: block;
 }
 
 @keyframes float {
@@ -223,7 +208,7 @@ const handleLogin = async () => {
 
 .login-header h1 {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 600;
   margin: 10px 0;
   font-family: var(--h-font-family);
 }
@@ -244,8 +229,9 @@ const handleLogin = async () => {
 
 .login-card {
   background: var(--h-bg-card);
-  border-radius: var(--h-radius-lg);
-  box-shadow: var(--h-shadow-card);
+  border-radius: 8px;
+  border: 1px solid #D8D8DB;
+  box-shadow: none;
   padding: var(--h-spacing-2xl);
   overflow: hidden;
 }
@@ -309,23 +295,23 @@ const handleLogin = async () => {
   height: 48px !important;
   font-size: 16px !important;
   font-weight: 600 !important;
-  border-radius: var(--h-radius-md) !important;
-  background: var(--h-primary) !important;
-  border-color: var(--h-primary) !important;
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 6px !important;
+  background: #C94A3A !important;
+  border-color: #C94A3A !important;
+  box-shadow: none;
   transition: all var(--h-transition-base);
 }
 
 .login-btn:active {
   transform: scale(0.98);
-  background: var(--h-primary-active) !important;
-  border-color: var(--h-primary-active) !important;
+  background: #A33D30 !important;
+  border-color: #A33D30 !important;
 }
 
 .login-footer {
   margin-top: auto;
   text-align: center;
-  color: #ffffff;
+  color: #6B6B6B;
   opacity: 0.8;
   font-size: 12px;
   padding: var(--h-spacing-xl) 0;

@@ -5,7 +5,7 @@ import SummaryCard from '@/components/mobile/SummaryCard.vue'
 describe('SummaryCard', () => {
   const defaultProps = {
     icon: 'friends-o',
-    iconColor: '#5A4372',
+    iconColor: '#F0F0F0',
     label: 'Total Hadir',
     value: '24',
     loading: false

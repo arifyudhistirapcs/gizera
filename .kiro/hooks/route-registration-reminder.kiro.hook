@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Route Registration Reminder",
+  "description": "When a new handler file is created, remind to register routes in router.go",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "backend/internal/handlers/*.go"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new handler file was created. Check if the handler's endpoints need to be registered in backend/internal/router/router.go. Verify: (1) Service is instantiated, (2) Handler is instantiated, (3) Routes are registered with proper middleware.RequireRole() for access control."
+  }
+}

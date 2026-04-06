@@ -158,7 +158,7 @@ const formatRouteName = (name) => {
 }
 
 .breadcrumb-link:hover {
-  color: var(--h-primary, #5A4372);
+  color: var(--h-primary, #303030);
 }
 
 .breadcrumb-text {
@@ -181,7 +181,7 @@ const formatRouteName = (name) => {
 }
 
 .dark .breadcrumb-link:hover {
-  color: var(--h-primary-light, #6a5382);
+  color: var(--h-primary-light, #404040);
 }
 
 .dark .breadcrumb-text {

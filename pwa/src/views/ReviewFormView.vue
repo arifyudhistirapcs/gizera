@@ -1,5 +1,10 @@
 <template>
   <div class="review-form-container">
+    <!-- Success Animation Overlay -->
+    <div v-if="showSuccessAnimation" class="success-overlay">
+      <LottiePlayer src="/lottie/success-check.json" width="120px" height="120px" :loop="false" />
+    </div>
+
     <!-- Navigation Bar -->
     <van-nav-bar 
       title="Form Ulasan Pengiriman" 
@@ -148,6 +153,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { showToast, showSuccessToast } from 'vant'
 import api from '@/services/api'
+import LottiePlayer from '@/components/common/LottiePlayer.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -156,6 +162,7 @@ const active = ref(0)
 const isLoading = ref(false)
 const isSubmitting = ref(false)
 const schoolName = ref('')
+const showSuccessAnimation = ref(false)
 const schoolId = ref(null)
 const deliveryRecordId = ref(null)
 const deliveryDate = ref('')
@@ -250,13 +257,17 @@ const submitReview = async () => {
 
     await api.post('/reviews', payload)
     
+    showSuccessAnimation.value = true
     showSuccessToast('Ulasan berhasil dikirim')
     
-    // Navigate back with success flag
-    router.replace({
-      path: route.query.return_path || '/tasks',
-      query: { review_submitted: 'true' }
-    })
+    // Navigate back with success flag after animation
+    setTimeout(() => {
+      showSuccessAnimation.value = false
+      router.replace({
+        path: route.query.return_path || '/tasks',
+        query: { review_submitted: 'true' }
+      })
+    }, 1500)
   } catch (err) {
     console.error('Error submitting review:', err)
     if (err.response?.data?.error_code === 'REVIEW_EXISTS') {
@@ -275,9 +286,29 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Success Animation Overlay */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .review-form-container {
   min-height: 100vh;
-  background-color: #F8FDEA;
+  background-color: #E8EDE5;
   padding-top: 46px;
   padding-bottom: 70px;
 }
@@ -298,7 +329,7 @@ onMounted(() => {
 
 .section-title {
   font-weight: bold;
-  background-color: #5A4372;
+  background-color: #303030;
   color: white;
 }
 
@@ -333,6 +364,6 @@ onMounted(() => {
 }
 
 :deep(.van-rate__icon--full) {
-  color: #5A4372;
+  color: #303030;
 }
 </style>
