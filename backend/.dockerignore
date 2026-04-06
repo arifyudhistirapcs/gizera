@@ -1,0 +1,12 @@
+*.db
+*.log
+.env
+.git
+.DS_Store
+bin/
+docs/
+*.md
+firebase-credentials.json
+clear_*.sh
+clear_*.sql
+fix_*.sql

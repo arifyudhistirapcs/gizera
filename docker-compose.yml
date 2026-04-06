@@ -1,0 +1,36 @@
+# ============================================
+# Local Development Docker Compose
+# Usage: docker compose up -d
+# ============================================
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: erp-sppg-db
+    environment:
+      POSTGRES_DB: erp_sppg
+      POSTGRES_USER: erp_sppg_user
+      POSTGRES_PASSWORD: localdev123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_sppg_user -d erp_sppg"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: erp-sppg-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:
