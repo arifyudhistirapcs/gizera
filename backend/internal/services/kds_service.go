@@ -362,7 +362,7 @@ func (s *KDSService) UpdateRecipeStatus(ctx context.Context, recipeID uint, stat
 		Joins("JOIN menu_plans ON menu_items.menu_plan_id = menu_plans.id").
 		Where("menu_plans.status = ?", "approved").
 		Where("menu_items.recipe_id = ?", recipeID).
-		Where("DATE(menu_items.date) = DATE(?)", time.Now()).
+		Where("DATE(menu_items.date) = DATE(?)", normalizeDate(time.Now())).
 		First(&menuItem).Error
 	if err != nil {
 		return fmt.Errorf("failed to get menu item: %w", err)
