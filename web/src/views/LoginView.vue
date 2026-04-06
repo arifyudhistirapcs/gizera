@@ -146,39 +146,24 @@ const handleLogin = async () => {
     
     // Redirect based on user role
     const user = authStore.user
-    if (user) {
-      switch (user.role) {
-        case 'superadmin':
-          router.push('/yayasan')
-          break
-        case 'admin_bgn':
-          router.push('/dashboard-bgn')
-          break
-        case 'kepala_yayasan':
-          router.push('/dashboard-yayasan')
-          break
-        case 'kepala_sppg':
-          router.push('/dashboard/kepala-sppg')
-          break
-        case 'ahli_gizi':
-          router.push('/menu-planning')
-          break
-        case 'pengadaan':
-          router.push('/purchase-orders')
-          break
-        case 'akuntan':
-          router.push('/financial-reports')
-          break
-        case 'chef':
-        case 'packing':
-          router.push('/kds/cooking')
-          break
-        default:
-          router.push('/dashboard')
-      }
-    } else {
-      router.push('/dashboard')
+    const role = user?.role || 'default'
+    
+    const roleRoutes = {
+      superadmin: '/yayasan',
+      admin_bgn: '/dashboard-bgn',
+      kepala_yayasan: '/dashboard-yayasan',
+      kepala_sppg: '/dashboard/kepala-sppg',
+      ahli_gizi: '/menu-planning',
+      pengadaan: '/purchase-orders',
+      akuntan: '/financial-reports',
+      chef: '/kds/cooking',
+      packing: '/kds/cooking'
     }
+    
+    const target = roleRoutes[role] || '/dashboard'
+    
+    // Use window.location for reliable redirect after login
+    window.location.href = target
   } catch (err) {
     console.error('Login error:', err)
     error.value = err.response?.data?.message || 'Login gagal. Periksa NIK/Email dan password Anda.'
