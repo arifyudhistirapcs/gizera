@@ -752,14 +752,14 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .logo-img {
-  height: 40px;
-  max-height: 40px;
+  height: 56px;
+  max-height: 56px;
   width: auto;
   object-fit: contain;
 }
 
 .logo-img-collapsed {
-  height: 32px;
+  height: 40px;
   width: auto;
   object-fit: contain;
 }

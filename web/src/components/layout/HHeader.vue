@@ -24,9 +24,9 @@
       <h1 class="page-title">{{ pageTitle }}</h1>
     </div>
 
-    <!-- Right Section: Theme Toggle only -->
+    <!-- Right Section -->
     <div class="header-right">
-      <ThemeToggle />
+      <!-- Dark mode toggle disabled -->
     </div>
   </header>
 </template>
@@ -35,7 +35,6 @@
 import { computed } from 'vue'
 import { useBreakpoint } from '@/composables/useBreakpoint'
 import { MenuOutlined } from '@ant-design/icons-vue'
-import ThemeToggle from './ThemeToggle.vue'
 
 const props = defineProps({
   pageTitle: {
