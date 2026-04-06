@@ -8,6 +8,9 @@ backend/*.dylib
 backend/vendor/
 backend/bin/server
 backend/uploads/
+backend/server
+backend/*.db
+backend/*.log
 
 # Web & PWA
 web/node_modules/
