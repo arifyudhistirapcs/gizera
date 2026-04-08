@@ -92,6 +92,8 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8080/api/v1
     container_name: erp-sppg-web
     ports:
       - "3001:80"
@@ -109,6 +111,8 @@ services:
     build:
       context: ./pwa
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8080/api/v1
     container_name: erp-sppg-pwa
     ports:
       - "3002:80"
