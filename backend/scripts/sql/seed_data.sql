@@ -1,7 +1,8 @@
 -- ============================================
 -- Gizera ERP SPPG - Seed Data
 -- Run after migration on fresh database
--- Usage: psql -U erp_sppg_user -d erp_sppg -f seed.sql
+-- Usage: psql -U erp_sppg_user -d erp_sppg -f seed_data.sql
+-- NOTE: Run migration FIRST, then this seed file
 -- ============================================
 
 BEGIN;
@@ -9,28 +10,36 @@ BEGIN;
 -- Disable triggers during seed
 SET session_replication_role = 'replica';
 
--- Clean existing data (except system tables)
-TRUNCATE TABLE 
-  delivery_menu_items, status_transitions, electronic_pods, delivery_reviews,
-  delivery_records, delivery_tasks, pickup_tasks,
-  menu_item_school_allocations, menu_items, menu_plans,
-  goods_receipt_items, goods_receipts, purchase_order_items, purchase_orders,
-  inventory_movements, inventory_items, stok_opname_items, stok_opname_forms,
-  recipe_items, recipe_versions, recipes,
-  semi_finished_movements, semi_finished_production_logs, semi_finished_inventories,
-  semi_finished_recipe_ingredients, semi_finished_recipes, semi_finished_goods,
-  ingredients, suppliers,
-  asset_maintenances, kitchen_assets,
-  cash_flow_entries, budget_targets,
-  attendances, employees,
-  ompreng_cleanings, ompreng_inventories, ompreng_trackings,
-  risk_assessment_items, risk_assessment_category_scores, risk_assessment_forms,
-  sop_checklist_items, sop_categories,
-  sppg_operational_snapshots,
-  notifications, audit_trails,
-  wi_fi_configs, gps_configs, system_configs,
-  schools, users, sppgs, yayasans
-CASCADE;
+-- Clean operational data only (keep yayasans/sppgs from migration)
+DO $$
+DECLARE
+  tables_to_clean TEXT[] := ARRAY[
+    'delivery_menu_items', 'status_transitions', 'electronic_pods', 'delivery_reviews',
+    'delivery_records', 'delivery_tasks', 'pickup_tasks',
+    'menu_item_school_allocations', 'menu_items', 'menu_plans',
+    'goods_receipt_items', 'goods_receipts', 'purchase_order_items', 'purchase_orders',
+    'inventory_movements', 'inventory_items', 'stok_opname_items', 'stok_opname_forms',
+    'recipe_items', 'recipe_versions', 'recipes',
+    'semi_finished_movements', 'semi_finished_production_logs', 'semi_finished_inventories',
+    'semi_finished_recipe_ingredients', 'semi_finished_recipes', 'semi_finished_goods',
+    'ingredients', 'suppliers',
+    'asset_maintenances', 'kitchen_assets',
+    'cash_flow_entries', 'budget_targets',
+    'attendances', 'employees',
+    'ompreng_cleanings', 'ompreng_inventories', 'ompreng_trackings',
+    'risk_assessment_items', 'risk_assessment_category_scores', 'risk_assessment_forms',
+    'notifications', 'audit_trails',
+    'wi_fi_configs', 'gps_configs',
+    'schools'
+  ];
+  t TEXT;
+BEGIN
+  FOREACH t IN ARRAY tables_to_clean LOOP
+    EXECUTE format('TRUNCATE TABLE %I CASCADE', t);
+  END LOOP;
+  -- Delete non-superadmin users (keep SA001 from migration)
+  DELETE FROM users WHERE nik != 'SA001';
+END $$;
 
 SELECT pg_catalog.set_config('search_path', '', false);
 INSERT INTO public.attendances VALUES (1, 1, 1, '2026-03-23 00:00:00+00', '2026-03-23 05:28:22.310152+00', '2026-03-23 14:07:05.554247+00', 8.4, 'SPPG-WiFi-01', 'aa:bb:cc:dd:ee:01', '2026-03-23 05:00:00+00');
@@ -878,7 +887,6 @@ INSERT INTO public.semi_finished_inventories VALUES (7, 7, 999999, 100, '2026-04
 INSERT INTO public.semi_finished_inventories VALUES (1, 1, 369999, 100, '2026-04-06 05:49:07.363062+00');
 INSERT INTO public.semi_finished_inventories VALUES (3, 3, 955349, 50, '2026-04-06 05:49:07.36875+00');
 INSERT INTO public.semi_finished_inventories VALUES (8, 8, 873999, 50, '2026-04-06 05:49:07.369646+00');
-INSERT INTO public.users VALUES (1, 'SA001', 'superadmin@system.local', '$2a$10$Q83SIbfRrUmZ.CoewulUHu2q1sYlwFAuQImZRFdXKpJw4wdgIx7yu', 'Superadmin', '', 'superadmin', NULL, NULL, true, NULL, '2026-04-06 03:57:50.71284+00', '2026-04-06 03:57:50.71284+00');
 INSERT INTO public.users VALUES (2, 'KSPPG001', 'kepala.sppg@sppg.com', '$2b$12$6FWQlLmyTVHh6Ti8bcDhdetJYjU7h266kybXplofpur.GG3jrymia', 'Kepala SPPG', NULL, 'kepala_sppg', 1, 1, true, NULL, '2026-04-06 04:04:22.098513+00', '2026-04-06 04:04:22.098513+00');
 INSERT INTO public.users VALUES (3, 'AG001', 'siti.nurhaliza@sppg.com', '$2b$12$6FWQlLmyTVHh6Ti8bcDhdetJYjU7h266kybXplofpur.GG3jrymia', 'Siti Nurhaliza', '081234567001', 'ahli_gizi', 1, 1, true, 1, '2026-04-06 04:42:05.288658+00', '2026-04-06 04:42:05.288658+00');
 INSERT INTO public.users VALUES (4, 'AG002', 'dewi.kartika@sppg.com', '$2b$12$6FWQlLmyTVHh6Ti8bcDhdetJYjU7h266kybXplofpur.GG3jrymia', 'Dewi Kartika', '081234567002', 'ahli_gizi', 1, 1, true, 1, '2026-04-06 04:42:05.288658+00', '2026-04-06 04:42:05.288658+00');
@@ -898,7 +906,6 @@ INSERT INTO public.users VALUES (17, 'AB001', 'admin.bgn@bgn.go.id', '$2b$12$6FW
 INSERT INTO public.semi_finished_movements VALUES (1, 1, 'out', 630000, 'recipe_16', '2026-04-06 05:49:07.364121+00', 2, 'Deducted for cooking recipe: Nasi Capcay Sayuran (small: 2080, large: 1590)');
 INSERT INTO public.semi_finished_movements VALUES (2, 3, 'out', 44650, 'recipe_16', '2026-04-06 05:49:07.369022+00', 2, 'Deducted for cooking recipe: Nasi Capcay Sayuran (small: 2080, large: 1590)');
 INSERT INTO public.semi_finished_movements VALUES (3, 8, 'out', 126000, 'recipe_16', '2026-04-06 05:49:07.369833+00', 2, 'Deducted for cooking recipe: Nasi Capcay Sayuran (small: 2080, large: 1590)');
-INSERT INTO public.sppgs VALUES (1, 'SPPG-0001', 'SPPG Default', '', 0, 0, '', '', 1, true, '2026-04-06 03:57:50.63751+00', '2026-04-06 03:57:50.63751+00');
 INSERT INTO public.suppliers VALUES (1, 1, 'PT Segar Nusantara', 'Pak Hartono', '081345678001', 'hartono@segarnusantara.co.id', 'Pasar Induk Kramat Jati, Jakarta Timur', -6.2750, 106.8700, 'sayuran', true, 92.5, 4.3, '2026-04-06 04:43:07.416125+00', '2026-04-06 04:43:07.416125+00');
 INSERT INTO public.suppliers VALUES (2, 1, 'CV Daging Prima', 'Ibu Marlina', '081345678002', 'marlina@dagingprima.co.id', 'Jl. Raya Bogor KM 25, Jakarta Timur', -6.3200, 106.8600, 'daging', true, 88.0, 4.1, '2026-04-06 04:43:07.416125+00', '2026-04-06 04:43:07.416125+00');
 INSERT INTO public.suppliers VALUES (3, 1, 'UD Bumbu Lengkap', 'Pak Sugianto', '081345678003', 'sugianto@bumbulengkap.com', 'Pasar Senen Blok III, Jakarta Pusat', -6.1750, 106.8450, 'bumbu', true, 95.0, 4.5, '2026-04-06 04:43:07.416125+00', '2026-04-06 04:43:07.416125+00');
@@ -911,7 +918,6 @@ INSERT INTO public.suppliers VALUES (9, 1, 'PT Susu Segar Indonesia', 'Pak Bamba
 INSERT INTO public.suppliers VALUES (10, 1, 'UD Buah Tropis', 'Ibu Kartini', '081345678010', 'kartini@buahtropis.com', 'Pasar Induk Tanah Tinggi, Tangerang', -6.1700, 106.6100, 'buah', true, 91.0, 4.2, '2026-04-06 04:43:07.416125+00', '2026-04-06 04:43:07.416125+00');
 INSERT INTO public.wi_fi_configs VALUES (1, 1, 'SPPG-WiFi-01', 'aa:bb:cc:dd:ee:01', 'Dapur Utama SPPG', '192.168.1.0/24', '{192.168.1.1,192.168.1.2,192.168.1.3,192.168.1.4,192.168.1.5}', true, '2026-04-06 04:52:35.18961+00', '2026-04-06 04:52:35.18961+00');
 INSERT INTO public.wi_fi_configs VALUES (2, 1, 'SPPG-WiFi-02', 'aa:bb:cc:dd:ee:02', 'Kantor Admin SPPG', '192.168.2.0/24', '{192.168.2.1,192.168.2.2,192.168.2.3}', true, '2026-04-06 04:52:35.18961+00', '2026-04-06 04:52:35.18961+00');
-INSERT INTO public.yayasans VALUES (1, 'YYS-0001', 'Yayasan Default', '', 0, 0, '', '', '', '', true, '2026-04-06 03:57:50.635495+00', '2026-04-06 03:57:50.635495+00');
 SELECT pg_catalog.setval('public.asset_maintenances_id_seq', 1, false);
 SELECT pg_catalog.setval('public.attendances_id_seq', 154, true);
 SELECT pg_catalog.setval('public.audit_trails_id_seq', 95, true);
@@ -968,22 +974,5 @@ SELECT pg_catalog.setval('public.yayasans_id_seq', 1, true);
 
 -- Re-enable triggers
 SET session_replication_role = 'origin';
-
--- Reset sequences to max id + 1
-DO $$
-DECLARE
-  r RECORD;
-BEGIN
-  FOR r IN (
-    SELECT c.relname AS seq_name, t.relname AS table_name, a.attname AS col_name
-    FROM pg_class c
-    JOIN pg_depend d ON d.objid = c.oid
-    JOIN pg_class t ON d.refobjid = t.oid
-    JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = d.refobjsubid
-    WHERE c.relkind = 'S'
-  ) LOOP
-    EXECUTE format('SELECT setval(%L, COALESCE((SELECT MAX(%I) FROM %I), 0) + 1, false)', r.seq_name, r.col_name, r.table_name);
-  END LOOP;
-END $$;
 
 COMMIT;
