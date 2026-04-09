@@ -7,8 +7,10 @@ set -e
 
 TAG="${1:-latest}"
 REGISTRY="${DOCKER_REGISTRY:-}"
+API_URL="${VITE_API_BASE_URL:-/api/v1}"
 
 echo "=== Building ERP SPPG Docker Images (tag: $TAG) ==="
+echo ">>> API URL: $API_URL"
 
 # Build backend
 echo ""
@@ -18,12 +20,12 @@ docker build -t erp-sppg-backend:$TAG ./backend
 # Build web dashboard
 echo ""
 echo ">>> Building web dashboard..."
-docker build --build-arg VITE_API_BASE_URL=/api/v1 -t erp-sppg-web:$TAG ./web
+docker build --build-arg VITE_API_BASE_URL=$API_URL -t erp-sppg-web:$TAG ./web
 
 # Build PWA mobile
 echo ""
 echo ">>> Building PWA mobile..."
-docker build --build-arg VITE_API_BASE_URL=/api/v1 -t erp-sppg-pwa:$TAG ./pwa
+docker build --build-arg VITE_API_BASE_URL=$API_URL -t erp-sppg-pwa:$TAG ./pwa
 
 echo ""
 echo "=== All images built successfully ==="
