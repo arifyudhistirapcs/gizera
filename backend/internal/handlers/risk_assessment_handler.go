@@ -758,6 +758,18 @@ func (h *RiskAssessmentHandler) UploadEvidence(c *gin.Context) {
 	// Generate URL
 	evidenceURL := fmt.Sprintf("/uploads/risk-assessment/%s", filename)
 
+	// Update item evidence_url in database if item_id provided
+	itemIDStr := c.PostForm("item_id")
+	if itemIDStr != "" {
+		itemID, parseErr := strconv.ParseUint(itemIDStr, 10, 32)
+		if parseErr == nil {
+			if updateErr := h.service.UpdateItemEvidence(uint(id), uint(itemID), evidenceURL); updateErr != nil {
+				// Log but don't fail - file is already saved
+				fmt.Printf("Warning: failed to update item evidence URL: %v\n", updateErr)
+			}
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{

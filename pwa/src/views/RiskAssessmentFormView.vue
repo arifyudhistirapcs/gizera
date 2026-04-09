@@ -143,31 +143,27 @@
               class="notes-field"
             />
 
-            <!-- Evidence Upload -->
+            <!-- Evidence Camera Capture -->
             <div class="evidence-section">
-              <van-uploader
-                v-if="form.status === 'draft'"
-                :after-read="(file) => onEvidenceUpload(item, file)"
-                :max-count="1"
-                accept="image/*"
-                :disabled="uploadingItemId === item.id"
-              >
+              <template v-if="form.status === 'draft'">
                 <van-button
                   size="small"
                   icon="photograph"
                   :loading="uploadingItemId === item.id"
+                  :disabled="uploadingItemId === item.id"
+                  @click="openCamera(item)"
                 >
-                  {{ item.evidence_url ? 'Ganti Foto' : 'Upload Foto' }}
+                  {{ item.evidence_url ? 'Foto Ulang' : 'Ambil Foto' }}
                 </van-button>
-              </van-uploader>
+              </template>
               <div v-if="item.evidence_url" class="evidence-preview">
                 <van-image
-                  :src="item.evidence_url"
+                  :src="resolveUrl(item.evidence_url)"
                   width="80"
                   height="80"
                   fit="cover"
                   radius="8"
-                  @click="previewImage(item.evidence_url)"
+                  @click="previewImage(resolveUrl(item.evidence_url))"
                 />
               </div>
             </div>
@@ -267,6 +263,25 @@
       v-model:show="showImagePreview"
       :images="previewImages"
     />
+
+    <!-- Camera Overlay -->
+    <van-overlay :show="cameraActive" z-index="2000" @click="closeCamera">
+      <div class="camera-overlay" @click.stop>
+        <div class="camera-header">
+          <span>Ambil Foto Evidence</span>
+          <van-icon name="cross" size="24" color="#fff" @click="closeCamera" />
+        </div>
+        <div class="camera-viewfinder">
+          <video ref="videoRef" autoplay playsinline muted class="camera-video"></video>
+          <canvas ref="captureCanvas" style="display:none"></canvas>
+        </div>
+        <div class="camera-footer">
+          <div class="camera-shutter" @click="capturePhoto">
+            <div class="shutter-inner"></div>
+          </div>
+        </div>
+      </div>
+    </van-overlay>
   </div>
 </template>
 
@@ -288,6 +303,14 @@ import {
 
 const router = useRouter()
 const route = useRoute()
+
+// Helper to resolve backend URLs for uploaded files
+const backendBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1').replace('/api/v1', '')
+function resolveUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return backendBaseUrl + url
+}
 
 // State
 const loading = ref(false)
@@ -472,26 +495,121 @@ async function saveDraft() {
   }
 }
 
-// ==================== Evidence Upload ====================
+// ==================== Camera Capture & Evidence ====================
 
-async function onEvidenceUpload(item, file) {
+const videoRef = ref(null)
+const captureCanvas = ref(null)
+const cameraActive = ref(false)
+let cameraStream = null
+let cameraTargetItem = null
+
+function getCurrentPosition() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) { resolve(null); return }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 8000 }
+    )
+  })
+}
+
+async function openCamera(item) {
+  cameraTargetItem = item
+  cameraActive.value = true
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 960 } },
+      audio: false
+    })
+    // Wait for DOM to render video element
+    await new Promise(r => setTimeout(r, 100))
+    if (videoRef.value) {
+      videoRef.value.srcObject = cameraStream
+    }
+  } catch (err) {
+    console.error('Camera access failed:', err)
+    showFailToast('Tidak dapat mengakses kamera')
+    closeCamera()
+  }
+}
+
+function closeCamera() {
+  cameraActive.value = false
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop())
+    cameraStream = null
+  }
+  cameraTargetItem = null
+}
+
+async function capturePhoto() {
+  if (!videoRef.value || !cameraTargetItem) return
+  const item = cameraTargetItem
+  const video = videoRef.value
+
+  // Capture frame to canvas
+  const canvas = captureCanvas.value
+  canvas.width = video.videoWidth
+  canvas.height = video.videoHeight
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(video, 0, 0)
+
+  // Close camera immediately
+  closeCamera()
+
   uploadingItemId.value = item.id
   try {
+    // Get GPS
+    const coords = await getCurrentPosition()
+
+    // Stamp watermark
+    const w = canvas.width
+    const h = canvas.height
+    const barH = Math.round(h * 0.06)
+    const fontSize = Math.round(barH * 0.38)
+    const smallFont = Math.round(barH * 0.3)
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)'
+    ctx.fillRect(0, h - barH, w, barH)
+
+    const now = new Date()
+    const pad = (n) => String(n).padStart(2, '0')
+    const ts = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+
+    ctx.fillStyle = '#fff'
+    ctx.font = `bold ${fontSize}px sans-serif`
+    ctx.textBaseline = 'middle'
+    ctx.textAlign = 'left'
+    ctx.fillText(ts, 12, h - barH * 0.62)
+
+    if (coords) {
+      ctx.font = `${smallFont}px sans-serif`
+      ctx.fillText(`📍 ${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`, 12, h - barH * 0.25)
+    }
+
+    ctx.font = `${smallFont}px sans-serif`
+    ctx.textAlign = 'right'
+    ctx.fillText('Dapur Sehat - Audit', w - 12, h - barH * 0.5)
+
+    // Convert to blob and upload
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85))
+
     const formData = new FormData()
-    formData.append('file', file.file)
+    formData.append('photo', blob, `evidence-${Date.now()}.jpg`)
     formData.append('item_id', item.id)
 
     const response = await riskAssessmentService.uploadEvidence(form.value.id, formData)
     const data = response.data
     if (data?.success && data.data?.evidence_url) {
       item.evidence_url = data.data.evidence_url
-      showSuccessToast('Foto berhasil diupload')
+      showSuccessToast('Foto berhasil diambil')
     } else {
       throw new Error(data?.message || 'Upload gagal')
     }
   } catch (err) {
-    console.error('Evidence upload failed:', err)
-    showFailToast(err.response?.data?.message || 'Gagal upload foto')
+    console.error('Evidence capture failed:', err)
+    showFailToast(err.response?.data?.message || 'Gagal mengambil foto')
   } finally {
     uploadingItemId.value = null
   }
@@ -844,5 +962,70 @@ onUnmounted(() => {
 
 :deep(.van-progress__pivot) {
   font-size: 11px;
+}
+
+/* Camera Overlay */
+.camera-overlay {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+
+.camera-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.camera-viewfinder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-footer {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.camera-shutter {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.camera-shutter:active .shutter-inner {
+  transform: scale(0.85);
+}
+
+.shutter-inner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
 }
 </style>

@@ -4,7 +4,32 @@
       title="Detail Risk Assessment"
       sub-title="Hasil Audit Kepatuhan SOP"
       @back="$router.push('/risk-assessment')"
-    />
+    >
+      <template #extra>
+        <a-space>
+          <a-button
+            type="default"
+            :icon="h(FileExcelOutlined)"
+            :loading="exportingExcel"
+            :disabled="!form"
+            @click="exportExcel"
+            class="btn-export-excel"
+          >
+            Export Excel
+          </a-button>
+          <a-button
+            type="default"
+            :icon="h(FilePdfOutlined)"
+            :loading="exportingPdf"
+            :disabled="!form"
+            @click="exportPdf"
+            class="btn-export-pdf"
+          >
+            Export PDF
+          </a-button>
+        </a-space>
+      </template>
+    </a-page-header>
     <a-spin :spinning="loading" tip="Memuat data...">
       <template v-if="form">
         <a-card class="detail-card">
@@ -59,7 +84,7 @@
                   </template>
                   <template v-else-if="column.key === 'catatan'">{{ record.catatan || '-' }}</template>
                   <template v-else-if="column.key === 'evidence'">
-                    <a-image v-if="record.evidence_url" :src="record.evidence_url" :width="60" :height="60" style="object-fit: cover; border-radius: 4px" />
+                    <a-image v-if="record.evidence_url" :src="resolveUrl(record.evidence_url)" :width="60" :height="60" style="object-fit: cover; border-radius: 4px" />
                     <span v-else style="color: #999">-</span>
                   </template>
                 </template>
@@ -93,18 +118,31 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { FileExcelOutlined, FilePdfOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import riskAssessmentService from '@/services/riskAssessmentService'
 import HEmptyState from '@/components/common/HEmptyState.vue'
 
 const route = useRoute()
 const router = useRouter()
+
+// Resolve backend URL for uploaded files
+// In dev: use relative path (proxied by Vite), in prod: use backend base
+const resolveUrl = (url) => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  // Relative path like /uploads/... will be proxied by Vite dev server
+  return url
+}
+
 const loading = ref(false)
 const form = ref(null)
 const activeCategories = ref([])
+const exportingExcel = ref(false)
+const exportingPdf = ref(false)
 
 const itemColumns = [
   { title: 'Item', dataIndex: 'item_nama', key: 'item_nama', ellipsis: true },
@@ -207,6 +245,330 @@ const getCategoryAvgScore = (categoryName) => {
   return cs ? cs.average_score.toFixed(1) : '-'
 }
 
+// --- Export helpers ---
+
+const getExportFileName = (ext) => {
+  const sppgName = (form.value?.sppg?.nama || `SPPG-${form.value?.sppg_id || 'unknown'}`)
+    .replace(/[^a-zA-Z0-9_-]/g, '-')
+  const date = dayjs(form.value?.created_at).format('YYYY-MM-DD')
+  return `Risk-Assessment-${sppgName}-${date}.${ext}`
+}
+
+// --- Excel Export ---
+
+const exportExcel = async () => {
+  exportingExcel.value = true
+  try {
+    const XLSX = await import('xlsx')
+    const wb = XLSX.utils.book_new()
+
+    // Sheet 1: Informasi Audit
+    const auditInfo = [
+      ['SPPG', form.value.sppg?.nama || `SPPG #${form.value.sppg_id}`],
+      ['Tanggal Audit', formatDate(form.value.created_at)],
+      ['Status', form.value.status || '-'],
+      ['Skor Risiko', form.value.overall_risk_score != null ? form.value.overall_risk_score.toFixed(1) : '-'],
+      ['Risk Level', form.value.risk_level || '-'],
+      ['Tanggal Submit', form.value.submitted_at ? formatDate(form.value.submitted_at) : '-']
+    ]
+    const wsAudit = XLSX.utils.aoa_to_sheet([['Field', 'Value'], ...auditInfo])
+    wsAudit['!cols'] = [{ wch: 20 }, { wch: 40 }]
+    XLSX.utils.book_append_sheet(wb, wsAudit, 'Informasi Audit')
+
+    // Sheet 2: Skor per Kategori
+    if (form.value.category_scores?.length) {
+      const catHeaders = ['Kategori', 'Rata-rata Skor', 'Risk Level', 'Jumlah Item']
+      const catRows = form.value.category_scores.map(cs => [
+        cs.category_nama,
+        cs.average_score?.toFixed(1) ?? '-',
+        cs.risk_level || '-',
+        cs.item_count ?? 0
+      ])
+      const wsCat = XLSX.utils.aoa_to_sheet([catHeaders, ...catRows])
+      wsCat['!cols'] = [{ wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 15 }]
+      XLSX.utils.book_append_sheet(wb, wsCat, 'Skor Kategori')
+    }
+
+    // Sheet 3: Detail Item Checklist
+    if (form.value.items?.length) {
+      const itemHeaders = ['Item', 'Kategori', 'Skor Kepatuhan', 'Catatan', 'Evidence URL']
+      const itemRows = form.value.items.map(item => [
+        item.item_nama || '-',
+        item.category_nama || '-',
+        item.compliance_score != null ? `${item.compliance_score} / 5` : 'Belum dinilai',
+        item.catatan || '-',
+        item.evidence_url || '-'
+      ])
+      const wsItems = XLSX.utils.aoa_to_sheet([itemHeaders, ...itemRows])
+      wsItems['!cols'] = [{ wch: 35 }, { wch: 25 }, { wch: 15 }, { wch: 35 }, { wch: 50 }]
+
+      // Add hyperlinks for evidence URLs
+      form.value.items.forEach((item, idx) => {
+        if (item.evidence_url) {
+          const cellRef = XLSX.utils.encode_cell({ r: idx + 1, c: 4 })
+          const fullUrl = resolveUrl(item.evidence_url)
+          if (!wsItems[cellRef]) wsItems[cellRef] = { t: 's', v: fullUrl }
+          wsItems[cellRef].l = { Target: fullUrl, Tooltip: 'Lihat Evidence' }
+        }
+      })
+
+      XLSX.utils.book_append_sheet(wb, wsItems, 'Detail Checklist')
+    }
+
+    // Sheet 4: Data Operasional (Snapshot)
+    if (form.value.snapshot) {
+      const metrics = snapshotMetrics.value
+      const snapHeaders = ['Metrik', 'Nilai', 'Status']
+      const snapRows = metrics.map(m => [
+        m.label,
+        m.display,
+        metricLabel(m.key, m.value)
+      ])
+      const wsSnap = XLSX.utils.aoa_to_sheet([snapHeaders, ...snapRows])
+      wsSnap['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 20 }]
+      XLSX.utils.book_append_sheet(wb, wsSnap, 'Data Operasional')
+    }
+
+    XLSX.writeFile(wb, getExportFileName('xlsx'))
+    message.success('Export Excel berhasil')
+  } catch (error) {
+    console.error('Excel export error:', error)
+    message.error('Gagal export Excel')
+  } finally {
+    exportingExcel.value = false
+  }
+}
+
+// --- PDF Export ---
+
+const loadImageAsBase64 = async (url) => {
+  try {
+    const response = await fetch(url)
+    if (!response.ok) return null
+    const blob = await response.blob()
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result)
+      reader.onerror = () => resolve(null)
+      reader.readAsDataURL(blob)
+    })
+  } catch {
+    return null
+  }
+}
+
+const exportPdf = async () => {
+  exportingPdf.value = true
+  try {
+    const jsPDFModule = await import('jspdf')
+    const jsPDF = jsPDFModule.default || jsPDFModule.jsPDF
+    const { applyPlugin } = await import('jspdf-autotable')
+    applyPlugin(jsPDF)
+
+    const doc = new jsPDF('p', 'mm', 'a4')
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const margin = 14
+    let y = 15
+
+    const PRIMARY_RED = [201, 74, 58]
+    const GREEN = [30, 138, 110]
+    const DARK = [51, 51, 51]
+    const GRAY = [128, 128, 128]
+
+    const addSectionTitle = (title) => {
+      if (y > 260) { doc.addPage(); y = 15 }
+      doc.setFontSize(13)
+      doc.setTextColor(...PRIMARY_RED)
+      doc.setFont(undefined, 'bold')
+      doc.text(title, margin, y)
+      y += 2
+      doc.setDrawColor(...PRIMARY_RED)
+      doc.setLineWidth(0.5)
+      doc.line(margin, y, pageWidth - margin, y)
+      y += 7
+    }
+
+    // --- Header ---
+    doc.setFontSize(18)
+    doc.setTextColor(...PRIMARY_RED)
+    doc.setFont(undefined, 'bold')
+    doc.text('Laporan Risk Assessment', pageWidth / 2, y, { align: 'center' })
+    y += 7
+    doc.setFontSize(10)
+    doc.setTextColor(...GRAY)
+    doc.setFont(undefined, 'normal')
+    doc.text('Audit Kepatuhan SOP - Dapur Sehat', pageWidth / 2, y, { align: 'center' })
+    y += 10
+
+    // --- Informasi Audit ---
+    addSectionTitle('Informasi Audit')
+    const sppgName = form.value.sppg?.nama || `SPPG #${form.value.sppg_id}`
+
+    doc.autoTable({
+      startY: y,
+      margin: { left: margin, right: margin },
+      theme: 'plain',
+      styles: { fontSize: 10, cellPadding: 3, textColor: DARK },
+      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45, textColor: GRAY } },
+      body: [
+        ['SPPG', sppgName],
+        ['Tanggal Audit', formatDate(form.value.created_at)],
+        ['Status', form.value.status || '-'],
+        ['Skor Risiko', form.value.overall_risk_score != null ? form.value.overall_risk_score.toFixed(1) : '-'],
+        ['Risk Level', form.value.risk_level || '-'],
+        ['Tanggal Submit', form.value.submitted_at ? formatDate(form.value.submitted_at) : '-']
+      ]
+    })
+    y = doc.lastAutoTable.finalY + 10
+
+    // --- Skor per Kategori ---
+    if (form.value.category_scores?.length) {
+      addSectionTitle('Skor per Kategori SOP')
+      doc.autoTable({
+        startY: y,
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: PRIMARY_RED, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 10 },
+        bodyStyles: { fontSize: 9, textColor: DARK },
+        alternateRowStyles: { fillColor: [252, 245, 243] },
+        head: [['Kategori', 'Rata-rata Skor', 'Risk Level', 'Jumlah Item']],
+        body: form.value.category_scores.map(cs => [
+          cs.category_nama,
+          cs.average_score?.toFixed(1) ?? '-',
+          cs.risk_level || '-',
+          cs.item_count ?? 0
+        ])
+      })
+      y = doc.lastAutoTable.finalY + 10
+    }
+
+    // --- Detail Item Checklist ---
+    if (form.value.items?.length) {
+      addSectionTitle('Detail Item Checklist')
+
+      // Pre-load evidence images
+      const evidenceImages = {}
+      const itemsWithEvidence = form.value.items.filter(item => item.evidence_url)
+      console.log(`Loading ${itemsWithEvidence.length} evidence images...`)
+      
+      const imagePromises = itemsWithEvidence.map(async (item) => {
+          const fullUrl = resolveUrl(item.evidence_url)
+          const base64 = await loadImageAsBase64(fullUrl)
+          if (base64) {
+            evidenceImages[item.evidence_url] = base64
+            console.log(`✓ Loaded: ${item.item_nama}`)
+          } else {
+            console.warn(`✗ Failed: ${item.item_nama} (${fullUrl})`)
+          }
+        })
+      await Promise.all(imagePromises)
+      console.log(`Loaded ${Object.keys(evidenceImages).length}/${itemsWithEvidence.length} images`)
+
+      doc.autoTable({
+        startY: y,
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: PRIMARY_RED, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8, textColor: DARK, minCellHeight: 12 },
+        alternateRowStyles: { fillColor: [252, 245, 243] },
+        columnStyles: {
+          0: { cellWidth: 45 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 18, halign: 'center' },
+          3: { cellWidth: 50 },
+          4: { cellWidth: 30, halign: 'center' }
+        },
+        head: [['Item', 'Kategori', 'Skor', 'Catatan', 'Evidence']],
+        body: form.value.items.map(item => [
+          item.item_nama || '-',
+          item.category_nama || '-',
+          item.compliance_score != null ? `${item.compliance_score}/5` : '-',
+          item.catatan || '-',
+          item.evidence_url ? '' : '-'
+        ]),
+        didDrawCell: (data) => {
+          if (data.section === 'body' && data.column.index === 4) {
+            const item = form.value.items[data.row.index]
+            if (item?.evidence_url && evidenceImages[item.evidence_url]) {
+              const imgData = evidenceImages[item.evidence_url]
+              const imgFormat = imgData.startsWith('data:image/png') ? 'PNG' : 'JPEG'
+              const imgSize = Math.min(data.cell.height - 2, 20)
+              const xPos = data.cell.x + (data.cell.width - imgSize) / 2
+              const yPos = data.cell.y + (data.cell.height - imgSize) / 2
+              try {
+                doc.addImage(imgData, imgFormat, xPos, yPos, imgSize, imgSize)
+              } catch (e) {
+                console.warn('Failed to add image to PDF:', item.item_nama, e)
+              }
+            }
+          }
+        },
+        didParseCell: (data) => {
+          if (data.section === 'body' && data.column.index === 4) {
+            const item = form.value.items[data.row.index]
+            if (item?.evidence_url && evidenceImages[item.evidence_url]) {
+              data.cell.styles.minCellHeight = 22
+            }
+          }
+        }
+      })
+      y = doc.lastAutoTable.finalY + 10
+    }
+
+    // --- Data Operasional ---
+    if (form.value.snapshot) {
+      addSectionTitle('Data Operasional SPPG')
+      const metrics = snapshotMetrics.value
+      doc.autoTable({
+        startY: y,
+        margin: { left: margin, right: margin },
+        headStyles: { fillColor: GREEN, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 10 },
+        bodyStyles: { fontSize: 9, textColor: DARK },
+        alternateRowStyles: { fillColor: [240, 249, 245] },
+        head: [['Metrik', 'Nilai', 'Status', 'Keterangan']],
+        body: metrics.map(m => [
+          m.label,
+          m.display,
+          metricLabel(m.key, m.value),
+          m.sub || '-'
+        ])
+      })
+      y = doc.lastAutoTable.finalY + 10
+
+      if (form.value.snapshot.captured_at) {
+        if (y > 275) { doc.addPage(); y = 15 }
+        doc.setFontSize(8)
+        doc.setTextColor(...GRAY)
+        doc.text(
+          `Periode snapshot: ${formatDate(form.value.snapshot.snapshot_period_start)} — ${formatDate(form.value.snapshot.snapshot_period_end)}`,
+          pageWidth / 2, y, { align: 'center' }
+        )
+        y += 8
+      }
+    }
+
+    // --- Footer on each page ---
+    const totalPages = doc.internal.getNumberOfPages()
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i)
+      doc.setFontSize(8)
+      doc.setTextColor(...GRAY)
+      doc.text(
+        `Dicetak: ${dayjs().format('DD/MM/YYYY HH:mm')}  |  Halaman ${i} / ${totalPages}`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 8,
+        { align: 'center' }
+      )
+    }
+
+    doc.save(getExportFileName('pdf'))
+    message.success('Export PDF berhasil')
+  } catch (error) {
+    console.error('PDF export error:', error)
+    message.error('Gagal export PDF')
+  } finally {
+    exportingPdf.value = false
+  }
+}
+
 const fetchForm = async () => {
   loading.value = true
   try {
@@ -292,5 +654,25 @@ onMounted(() => {
   font-size: 12px;
   color: #999;
   text-align: center;
+}
+
+.btn-export-excel {
+  color: #1E8A6E;
+  border-color: #1E8A6E;
+}
+.btn-export-excel:hover {
+  color: #fff;
+  background-color: #1E8A6E;
+  border-color: #1E8A6E;
+}
+
+.btn-export-pdf {
+  color: #C94A3A;
+  border-color: #C94A3A;
+}
+.btn-export-pdf:hover {
+  color: #fff;
+  background-color: #C94A3A;
+  border-color: #C94A3A;
 }
 </style>

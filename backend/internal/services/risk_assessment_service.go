@@ -279,6 +279,20 @@ func (s *RiskAssessmentService) ListForms(filter FormFilter) ([]models.RiskAsses
 	return forms, totalCount, nil
 }
 
+// UpdateItemEvidence updates the evidence_url for a specific item in a form.
+func (s *RiskAssessmentService) UpdateItemEvidence(formID, itemID uint, evidenceURL string) error {
+	result := s.db.Model(&models.RiskAssessmentItem{}).
+		Where("id = ? AND form_id = ?", itemID, formID).
+		Update("evidence_url", evidenceURL)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return ErrRAFormNotFound
+	}
+	return nil
+}
+
 // UpdateDraft updates items in a draft risk assessment form.
 // Validates that the form is still in draft status and that scores are in range 1-5.
 func (s *RiskAssessmentService) UpdateDraft(formID, yayasanID uint, items []UpdateItemRequest) error {
@@ -314,8 +328,11 @@ func (s *RiskAssessmentService) UpdateDraft(formID, yayasanID uint, items []Upda
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		for _, item := range items {
 			updates := map[string]interface{}{
-				"catatan":     item.Catatan,
-				"evidence_url": item.EvidenceURL,
+				"catatan": item.Catatan,
+			}
+			// Only update evidence_url if explicitly provided (non-empty)
+			if item.EvidenceURL != "" {
+				updates["evidence_url"] = item.EvidenceURL
 			}
 			if item.ComplianceScore != nil {
 				updates["compliance_score"] = *item.ComplianceScore

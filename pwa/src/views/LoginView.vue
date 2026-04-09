@@ -5,7 +5,6 @@
       <div class="hero-bg"></div>
       <div class="hero-content">
         <img src="@/logo/dapur-sehat-light.png" alt="Dapur Sehat" class="hero-logo" />
-        <LottiePlayer src="/lottie/loading-cooking.json" width="120px" height="120px" :loop="true" :autoplay="true" />
       </div>
       <!-- Curved bottom -->
       <svg class="hero-curve" viewBox="0 0 400 40" preserveAspectRatio="none">
@@ -82,6 +81,7 @@ import { useAuthStore } from '@/stores/auth'
 import { authAPI } from '@/services/api'
 import { showToast, showNotify, showDialog } from 'vant'
 import LottiePlayer from '@/components/common/LottiePlayer.vue'
+
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -203,8 +203,8 @@ const handleLogin = async () => {
 }
 
 .hero-logo {
-  width: 260px;
-  max-width: 70vw;
+  width: 340px;
+  max-width: 80vw;
   height: auto;
   filter: brightness(0) invert(1);
   margin-bottom: 8px;
