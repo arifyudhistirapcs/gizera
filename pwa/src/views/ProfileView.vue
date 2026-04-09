@@ -147,8 +147,8 @@
 
       <!-- App Info -->
       <div class="app-info">
-        <span>ERP SPPG Driver App</span>
-        <span class="app-version">© 2026 GIZERA</span>
+        <span>Dapur Sehat Mobile</span>
+        <span class="app-version">© 2026 Dapur Sehat</span>
       </div>
     </div>
   </div>

@@ -5,12 +5,12 @@
       <div class="horizon-login__form-container">
         <!-- Mobile Logo (visible only when branding side is hidden) -->
         <div class="horizon-login__mobile-logo">
-          <img src="/gizera-light.png" alt="Gizera" class="horizon-login__mobile-logo-img" />
+          <img src="/gizera-light.png" alt="Dapur Sehat" class="horizon-login__mobile-logo-img" />
         </div>
 
         <!-- Title -->
         <div class="horizon-login__header">
-          <h1 class="horizon-login__title">Masuk ke Gizera</h1>
+          <h1 class="horizon-login__title">Masuk ke Dapur Sehat</h1>
           <p class="horizon-login__subtitle">Kelola operasional dapur dengan mudah</p>
         </div>
 
@@ -80,7 +80,7 @@
         <!-- Footer -->
         <div class="horizon-login__footer">
           <p class="horizon-login__footer-text">
-            Gizera &mdash; Sistem Manajemen Operasional
+            Dapur Sehat &mdash; Sistem Manajemen Operasional
           </p>
         </div>
       </div>
@@ -93,9 +93,9 @@
       <div class="horizon-login__brand-bg-circle horizon-login__brand-bg-circle--bottom" />
 
       <div class="horizon-login__brand-content">
-        <!-- Gizera Logo -->
+        <!-- Dapur Sehat Logo -->
         <div class="horizon-login__brand-logo-wrap">
-          <img src="/gizera-light.png" alt="Gizera" class="horizon-login__brand-gizera-logo" />
+          <img src="/gizera-light.png" alt="Dapur Sehat" class="horizon-login__brand-gizera-logo" />
         </div>
 
         <!-- Lottie Animation as Centerpiece -->
@@ -105,11 +105,11 @@
 
         <!-- SVG Illustration -->
         <div class="horizon-login__brand-illustration-wrap">
-          <img src="@/assets/illustrations/login-branding.svg" alt="Gizera Branding" class="horizon-login__brand-illustration" />
+          <img src="@/assets/illustrations/login-branding.svg" alt="Dapur Sehat Branding" class="horizon-login__brand-illustration" />
         </div>
 
         <!-- Tagline -->
-        <h2 class="horizon-login__brand-title">Gizera</h2>
+        <h2 class="horizon-login__brand-title">Dapur Sehat</h2>
         <p class="horizon-login__brand-subtitle">
           Sistem Manajemen Operasional Terpadu
         </p>

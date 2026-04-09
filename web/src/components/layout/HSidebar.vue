@@ -9,13 +9,13 @@
         <img
           v-if="!isCollapsed"
           :src="isDark ? '/gizera-dark.png' : '/gizera-light.png'"
-          alt="Gizera"
+          alt="Dapur Sehat"
           class="logo-img"
         />
         <img
           v-else
           :src="isDark ? '/gizera-dark.png' : '/gizera-light.png'"
-          alt="Gizera"
+          alt="Dapur Sehat"
           class="logo-img-collapsed"
         />
       </div>
@@ -163,7 +163,7 @@ import {
 /**
  * HSidebar Component
  * 
- * Main navigation sidebar untuk ERP SPPG dengan:
+ * Main navigation sidebar untuk Dapur Sehat dengan:
  * - Width 280px (expanded) / 80px (collapsed)
  * - Background white (light) / #111C44 (dark)
  * - Logo area 64px height
