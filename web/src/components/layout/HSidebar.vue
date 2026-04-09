@@ -8,13 +8,13 @@
       <div class="logo-content">
         <img
           v-if="!isCollapsed"
-          :src="isDark ? '/gizera-dark.png' : '/gizera-light.png'"
+          :src="isDark ? '/dapur-sehat-dark.png' : '/dapur-sehat-light.png'"
           alt="Dapur Sehat"
           class="logo-img"
         />
         <img
           v-else
-          :src="isDark ? '/gizera-dark.png' : '/gizera-light.png'"
+          :src="isDark ? '/dapur-sehat-dark.png' : '/dapur-sehat-light.png'"
           alt="Dapur Sehat"
           class="logo-img-collapsed"
         />

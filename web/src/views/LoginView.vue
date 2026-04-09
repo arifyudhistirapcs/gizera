@@ -5,7 +5,7 @@
       <div class="horizon-login__form-container">
         <!-- Mobile Logo (visible only when branding side is hidden) -->
         <div class="horizon-login__mobile-logo">
-          <img src="/gizera-light.png" alt="Dapur Sehat" class="horizon-login__mobile-logo-img" />
+          <img src="/dapur-sehat-light.png" alt="Dapur Sehat" class="horizon-login__mobile-logo-img" />
         </div>
 
         <!-- Title -->
@@ -95,7 +95,7 @@
       <div class="horizon-login__brand-content">
         <!-- Dapur Sehat Logo -->
         <div class="horizon-login__brand-logo-wrap">
-          <img src="/gizera-light.png" alt="Dapur Sehat" class="horizon-login__brand-gizera-logo" />
+          <img src="/dapur-sehat-light.png" alt="Dapur Sehat" class="horizon-login__brand-gizera-logo" />
         </div>
 
         <!-- Lottie Animation as Centerpiece -->

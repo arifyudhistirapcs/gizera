@@ -4,7 +4,7 @@
     <div class="login-hero">
       <div class="hero-bg"></div>
       <div class="hero-content">
-        <img src="@/logo/gizera-dark-mobile2.png" alt="Dapur Sehat" class="hero-logo" />
+        <img src="@/logo/dapur-sehat-light.png" alt="Dapur Sehat" class="hero-logo" />
         <LottiePlayer src="/lottie/loading-cooking.json" width="120px" height="120px" :loop="true" :autoplay="true" />
       </div>
       <!-- Curved bottom -->
