@@ -7,11 +7,13 @@
         :class="['nav-item', { 'nav-item--active': isActive(item) }]"
         @click="onNavClick(item)"
       >
-        <van-icon
-          :name="isActive(item) ? item.activeIcon : item.icon"
-          :color="isActive(item) ? activeColor : inactiveColor"
-          size="22"
-        />
+        <div class="nav-icon-wrap" :class="{ 'nav-icon-wrap--active': isActive(item) }">
+          <van-icon
+            :name="isActive(item) ? item.activeIcon : item.icon"
+            :color="isActive(item) ? '#fff' : '#8C8C8C'"
+            size="20"
+          />
+        </div>
         <span class="nav-item__label">{{ item.label }}</span>
       </div>
     </div>
@@ -27,9 +29,6 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
-const activeColor = '#C94A3A'
-const inactiveColor = '#6B6B6B'
-
 const NAV_CONFIG = {
   dashboard: { name: 'dashboard', label: 'Home', icon: 'wap-home-o', activeIcon: 'wap-home', route: '/dashboard' },
   dashboardYayasan: { name: 'dashboardYayasan', label: 'Home', icon: 'wap-home-o', activeIcon: 'wap-home', route: '/dashboard-yayasan' },
@@ -43,24 +42,12 @@ const NAV_CONFIG = {
 }
 
 const ROLE_NAV_MAP = {
-  driver: [
-    { left: ['tasks'], center: 'attendance', right: ['profile'] }
-  ],
-  asisten_lapangan: [
-    { left: ['tasks'], center: 'attendance', right: ['profile'] }
-  ],
-  kepala_sppg: [
-    { left: ['dashboard', 'monitoring'], center: 'attendance', right: ['menu', 'profile'] }
-  ],
-  kepala_yayasan: [
-    { left: ['dashboardYayasan', 'riskAssessment'], center: 'attendance', right: ['profile'] }
-  ],
-  ahli_gizi: [
-    { left: ['menu'], center: 'attendance', right: ['profile'] }
-  ],
-  sekolah: [
-    { left: ['schoolMonitoring'], center: 'attendance', right: ['profile'] }
-  ]
+  driver: [{ left: ['tasks'], center: 'attendance', right: ['profile'] }],
+  asisten_lapangan: [{ left: ['tasks'], center: 'attendance', right: ['profile'] }],
+  kepala_sppg: [{ left: ['dashboard', 'monitoring'], center: 'attendance', right: ['menu', 'profile'] }],
+  kepala_yayasan: [{ left: ['dashboardYayasan', 'riskAssessment'], center: 'attendance', right: ['profile'] }],
+  ahli_gizi: [{ left: ['menu'], center: 'attendance', right: ['profile'] }],
+  sekolah: [{ left: ['schoolMonitoring'], center: 'attendance', right: ['profile'] }]
 }
 
 const DEFAULT_NAV = { left: [], center: 'attendance', right: ['profile'] }
@@ -70,33 +57,19 @@ const navConfig = computed(() => {
   return ROLE_NAV_MAP[role]?.[0] || DEFAULT_NAV
 })
 
-const leftItems = computed(() => {
-  return navConfig.value.left.map(key => NAV_CONFIG[key])
-})
-
-const centerItem = computed(() => {
-  return NAV_CONFIG[navConfig.value.center]
-})
-
-const rightItems = computed(() => {
-  return navConfig.value.right.map(key => NAV_CONFIG[key])
-})
-
-const allItems = computed(() => {
-  return [...leftItems.value, centerItem.value, ...rightItems.value]
-})
+const leftItems = computed(() => navConfig.value.left.map(key => NAV_CONFIG[key]))
+const centerItem = computed(() => NAV_CONFIG[navConfig.value.center])
+const rightItems = computed(() => navConfig.value.right.map(key => NAV_CONFIG[key]))
+const allItems = computed(() => [...leftItems.value, centerItem.value, ...rightItems.value])
 
 const activeItem = ref(null)
 
 function findActiveItem() {
   const currentPath = route.path
-  const item = allItems.value.find(item => currentPath.startsWith(item.route))
-  return item || allItems.value[0]
+  return allItems.value.find(item => currentPath.startsWith(item.route)) || allItems.value[0]
 }
 
-function isActive(item) {
-  return activeItem.value?.name === item?.name
-}
+function isActive(item) { return activeItem.value?.name === item?.name }
 
 function onNavClick(item) {
   if (item) {
@@ -105,18 +78,8 @@ function onNavClick(item) {
   }
 }
 
-// Sync active item with current route
-watch(
-  () => route.path,
-  () => {
-    activeItem.value = findActiveItem()
-  },
-  { immediate: true }
-)
-
-onMounted(() => {
-  activeItem.value = findActiveItem()
-})
+watch(() => route.path, () => { activeItem.value = findActiveItem() }, { immediate: true })
+onMounted(() => { activeItem.value = findActiveItem() })
 </script>
 
 <style scoped>
@@ -126,16 +89,20 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 100;
+  padding: 0 12px 8px;
+  pointer-events: none;
 }
 
 .bottom-navigation {
-  height: 56px;
-  background: #FFFFFF;
-  border-top: 1px solid #D8D8DB;
+  height: 64px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  padding: 0;
+  padding: 0 8px;
+  pointer-events: auto;
 }
 
 .nav-item {
@@ -146,22 +113,44 @@ onMounted(() => {
   gap: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 8px 12px;
+  padding: 6px 14px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-icon-wrap--active {
+  background: linear-gradient(135deg, #C94A3A 0%, #1E8A6E 100%);
+  box-shadow: 0 4px 12px rgba(201, 74, 58, 0.3);
+  transform: translateY(-2px);
 }
 
 .nav-item__label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
-  color: var(--h-text-secondary);
+  color: #8C8C8C;
   transition: color 0.2s ease;
+  line-height: 1;
 }
 
 .nav-item--active .nav-item__label {
   color: #C94A3A;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.nav-item--active :deep(.van-icon) {
-  transform: scale(1.1);
+.nav-item:active .nav-icon-wrap {
+  transform: scale(0.9);
+}
+
+.nav-item--active:active .nav-icon-wrap {
+  transform: translateY(-2px) scale(0.95);
 }
 </style>

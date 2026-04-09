@@ -33,8 +33,12 @@ tests/tests/screenshots/
 
 # Environment files
 .env
+!.env.example
 .env.local
 .env.*.local
+backend/.env
+web/.env
+pwa/.env
 
 # Firebase credentials
 **/firebase-credentials.json

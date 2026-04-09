@@ -1,64 +1,76 @@
 <template>
   <div class="login-container">
-    <div class="login-header">
-      <div class="logo">
-        <img src="@/logo/gizera-dark-mobile2.png" alt="GIZERA Logo" class="logo-image" />
+    <!-- Gradient Header -->
+    <div class="login-hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <img src="@/logo/gizera-dark-mobile2.png" alt="GIZERA Logo" class="hero-logo" />
+        <LottiePlayer src="/lottie/loading-cooking.json" width="120px" height="120px" :loop="true" :autoplay="true" />
       </div>
-      <img src="@/assets/illustrations/login-header.svg" alt="Login illustration" class="login-header__illustration" />
+      <!-- Curved bottom -->
+      <svg class="hero-curve" viewBox="0 0 400 40" preserveAspectRatio="none">
+        <path d="M0,40 L0,15 Q200,-15 400,15 L400,40 Z" fill="#F7F8FA"/>
+      </svg>
     </div>
 
-    <van-form @submit.prevent="handleLogin" class="login-form">
-      <div class="login-card">
-        <!-- Error Alert -->
-        <div v-if="errorMessage" class="error-alert">
-          <van-icon name="warning-o" />
-          <span>{{ errorMessage }}</span>
-        </div>
-        
-        <van-field
-          v-model="formData.identifier"
-          name="identifier"
-          label="NIK/Email"
-          placeholder="Masukkan NIK atau Email"
-          :rules="[{ required: true, message: 'NIK/Email wajib diisi' }]"
-          left-icon="user-o"
-          clearable
-          :disabled="loading"
-          @focus="errorMessage = ''"
-        />
-        <van-field
-          v-model="formData.password"
-          :type="showPassword ? 'text' : 'password'"
-          name="password"
-          label="Password"
-          placeholder="Masukkan password"
-          :rules="[{ required: true, message: 'Password wajib diisi' }]"
-          left-icon="lock"
-          :right-icon="showPassword ? 'eye-o' : 'closed-eye'"
-          :disabled="loading"
-          @click-right-icon="showPassword = !showPassword"
-          @focus="errorMessage = ''"
-        />
+    <!-- Login Form -->
+    <div class="login-body">
+      <van-form @submit.prevent="handleLogin" class="login-form">
+        <div class="login-card">
+          <h2 class="card-title">Masuk ke Akun</h2>
+          <p class="card-subtitle">Silakan masukkan kredensial Anda</p>
 
-        <div class="login-btn-wrapper">
-          <van-button
-            block
-            type="primary"
-            native-type="button"
-            :loading="loading"
-            loading-text="Memproses..."
+          <!-- Error Alert -->
+          <div v-if="errorMessage" class="error-alert">
+            <van-icon name="warning-o" />
+            <span>{{ errorMessage }}</span>
+          </div>
+          
+          <van-field
+            v-model="formData.identifier"
+            name="identifier"
+            label="NIK/Email"
+            placeholder="Masukkan NIK atau Email"
+            :rules="[{ required: true, message: 'NIK/Email wajib diisi' }]"
+            left-icon="user-o"
+            clearable
             :disabled="loading"
-            class="login-btn"
-            @click="handleLogin"
-          >
-            Login
-          </van-button>
-        </div>
-      </div>
-    </van-form>
+            @focus="errorMessage = ''"
+          />
+          <van-field
+            v-model="formData.password"
+            :type="showPassword ? 'text' : 'password'"
+            name="password"
+            label="Password"
+            placeholder="Masukkan password"
+            :rules="[{ required: true, message: 'Password wajib diisi' }]"
+            left-icon="lock"
+            :right-icon="showPassword ? 'eye-o' : 'closed-eye'"
+            :disabled="loading"
+            @click-right-icon="showPassword = !showPassword"
+            @focus="errorMessage = ''"
+          />
 
-    <div class="login-footer">
-      <p>© 2024 SPPG. All rights reserved.</p>
+          <div class="login-btn-wrapper">
+            <van-button
+              block
+              type="primary"
+              native-type="button"
+              :loading="loading"
+              loading-text="Memproses..."
+              :disabled="loading"
+              class="login-btn"
+              @click="handleLogin"
+            >
+              Login
+            </van-button>
+          </div>
+        </div>
+      </van-form>
+
+      <div class="login-footer">
+        <p>© 2026 Gizera ERP SPPG</p>
+      </div>
     </div>
   </div>
 </template>
@@ -69,6 +81,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { authAPI } from '@/services/api'
 import { showToast, showNotify, showDialog } from 'vant'
+import LottiePlayer from '@/components/common/LottiePlayer.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -83,7 +96,6 @@ const showPassword = ref(false)
 const errorMessage = ref('')
 
 const handleLogin = async () => {
-  // Validate form first
   if (!formData.value.identifier || !formData.value.password) {
     errorMessage.value = 'NIK/Email dan Password wajib diisi'
     return
@@ -99,13 +111,12 @@ const handleLogin = async () => {
     })
 
     if (response.data.success) {
-      // Set auth data - backend returns token and user directly
       const userData = {
         id: response.data.user.id,
         nik: response.data.user.nik,
         email: response.data.user.email,
         name: response.data.user.full_name,
-        username: response.data.user.nik, // Use NIK as username
+        username: response.data.user.nik,
         role: response.data.user.role
       }
       
@@ -117,7 +128,6 @@ const handleLogin = async () => {
         duration: 2000
       })
 
-      // Redirect to role-based default page
       setTimeout(() => {
         router.push('/')
       }, 500)
@@ -127,7 +137,7 @@ const handleLogin = async () => {
         title: 'Login Gagal',
         message: errorMessage.value,
         confirmButtonText: 'OK',
-        confirmButtonColor: '#EE5D50'
+        confirmButtonColor: '#C94A3A'
       })
     }
   } catch (error) {
@@ -136,7 +146,6 @@ const handleLogin = async () => {
     let errMsg = 'Terjadi kesalahan saat login'
     
     if (error.response) {
-      // Server responded with error
       if (error.response.status === 401) {
         errMsg = 'NIK/Email atau password salah'
       } else if (error.response.status === 403) {
@@ -145,7 +154,6 @@ const handleLogin = async () => {
         errMsg = error.response.data.message
       }
     } else if (error.request) {
-      // Request made but no response
       errMsg = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.'
     }
     
@@ -154,7 +162,7 @@ const handleLogin = async () => {
       title: 'Login Gagal',
       message: errMsg,
       confirmButtonText: 'OK',
-      confirmButtonColor: '#EE5D50'
+      confirmButtonColor: '#C94A3A'
     })
   } finally {
     loading.value = false
@@ -165,87 +173,101 @@ const handleLogin = async () => {
 <style scoped>
 .login-container {
   min-height: 100vh;
-  background: #E8EDE5;
+  background: #F7F8FA;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== HERO GRADIENT HEADER ========== */
+.login-hero {
+  position: relative;
+  min-height: 280px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #C94A3A 0%, #D4553E 45%, #1E8A6E 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--h-spacing-xl);
-  position: relative;
-  overflow: hidden;
+  justify-content: center;
+  padding: 48px 24px 56px;
 }
 
-.login-header {
-  text-align: center;
-  color: #303030;
-  margin-top: 60px;
-  margin-bottom: 40px;
-  position: relative;
-  z-index: 1;
-}
-
-.logo {
-  margin-bottom: var(--h-spacing-xl);
-}
-
-.logo-image {
-  width: 400px;
-  max-width: 90vw;
+.hero-logo {
+  width: 260px;
+  max-width: 70vw;
   height: auto;
+  filter: brightness(0) invert(1);
+  margin-bottom: 8px;
 }
 
-.login-header__illustration {
-  width: 200px;
-  max-width: 60vw;
-  height: auto;
-  margin: 0 auto;
-  display: block;
+.hero-curve {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  z-index: 3;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
-.login-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 10px 0;
-  font-family: var(--h-font-family);
-}
-
-.login-header p {
-  font-size: 14px;
-  opacity: 0.9;
-  margin: 5px 0;
-  font-weight: 400;
+/* ========== LOGIN BODY ========== */
+.login-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px 24px;
+  margin-top: -12px;
+  position: relative;
+  z-index: 4;
 }
 
 .login-form {
   width: 100%;
   max-width: 400px;
-  position: relative;
-  z-index: 1;
 }
 
 .login-card {
-  background: var(--h-bg-card);
-  border-radius: 8px;
-  border: 1px solid #D8D8DB;
-  box-shadow: none;
-  padding: var(--h-spacing-2xl);
-  overflow: hidden;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 28px 24px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
+.card-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #303030;
+  margin: 0 0 4px;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: #8C8C8C;
+  margin: 0 0 24px;
+}
+
+/* Error */
 .error-alert {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: rgba(238, 93, 80, 0.1);
-  border: 1px solid rgba(238, 93, 80, 0.3);
-  border-radius: var(--h-radius-md);
+  background: rgba(201, 74, 58, 0.08);
+  border: 1px solid rgba(201, 74, 58, 0.2);
+  border-radius: 10px;
   margin-bottom: 16px;
-  color: #EE5D50;
+  color: #C94A3A;
   font-size: 14px;
   font-weight: 500;
 }
@@ -255,67 +277,73 @@ const handleLogin = async () => {
   flex-shrink: 0;
 }
 
+/* Form fields */
 .login-card :deep(.van-field) {
-  padding: 12px 0;
+  padding: 14px 0;
 }
 
 .login-card :deep(.van-cell::after) {
   left: 0;
   right: 0;
-  border-color: var(--h-border-color);
+  border-color: #E8E8E8;
 }
 
 .login-card :deep(.van-field__label) {
-  color: var(--h-text-primary);
-  font-weight: 500;
+  color: #303030;
+  font-weight: 600;
   font-size: 14px;
 }
 
 .login-card :deep(.van-field__control) {
-  color: var(--h-text-primary);
+  color: #303030;
+  font-size: 15px;
 }
 
 .login-card :deep(.van-field__control::placeholder) {
-  color: var(--h-text-light);
+  color: #BFBFBF;
 }
 
 .login-card :deep(.van-field__left-icon) {
-  color: var(--h-text-secondary);
+  color: #1E8A6E;
+  font-size: 18px;
 }
 
 .login-card :deep(.van-field__right-icon) {
-  color: var(--h-text-secondary);
+  color: #8C8C8C;
 }
 
+/* Button */
 .login-btn-wrapper {
-  margin-top: var(--h-spacing-2xl);
+  margin-top: 28px;
 }
 
 .login-btn {
-  height: 48px !important;
+  height: 50px !important;
   font-size: 16px !important;
-  font-weight: 600 !important;
-  border-radius: 6px !important;
-  background: #C94A3A !important;
-  border-color: #C94A3A !important;
-  box-shadow: none;
-  transition: all var(--h-transition-base);
+  font-weight: 700 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #C94A3A 0%, #1E8A6E 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(201, 74, 58, 0.3);
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
 }
 
 .login-btn:active {
-  transform: scale(0.98);
-  background: #A33D30 !important;
-  border-color: #A33D30 !important;
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(201, 74, 58, 0.2);
 }
 
+/* Footer */
 .login-footer {
   margin-top: auto;
   text-align: center;
-  color: #6B6B6B;
-  opacity: 0.8;
+  color: #BFBFBF;
   font-size: 12px;
-  padding: var(--h-spacing-xl) 0;
-  position: relative;
-  z-index: 1;
+  padding: 20px 0;
+}
+
+.login-footer p {
+  margin: 0;
 }
 </style>

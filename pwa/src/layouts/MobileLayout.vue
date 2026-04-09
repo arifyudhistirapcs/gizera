@@ -18,7 +18,7 @@ import BottomNavigation from '@/components/mobile/BottomNavigation.vue'
 }
 
 .mobile-content {
-  padding-bottom: 72px;
+  padding-bottom: 84px;
 }
 
 /* Page slide transition - 200ms */

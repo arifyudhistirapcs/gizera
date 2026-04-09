@@ -2,7 +2,6 @@
 # ERP SPPG - Full Stack Docker Compose
 # Usage: docker compose up -d --build
 # ============================================
-version: '3.8'
 
 services:
   # ============================================
@@ -19,6 +18,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./backend/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - erp-network
     healthcheck:

@@ -1,8 +1,13 @@
 <template>
   <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
     <div class="dashboard-page">
-      <!-- NavBar -->
-      <van-nav-bar title="Dashboard" />
+      <!-- Gradient Header -->
+      <div class="dash-header">
+        <div class="dash-header__content">
+          <h1 class="dash-header__title">Dashboard</h1>
+          <p class="dash-header__subtitle">Ringkasan operasional hari ini</p>
+        </div>
+      </div>
 
       <!-- Loading State -->
       <template v-if="dashboardStore.loading">
@@ -308,14 +313,40 @@ onMounted(() => {
 <style scoped>
 .dashboard-page {
   padding: 0;
-  padding-bottom: 80px;
+  padding-bottom: 88px;
   min-height: 100vh;
-  background: var(--h-bg-page);
+  background: #F7F8FA;
 }
 
-.dashboard-page > :not(.van-nav-bar) {
-  padding-left: var(--h-spacing-lg);
-  padding-right: var(--h-spacing-lg);
+/* Gradient Header */
+.dash-header {
+  background: linear-gradient(135deg, #C94A3A 0%, #D4553E 45%, #1E8A6E 100%);
+  padding: 20px 20px 28px;
+  border-radius: 0 0 24px 24px;
+  position: relative;
+}
+
+.dash-header__content {
+  position: relative;
+  z-index: 1;
+}
+
+.dash-header__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.dash-header__subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 4px 0 0;
+}
+
+.dashboard-page > :not(.dash-header) {
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 /* Dashboard Loading */
@@ -338,32 +369,37 @@ onMounted(() => {
 .metrics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--h-spacing-md);
-  margin-bottom: var(--h-spacing-lg);
-  margin-top: var(--h-spacing-md);
+  gap: 12px;
+  margin-bottom: 16px;
+  margin-top: 16px;
 }
 
 /* Section title */
 .section-title {
   font-size: 16px;
-  font-weight: 600;
-  color: var(--h-text-primary);
-  margin: 0 0 var(--h-spacing-md) 0;
+  font-weight: 700;
+  color: #303030;
+  margin: 0 0 12px 0;
 }
 
 .section-block {
-  margin-bottom: var(--h-spacing-lg);
+  margin-bottom: 16px;
 }
 
 /* Detail Section */
 .detail-section {
   display: flex;
   flex-direction: column;
-  gap: var(--h-spacing-lg);
+  gap: 16px;
 }
 
 .detail-card {
   margin-bottom: 0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: none;
 }
 
 /* Detail Table */
@@ -419,7 +455,12 @@ onMounted(() => {
 
 /* Stok Kritis Card */
 .stok-kritis-card {
-  margin-bottom: var(--h-spacing-lg);
+  margin-bottom: 16px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: none;
 }
 
 .stok-kritis-header {
@@ -443,11 +484,11 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: var(--h-spacing-md);
-  background: #FFFFFF;
-  border: 1px solid var(--h-border-color);
-  border-radius: var(--h-radius-md);
-  border-left: 3px solid var(--h-error);
+  padding: 12px;
+  background: #F7F8FA;
+  border: none;
+  border-radius: 14px;
+  border-left: 3px solid #C94A3A;
 }
 
 .stok-kritis-info {
@@ -518,23 +559,28 @@ onMounted(() => {
 
 /* Arus Kas Card */
 .arus-kas-card {
-  margin-bottom: var(--h-spacing-lg);
+  margin-bottom: 16px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: none;
 }
 
 .arus-kas-grid {
   display: flex;
   flex-direction: column;
-  gap: var(--h-spacing-md);
+  gap: 10px;
 }
 
 .arus-kas-item {
   display: flex;
   align-items: center;
-  gap: var(--h-spacing-md);
-  padding: var(--h-spacing-md);
-  background: #FFFFFF;
-  border: 1px solid var(--h-border-color);
-  border-radius: var(--h-radius-md);
+  gap: 12px;
+  padding: 14px;
+  background: #F7F8FA;
+  border: none;
+  border-radius: 14px;
   border-left: 4px solid;
 }
 
@@ -605,7 +651,12 @@ onMounted(() => {
 
 /* Supplier Card */
 .supplier-card {
-  margin-bottom: var(--h-spacing-lg);
+  margin-bottom: 16px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: none;
 }
 
 .supplier-header {
@@ -628,11 +679,11 @@ onMounted(() => {
 .supplier-item {
   display: flex;
   align-items: center;
-  gap: var(--h-spacing-md);
-  padding: var(--h-spacing-md);
-  background: #FFFFFF;
-  border: 1px solid var(--h-border-color);
-  border-radius: var(--h-radius-md);
+  gap: 12px;
+  padding: 12px;
+  background: #F7F8FA;
+  border: none;
+  border-radius: 14px;
 }
 
 .supplier-rank {

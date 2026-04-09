@@ -247,7 +247,7 @@ const showOfflineInfo = () => {
 <style scoped>
 .profile-view {
   min-height: 100vh;
-  background: var(--h-bg-primary);
+  background: #F7F8FA;
   padding-bottom: 100px;
 }
 
@@ -259,7 +259,7 @@ const showOfflineInfo = () => {
 
 .header-bg {
   height: 160px;
-  background: #303030;
+  background: linear-gradient(135deg, #C94A3A 0%, #D4553E 45%, #1E8A6E 100%);
   position: relative;
   overflow: hidden;
   border-radius: 0 0 32px 32px;
@@ -269,7 +269,7 @@ const showOfflineInfo = () => {
   position: absolute;
   inset: 0;
   background-image: 
-    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.12) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%),
     radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 30%);
 }
@@ -293,15 +293,15 @@ const showOfflineInfo = () => {
   height: 100px;
   border-radius: 50%;
   padding: 4px;
-  background: #303030;
-  box-shadow: none;
+  background: linear-gradient(135deg, #C94A3A, #1E8A6E);
+  box-shadow: 0 4px 20px rgba(201, 74, 58, 0.25);
 }
 
 .avatar {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: linear-gradient(135deg, #F8F6FA 0%, #FFFFFF 100%);
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -310,8 +310,11 @@ const showOfflineInfo = () => {
 
 .avatar-text {
   font-size: 32px;
-  font-weight: 600;
-  color: #303030;
+  font-weight: 700;
+  background: linear-gradient(135deg, #C94A3A, #1E8A6E);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-family: var(--h-font-family);
 }
 
@@ -340,9 +343,9 @@ const showOfflineInfo = () => {
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  background: #F0F0F0;
+  background: linear-gradient(135deg, rgba(201, 74, 58, 0.1), rgba(30, 138, 110, 0.1));
   border-radius: 20px;
-  color: #303030;
+  color: #C94A3A;
   font-size: 13px;
   font-weight: 600;
 }
@@ -362,13 +365,13 @@ const showOfflineInfo = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .stat-icon {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -376,13 +379,13 @@ const showOfflineInfo = () => {
 }
 
 .stat-icon--primary {
-  background: rgba(48, 48, 48, 0.1);
-  color: #303030;
+  background: rgba(201, 74, 58, 0.1);
+  color: #C94A3A;
 }
 
 .stat-icon--success {
-  background: linear-gradient(135deg, rgba(5, 205, 153, 0.15), rgba(5, 205, 153, 0.05));
-  color: #05CD99;
+  background: rgba(30, 138, 110, 0.1);
+  color: #1E8A6E;
 }
 
 .stat-info {
@@ -414,7 +417,7 @@ const showOfflineInfo = () => {
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .section-header {
@@ -423,12 +426,12 @@ const showOfflineInfo = () => {
   gap: 10px;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #F0EDF3;
+  border-bottom: 1px solid #F0F0F0;
 }
 
 .section-icon {
   font-size: 20px;
-  color: #303030;
+  color: #1E8A6E;
 }
 
 .section-title {
@@ -453,12 +456,12 @@ const showOfflineInfo = () => {
 .info-icon {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
-  background: #F8F6FA;
+  border-radius: 12px;
+  background: #F7F8FA;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #303030;
+  color: #1E8A6E;
   flex-shrink: 0;
 }
 
@@ -493,15 +496,15 @@ const showOfflineInfo = () => {
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  background: #F8F6FA;
-  border-radius: 12px;
+  background: #F7F8FA;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .setting-item:active {
   transform: scale(0.98);
-  background: #F0EDF3;
+  background: #EEEEEE;
 }
 
 .setting-left {
@@ -521,12 +524,12 @@ const showOfflineInfo = () => {
 }
 
 .setting-icon--blue {
-  background: linear-gradient(135deg, #4481EB, #04BEFE);
+  background: linear-gradient(135deg, #1E8A6E, #2AAE8A);
   color: #FFFFFF;
 }
 
 .setting-icon--purple {
-  background: #303030;
+  background: linear-gradient(135deg, #C94A3A, #D4553E);
   color: #FFFFFF;
 }
 
@@ -557,18 +560,18 @@ const showOfflineInfo = () => {
   width: 100%;
   height: 52px;
   border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #EE5D50 0%, #F87171 100%);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #C94A3A 0%, #A33D30 100%);
   color: #FFFFFF;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--h-font-family);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(238, 93, 80, 0.3);
+  box-shadow: 0 4px 16px rgba(201, 74, 58, 0.25);
   transition: all 0.2s ease;
   margin-top: 8px;
 }

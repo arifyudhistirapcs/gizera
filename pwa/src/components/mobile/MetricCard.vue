@@ -65,16 +65,19 @@ const trendIcon = computed(() => {
 .metric-card {
   display: flex;
   align-items: flex-start;
-  gap: var(--h-spacing-md);
+  gap: 12px;
   padding: 16px;
   min-height: 80px;
-  border: 1px solid var(--h-border-color);
+  border: none;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .metric-card__icon {
   width: 40px;
   height: 40px;
-  border-radius: 6px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,8 +93,8 @@ const trendIcon = computed(() => {
 }
 
 .metric-card__label {
-  font-size: 12px;
-  color: var(--h-text-secondary);
+  font-size: 11px;
+  color: #8C8C8C;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -99,13 +102,13 @@ const trendIcon = computed(() => {
 .metric-card__value {
   font-size: 20px;
   font-weight: 700;
-  color: var(--h-text-primary);
+  color: #303030;
   line-height: 1;
 }
 
 .metric-card__trend {
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 2px;
@@ -113,10 +116,10 @@ const trendIcon = computed(() => {
 }
 
 .metric-card__trend.trend-up {
-  color: var(--h-success);
+  color: #1E8A6E;
 }
 
 .metric-card__trend.trend-down {
-  color: var(--h-error);
+  color: #C94A3A;
 }
 </style>
