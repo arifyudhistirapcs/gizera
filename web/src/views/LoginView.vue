@@ -181,45 +181,63 @@ const handleLogin = async () => {
 
 /* Form fields */
 .login-form :deep(.ant-form-item) {
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .login-form :deep(.ant-form-item-label) {
-  padding-bottom: 6px;
+  padding-bottom: 8px;
 }
 
 .login-form :deep(.ant-form-item-label > label) {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #303030;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .login-form :deep(.ant-input-affix-wrapper) {
   border-radius: 12px;
-  border: 1.5px solid #E0E0E0;
-  padding: 0 14px;
-  height: 50px;
-  transition: all 0.2s;
+  border: 2px solid #EBEBEB;
+  background: #FAFAFA;
+  padding: 0 16px;
+  height: 52px;
+  transition: all 0.25s ease;
 }
 
 .login-form :deep(.ant-input-affix-wrapper:hover) {
-  border-color: #F82C17;
+  border-color: #D0D0D0;
+  background: #fff;
 }
 
 .login-form :deep(.ant-input-affix-wrapper-focused),
 .login-form :deep(.ant-input-affix-wrapper:focus) {
   border-color: #F82C17;
-  box-shadow: 0 0 0 3px rgba(248, 44, 23, 0.08);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(248, 44, 23, 0.06);
 }
 
 .login-form :deep(.ant-input) {
   font-size: 15px;
+  background: transparent;
+}
+
+.login-form :deep(.ant-input::placeholder) {
+  color: #BFBFBF;
 }
 
 .login-form :deep(.ant-input-prefix) {
-  margin-right: 10px;
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.login-form :deep(.ant-input-suffix) {
+  font-size: 16px;
+  color: #BFBFBF;
+}
+
+.login-form :deep(.ant-input-suffix:hover) {
+  color: #666;
 }
 
 .form-options {
@@ -228,27 +246,35 @@ const handleLogin = async () => {
 
 .form-options :deep(.ant-checkbox-wrapper) {
   font-size: 14px;
-  color: #8C8C8C;
+  color: #999;
+}
+
+.form-options :deep(.ant-checkbox-checked .ant-checkbox-inner) {
+  background-color: #F82C17;
+  border-color: #F82C17;
 }
 
 .login-btn {
-  height: 50px !important;
-  border-radius: 14px !important;
+  height: 52px !important;
+  border-radius: 12px !important;
   font-size: 16px !important;
   font-weight: 700 !important;
   background: #F82C17 !important;
   border: none !important;
-  box-shadow: 0 4px 16px rgba(248, 44, 23, 0.25);
-  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(248, 44, 23, 0.2);
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
 }
 
 .login-btn:hover {
-  box-shadow: 0 6px 24px rgba(248, 44, 23, 0.35) !important;
+  background: #E02510 !important;
+  box-shadow: 0 6px 24px rgba(248, 44, 23, 0.3) !important;
   transform: translateY(-1px);
 }
 
 .login-btn:active {
   transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(248, 44, 23, 0.2) !important;
 }
 
 .form-footer {
@@ -340,8 +366,11 @@ const handleLogin = async () => {
 .dark .login-form-side { background: #1A1A1A; }
 .dark .form-header h1 { color: #F7F8FA; }
 .dark .form-header p { color: #999; }
-.dark .login-form :deep(.ant-form-item-label > label) { color: #aaa; }
-.dark .login-form :deep(.ant-input-affix-wrapper) { background: #252525; border-color: #404040; }
+.dark .login-form :deep(.ant-form-item-label > label) { color: #ccc; }
+.dark .login-form :deep(.ant-input-affix-wrapper) { background: #252525; border-color: #3A3A3A; }
+.dark .login-form :deep(.ant-input-affix-wrapper:hover) { border-color: #555; background: #2A2A2A; }
+.dark .login-form :deep(.ant-input-affix-wrapper-focused) { border-color: #F82C17; background: #2A2A2A; }
 .dark .login-form :deep(.ant-input) { color: #F7F8FA; }
+.dark .login-form :deep(.ant-input::placeholder) { color: #666; }
 .dark .form-footer { border-top-color: #333; }
 </style>

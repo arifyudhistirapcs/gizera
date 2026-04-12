@@ -279,59 +279,74 @@ const handleLogin = async () => {
 
 /* Form fields */
 .login-card :deep(.van-field) {
-  padding: 14px 0;
+  padding: 0;
+  margin-bottom: 16px;
+  background: #F5F5F7;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .login-card :deep(.van-cell::after) {
-  left: 0;
-  right: 0;
-  border-color: #E8E8E8;
+  display: none;
 }
 
 .login-card :deep(.van-field__label) {
   color: #303030;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
+  padding: 12px 0 0 16px;
+}
+
+.login-card :deep(.van-field__body) {
+  padding: 8px 16px 12px;
 }
 
 .login-card :deep(.van-field__control) {
   color: #303030;
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .login-card :deep(.van-field__control::placeholder) {
-  color: #BFBFBF;
+  color: #C0C0C0;
+  font-weight: 400;
 }
 
 .login-card :deep(.van-field__left-icon) {
   color: #764AF1;
-  font-size: 18px;
+  font-size: 20px;
+  margin-right: 8px;
 }
 
 .login-card :deep(.van-field__right-icon) {
-  color: #8C8C8C;
+  color: #BFBFBF;
+  font-size: 18px;
+}
+
+.login-card :deep(.van-field--error .van-field__control) {
+  color: #F82C17;
 }
 
 /* Button */
 .login-btn-wrapper {
-  margin-top: 28px;
+  margin-top: 24px;
 }
 
 .login-btn {
-  height: 50px !important;
+  height: 52px !important;
   font-size: 16px !important;
   font-weight: 700 !important;
   border-radius: 12px !important;
   background: #F82C17 !important;
   border: none !important;
-  box-shadow: 0 4px 16px rgba(248, 44, 23, 0.3);
+  box-shadow: 0 4px 16px rgba(248, 44, 23, 0.2);
   transition: all 0.2s ease;
   letter-spacing: 0.3px;
 }
 
 .login-btn:active {
   transform: scale(0.97);
-  box-shadow: 0 2px 8px rgba(248, 44, 23, 0.2);
+  box-shadow: 0 2px 8px rgba(248, 44, 23, 0.15);
 }
 
 /* Footer */
