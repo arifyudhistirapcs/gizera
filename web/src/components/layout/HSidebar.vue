@@ -18,6 +18,7 @@
           alt="Dapur Sehat"
           class="logo-img-collapsed"
         />
+        <span v-if="!isCollapsed" class="powered-by">powered by <span class="pose-text">POSe</span></span>
       </div>
       <button
         v-if="!isMobile"
@@ -762,6 +763,18 @@ watch(() => props.collapsed, (newValue) => {
   height: 40px;
   width: auto;
   object-fit: contain;
+}
+
+.powered-by {
+  font-size: 10px;
+  color: #999;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+
+.pose-text {
+  color: #F82C17;
+  font-weight: 700;
 }
 
 /* Navigation */

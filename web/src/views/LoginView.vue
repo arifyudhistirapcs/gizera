@@ -6,6 +6,7 @@
         <!-- Mobile logo -->
         <div class="mobile-logo">
           <img src="/dapur-sehat-dark.png" alt="Dapur Sehat" />
+          <span class="powered-by">powered by <span class="pose-text">POSe</span></span>
         </div>
 
         <div class="form-header">
@@ -70,6 +71,7 @@
       </div>
       <div class="brand-content">
         <img src="/dapur-sehat-light.png" alt="Dapur Sehat" class="brand-logo" />
+        <span class="brand-powered">powered by <span class="pose-text-light">POSe</span></span>
       </div>
     </div>
   </div>
@@ -154,11 +156,25 @@ const handleLogin = async () => {
 .mobile-logo {
   display: none;
   margin-bottom: 40px;
+  text-align: center;
 }
 
 .mobile-logo img {
   height: 56px;
   width: auto;
+  display: block;
+  margin: 0 auto 4px;
+}
+
+.powered-by {
+  font-size: 11px;
+  color: #999;
+  letter-spacing: 0.3px;
+}
+
+.pose-text {
+  color: #F82C17;
+  font-weight: 700;
 }
 
 .form-header {
@@ -333,6 +349,7 @@ const handleLogin = async () => {
   position: relative;
   z-index: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 48px;
@@ -343,6 +360,18 @@ const handleLogin = async () => {
   max-width: 480px;
   height: auto;
   filter: brightness(0) invert(1) drop-shadow(0 8px 32px rgba(0, 0, 0, 0.2));
+}
+
+.brand-powered {
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.3px;
+}
+
+.pose-text-light {
+  color: #fff;
+  font-weight: 700;
 }
 
 /* ===== RESPONSIVE ===== */

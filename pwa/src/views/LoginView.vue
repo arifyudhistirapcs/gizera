@@ -5,6 +5,7 @@
       <div class="hero-bg"></div>
       <div class="hero-content">
         <img src="@/logo/dapur-sehat-light.png" alt="Dapur Sehat" class="hero-logo" />
+        <span class="hero-powered">powered by <span class="pose-text">POSe</span></span>
       </div>
       <!-- Curved bottom -->
       <svg class="hero-curve" viewBox="0 0 400 40" preserveAspectRatio="none">
@@ -207,7 +208,18 @@ const handleLogin = async () => {
   max-width: 80vw;
   height: auto;
   filter: brightness(0) invert(1);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.hero-powered {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.3px;
+}
+
+.hero-powered .pose-text {
+  color: #fff;
+  font-weight: 700;
 }
 
 .hero-curve {
