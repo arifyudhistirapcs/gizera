@@ -338,7 +338,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: var(--h-spacing-3, 12px);
   padding: var(--h-spacing-3, 12px);
-  background: var(--h-bg-primary, #E8EDE5);
+  background: var(--h-bg-primary, #F7F8FA);
   border-radius: var(--h-radius-md, 12px);
   transition: all var(--transition-base, 200ms);
 }

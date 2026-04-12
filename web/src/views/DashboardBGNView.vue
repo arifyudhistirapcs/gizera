@@ -445,7 +445,7 @@ onMounted(() => {
 .bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .bento > * { background: #fff; border-radius: 14px; padding: 20px; border: 1px solid #F0F0F0; min-width: 0; overflow: hidden; }
 
-.bento__hero { grid-column: 1 / -1; border: none; background: linear-gradient(135deg, #C94A3A 0%, #D4553E 50%, #1E8A6E 100%); color: #fff; padding: 24px 28px; }
+.bento__hero { grid-column: 1 / -1; border: none; background: #F82C17; color: #fff; padding: 24px 28px; }
 .bento__filters { grid-column: 1 / -1; padding: 14px 20px; }
 .bento__alert { grid-column: 1 / -1; padding: 0; background: transparent; border: none; }
 .bento__map { grid-column: 1 / 3; }

@@ -259,7 +259,7 @@ const showOfflineInfo = () => {
 
 .header-bg {
   height: 160px;
-  background: linear-gradient(135deg, #C94A3A 0%, #D4553E 45%, #1E8A6E 100%);
+  background: #F82C17;
   position: relative;
   overflow: hidden;
   border-radius: 0 0 32px 32px;
@@ -293,8 +293,8 @@ const showOfflineInfo = () => {
   height: 100px;
   border-radius: 50%;
   padding: 4px;
-  background: linear-gradient(135deg, #C94A3A, #1E8A6E);
-  box-shadow: 0 4px 20px rgba(201, 74, 58, 0.25);
+  background: #F82C17;
+  box-shadow: 0 4px 20px rgba(248, 44, 23, 0.25);
 }
 
 .avatar {
@@ -311,7 +311,7 @@ const showOfflineInfo = () => {
 .avatar-text {
   font-size: 32px;
   font-weight: 700;
-  background: linear-gradient(135deg, #C94A3A, #1E8A6E);
+  background: #F82C17;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -343,9 +343,9 @@ const showOfflineInfo = () => {
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  background: linear-gradient(135deg, rgba(201, 74, 58, 0.1), rgba(30, 138, 110, 0.1));
+  background: rgba(248, 44, 23, 0.1);
   border-radius: 20px;
-  color: #C94A3A;
+  color: #F82C17;
   font-size: 13px;
   font-weight: 600;
 }
@@ -379,13 +379,13 @@ const showOfflineInfo = () => {
 }
 
 .stat-icon--primary {
-  background: rgba(201, 74, 58, 0.1);
-  color: #C94A3A;
+  background: rgba(248, 44, 23, 0.1);
+  color: #F82C17;
 }
 
 .stat-icon--success {
-  background: rgba(30, 138, 110, 0.1);
-  color: #1E8A6E;
+  background: rgba(118, 74, 241, 0.1);
+  color: #764AF1;
 }
 
 .stat-info {
@@ -431,7 +431,7 @@ const showOfflineInfo = () => {
 
 .section-icon {
   font-size: 20px;
-  color: #1E8A6E;
+  color: #764AF1;
 }
 
 .section-title {
@@ -461,7 +461,7 @@ const showOfflineInfo = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1E8A6E;
+  color: #764AF1;
   flex-shrink: 0;
 }
 
@@ -524,12 +524,12 @@ const showOfflineInfo = () => {
 }
 
 .setting-icon--blue {
-  background: linear-gradient(135deg, #1E8A6E, #2AAE8A);
+  background: #764AF1;
   color: #FFFFFF;
 }
 
 .setting-icon--purple {
-  background: linear-gradient(135deg, #C94A3A, #D4553E);
+  background: #F82C17;
   color: #FFFFFF;
 }
 
@@ -561,7 +561,7 @@ const showOfflineInfo = () => {
   height: 52px;
   border: none;
   border-radius: 16px;
-  background: linear-gradient(135deg, #C94A3A 0%, #A33D30 100%);
+  background: #F82C17;
   color: #FFFFFF;
   font-size: 16px;
   font-weight: 700;
@@ -571,7 +571,7 @@ const showOfflineInfo = () => {
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(201, 74, 58, 0.25);
+  box-shadow: 0 4px 16px rgba(248, 44, 23, 0.25);
   transition: all 0.2s ease;
   margin-top: 8px;
 }

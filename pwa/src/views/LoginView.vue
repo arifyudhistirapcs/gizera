@@ -137,7 +137,7 @@ const handleLogin = async () => {
         title: 'Login Gagal',
         message: errorMessage.value,
         confirmButtonText: 'OK',
-        confirmButtonColor: '#C94A3A'
+        confirmButtonColor: '#F82C17'
       })
     }
   } catch (error) {
@@ -162,7 +162,7 @@ const handleLogin = async () => {
       title: 'Login Gagal',
       message: errMsg,
       confirmButtonText: 'OK',
-      confirmButtonColor: '#C94A3A'
+      confirmButtonColor: '#F82C17'
     })
   } finally {
     loading.value = false
@@ -189,7 +189,7 @@ const handleLogin = async () => {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #C94A3A 0%, #D4553E 45%, #1E8A6E 100%);
+  background: #F82C17;
 }
 
 .hero-content {
@@ -263,11 +263,11 @@ const handleLogin = async () => {
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: rgba(201, 74, 58, 0.08);
-  border: 1px solid rgba(201, 74, 58, 0.2);
+  background: rgba(248, 44, 23, 0.08);
+  border: 1px solid rgba(248, 44, 23, 0.2);
   border-radius: 10px;
   margin-bottom: 16px;
-  color: #C94A3A;
+  color: #F82C17;
   font-size: 14px;
   font-weight: 500;
 }
@@ -304,7 +304,7 @@ const handleLogin = async () => {
 }
 
 .login-card :deep(.van-field__left-icon) {
-  color: #1E8A6E;
+  color: #764AF1;
   font-size: 18px;
 }
 
@@ -322,16 +322,16 @@ const handleLogin = async () => {
   font-size: 16px !important;
   font-weight: 700 !important;
   border-radius: 12px !important;
-  background: linear-gradient(135deg, #C94A3A 0%, #1E8A6E 100%) !important;
+  background: #F82C17 !important;
   border: none !important;
-  box-shadow: 0 4px 16px rgba(201, 74, 58, 0.3);
+  box-shadow: 0 4px 16px rgba(248, 44, 23, 0.3);
   transition: all 0.2s ease;
   letter-spacing: 0.3px;
 }
 
 .login-btn:active {
   transform: scale(0.97);
-  box-shadow: 0 2px 8px rgba(201, 74, 58, 0.2);
+  box-shadow: 0 2px 8px rgba(248, 44, 23, 0.2);
 }
 
 /* Footer */

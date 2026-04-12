@@ -16,26 +16,26 @@
   --h-primary-lighter: rgba(48, 48, 48, 0.08);
   
   /* Accent - Datum Green */
-  --h-accent: #CCE2C8;
+  --h-accent: #F0F0F0;
   --h-accent-light: #DCF0D8;
   
   /* === CULINARY ACCENT (Inspirasi Restaurant + Mabelino) === */
-  --h-culinary-coral: #C94A3A;
+  --h-culinary-coral: #F82C17;
   --h-culinary-coral-light: #FDEAE7;
-  --h-culinary-coral-dark: #A33D30;
+  --h-culinary-coral-dark: #D92614;
   
-  --h-fresh-mint: #1E8A6E;
+  --h-fresh-mint: #764AF1;
   --h-fresh-mint-light: #D1FAE5;
   --h-fresh-mint-dark: #166B56;
   
   --h-bg-highlight-warm: #FDEAE7;
   
   /* Backgrounds - Datum Sage/Green Tint */
-  --h-bg-primary: #E8EDE5;
+  --h-bg-primary: #F7F8FA;
   --h-bg-secondary: #FFFFFF;
   --h-bg-card: #FFFFFF;
   --h-bg-light: #F0F0F0;
-  --h-bg-accent: #CCE2C8;
+  --h-bg-accent: #F0F0F0;
   
   /* Text Colors */
   --h-text-primary: #303030;
@@ -47,15 +47,15 @@
   --h-border-light: #F0F0F0;
   
   /* Semantic Colors - Culinary V2 */
-  --h-success: #1E8A6E;
+  --h-success: #764AF1;
   --h-success-light: #D1FAE5;
   --h-success-dark: #166B56;
   --h-warning: #F59E0B;
   --h-warning-light: #FBBF24;
   --h-warning-dark: #D97706;
-  --h-error: #C94A3A;
+  --h-error: #F82C17;
   --h-error-light: #FDEAE7;
-  --h-error-dark: #A33D30;
+  --h-error-dark: #D92614;
   --h-info: #3B82F6;
   --h-info-light: #60A5FA;
   --h-info-dark: #2563EB;
@@ -118,15 +118,15 @@ input[type="reset"],
 
 /* Button Primary - Culinary Coral */
 .van-button--primary {
-  background: #C94A3A !important;
-  border-color: #C94A3A !important;
+  background: #F82C17 !important;
+  border-color: #F82C17 !important;
   border-radius: 6px !important;
   font-weight: 500;
 }
 
 .van-button--primary:active {
-  background: #A33D30 !important;
-  border-color: #A33D30 !important;
+  background: #D92614 !important;
+  border-color: #D92614 !important;
 }
 
 /* Button Default */
@@ -410,11 +410,11 @@ input[type="reset"],
 
 /* Vant Switch V2 */
 .van-switch--on {
-  background: #C94A3A !important;
+  background: #F82C17 !important;
 }
 
 /* Vant Checkbox V2 */
 .van-checkbox__icon--checked {
-  background: #C94A3A !important;
-  border-color: #C94A3A !important;
+  background: #F82C17 !important;
+  border-color: #F82C17 !important;
 }

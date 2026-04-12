@@ -128,8 +128,8 @@ onMounted(() => { activeItem.value = findActiveItem() })
 }
 
 .nav-icon-wrap--active {
-  background: linear-gradient(135deg, #C94A3A 0%, #1E8A6E 100%);
-  box-shadow: 0 4px 12px rgba(201, 74, 58, 0.3);
+  background: #F82C17;
+  box-shadow: 0 4px 12px rgba(248, 44, 23, 0.3);
   transform: translateY(-2px);
 }
 
@@ -142,7 +142,7 @@ onMounted(() => { activeItem.value = findActiveItem() })
 }
 
 .nav-item--active .nav-item__label {
-  color: #C94A3A;
+  color: #F82C17;
   font-weight: 700;
 }
 

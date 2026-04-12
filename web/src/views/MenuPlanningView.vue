@@ -273,10 +273,10 @@
               <span style="font-size:13px;font-weight:500;color:#303030;">{{ schoolAlloc.school_name }}</span>
               <span style="font-size:13px;font-weight:700;color:#303030;">
                 <template v-if="schoolAlloc.portions_small > 0">
-                  <span style="background:#FDEAE7;color:#C94A3A;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:4px;">K: {{ schoolAlloc.portions_small }}</span>
+                  <span style="background:#FDEAE7;color:#F82C17;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:4px;">K: {{ schoolAlloc.portions_small }}</span>
                 </template>
                 <template v-if="schoolAlloc.portions_large > 0">
-                  <span style="background:#D1FAE5;color:#1E8A6E;padding:2px 8px;border-radius:4px;font-size:11px;">B: {{ schoolAlloc.portions_large }}</span>
+                  <span style="background:#D1FAE5;color:#764AF1;padding:2px 8px;border-radius:4px;font-size:11px;">B: {{ schoolAlloc.portions_large }}</span>
                 </template>
               </span>
             </div>
@@ -1037,8 +1037,8 @@ onMounted(() => {
 }
 
 .day-card.today {
-  border: 2px solid #C94A3A !important;
-  box-shadow: 0 0 0 3px rgba(201, 74, 58, 0.1);
+  border: 2px solid #F82C17 !important;
+  box-shadow: 0 0 0 3px rgba(248, 44, 23, 0.1);
 }
 
 /* Day Header — Compact */
@@ -1156,7 +1156,7 @@ onMounted(() => {
   border-radius: 4px;
   font-size: 10px;
   font-weight: 600;
-  color: #C94A3A;
+  color: #F82C17;
 }
 
 /* School Allocations — Compact */
@@ -1202,7 +1202,7 @@ onMounted(() => {
 
 .no-allocations {
   font-size: 11px;
-  color: #C94A3A;
+  color: #F82C17;
   font-style: italic;
 }
 
@@ -1222,9 +1222,9 @@ onMounted(() => {
 }
 
 .add-menu-button:hover {
-  border-color: #C94A3A;
-  color: #C94A3A;
-  background: rgba(201, 74, 58, 0.04);
+  border-color: #F82C17;
+  color: #F82C17;
+  background: rgba(248, 44, 23, 0.04);
 }
 
 /* Nutrition Summary — Compact */
@@ -1254,7 +1254,7 @@ onMounted(() => {
 }
 
 .nutrition-item .value.valid {
-  color: #1E8A6E;
+  color: #764AF1;
 }
 
 .nutrition-item .value.invalid {
@@ -1285,7 +1285,7 @@ onMounted(() => {
 
 /* Dark Mode */
 .dark .day-card { background: #252525; border-color: #404040 !important; }
-.dark .day-card.today { border-color: #C94A3A !important; }
+.dark .day-card.today { border-color: #F82C17 !important; }
 .dark .day-header { border-bottom-color: #404040; }
 .dark .day-name { color: #F7F8FA; }
 .dark .menu-item { background: #303030; border-color: #404040; }

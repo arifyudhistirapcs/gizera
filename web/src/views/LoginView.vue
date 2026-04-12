@@ -205,13 +205,13 @@ const handleLogin = async () => {
 }
 
 .login-form :deep(.ant-input-affix-wrapper:hover) {
-  border-color: #C94A3A;
+  border-color: #F82C17;
 }
 
 .login-form :deep(.ant-input-affix-wrapper-focused),
 .login-form :deep(.ant-input-affix-wrapper:focus) {
-  border-color: #C94A3A;
-  box-shadow: 0 0 0 3px rgba(201, 74, 58, 0.08);
+  border-color: #F82C17;
+  box-shadow: 0 0 0 3px rgba(248, 44, 23, 0.08);
 }
 
 .login-form :deep(.ant-input) {
@@ -236,14 +236,14 @@ const handleLogin = async () => {
   border-radius: 14px !important;
   font-size: 16px !important;
   font-weight: 700 !important;
-  background: linear-gradient(135deg, #C94A3A 0%, #1E8A6E 100%) !important;
+  background: #F82C17 !important;
   border: none !important;
-  box-shadow: 0 4px 16px rgba(201, 74, 58, 0.25);
+  box-shadow: 0 4px 16px rgba(248, 44, 23, 0.25);
   transition: all 0.2s;
 }
 
 .login-btn:hover {
-  box-shadow: 0 6px 24px rgba(201, 74, 58, 0.35) !important;
+  box-shadow: 0 6px 24px rgba(248, 44, 23, 0.35) !important;
   transform: translateY(-1px);
 }
 
@@ -270,7 +270,7 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #C94A3A 0%, #D4553E 40%, #1E8A6E 100%);
+  background: #F82C17;
   position: relative;
   overflow: hidden;
 }

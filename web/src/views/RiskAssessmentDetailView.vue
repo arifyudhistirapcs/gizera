@@ -657,22 +657,22 @@ onMounted(() => {
 }
 
 .btn-export-excel {
-  color: #1E8A6E;
-  border-color: #1E8A6E;
+  color: #764AF1;
+  border-color: #764AF1;
 }
 .btn-export-excel:hover {
   color: #fff;
-  background-color: #1E8A6E;
-  border-color: #1E8A6E;
+  background-color: #764AF1;
+  border-color: #764AF1;
 }
 
 .btn-export-pdf {
-  color: #C94A3A;
-  border-color: #C94A3A;
+  color: #F82C17;
+  border-color: #F82C17;
 }
 .btn-export-pdf:hover {
   color: #fff;
-  background-color: #C94A3A;
-  border-color: #C94A3A;
+  background-color: #F82C17;
+  border-color: #F82C17;
 }
 </style>

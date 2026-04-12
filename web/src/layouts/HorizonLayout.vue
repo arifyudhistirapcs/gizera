@@ -116,7 +116,7 @@ const handleNotificationClick = () => {
 .horizon-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--h-bg-primary, #E8EDE5);
+  background-color: var(--h-bg-primary, #F7F8FA);
   padding: 12px;
   transition: background-color 0.2s ease;
 }

@@ -116,10 +116,10 @@ const trendIcon = computed(() => {
 }
 
 .metric-card__trend.trend-up {
-  color: #1E8A6E;
+  color: #764AF1;
 }
 
 .metric-card__trend.trend-down {
-  color: #C94A3A;
+  color: #F82C17;
 }
 </style>

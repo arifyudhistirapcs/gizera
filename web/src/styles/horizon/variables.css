@@ -16,17 +16,17 @@
   --h-primary-lighter: rgba(48, 48, 48, 0.08);
   
   /* Accent Green - For highlights (Datum) */
-  --h-accent: #CCE2C8;
+  --h-accent: #F0F0F0;
   --h-accent-light: #DCF0D8;
   
   /* === CULINARY ACCENT (Inspirasi Restaurant + Mabelino) === */
-  --h-culinary-coral: #C94A3A;
+  --h-culinary-coral: #F82C17;
   --h-culinary-coral-light: #FDEAE7;
-  --h-culinary-coral-dark: #A33D30;
+  --h-culinary-coral-dark: #D92614;
   
-  --h-fresh-mint: #1E8A6E;
-  --h-fresh-mint-light: #D1FAE5;
-  --h-fresh-mint-dark: #166B56;
+  --h-fresh-mint: #764AF1;
+  --h-fresh-mint-light: #E8DAFE;
+  --h-fresh-mint-dark: #5A38C4;
   
   --h-bg-highlight-warm: #FDEAE7;
   
@@ -35,11 +35,11 @@
      ======================================== */
   
   /* Backgrounds */
-  --h-bg-primary: #E8EDE5;        /* Sage/green tint background (Datum) */
+  --h-bg-primary: #F7F8FA;        /* Light neutral background */
   --h-bg-secondary: #FFFFFF;       /* Pure white */
   --h-bg-card: #FFFFFF;            /* Card background */
   --h-bg-light: #F0F0F0;           /* Light gray background */
-  --h-bg-accent: #CCE2C8;          /* Green accent for widget highlight/overview cards (Datum) */
+  --h-bg-accent: #F0F0F0;          /* Accent background for widget highlight */
   
   /* Text Colors */
   --h-text-primary: #303030;       /* Dark neutral for text (Datum) */
@@ -54,17 +54,17 @@
      SEMANTIC COLORS
      ======================================== */
   
-  --h-success: #1E8A6E;            /* Fresh Mint for success (Culinary V2) */
-  --h-success-light: #D1FAE5;
-  --h-success-dark: #166B56;
+  --h-success: #764AF1;            /* Fresh Mint for success (Culinary V2) */
+  --h-success-light: #E8DAFE;
+  --h-success-dark: #5A38C4;
   
   --h-warning: #F59E0B;            /* Orange for warning */
   --h-warning-light: #FBBF24;
   --h-warning-dark: #D97706;
   
-  --h-error: #C94A3A;              /* Culinary Coral for error (V2) */
+  --h-error: #F82C17;              /* Culinary Coral for error (V2) */
   --h-error-light: #FDEAE7;
-  --h-error-dark: #A33D30;
+  --h-error-dark: #D92614;
   
   --h-info: #3B82F6;               /* Subtle blue for info (Datum) */
   --h-info-light: #60A5FA;

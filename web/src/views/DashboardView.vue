@@ -247,7 +247,7 @@ onMounted(() => {
 }
 
 .h-button {
-  background: #C94A3A;
+  background: #F82C17;
   border: none;
   border-radius: 6px;
   height: 44px;
@@ -256,7 +256,7 @@ onMounted(() => {
 
 /* Overview Highlight Widget */
 .overview-widget {
-  background: #CCE2C8;
+  background: #F0F0F0;
   border-radius: 8px;
   padding: 20px;
 }

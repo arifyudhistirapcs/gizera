@@ -569,7 +569,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  background: linear-gradient(135deg, #C94A3A 0%, #A33D30 100%);
+  background: #F82C17;
   border-radius: var(--h-radius-md);
   color: white;
 }
@@ -662,18 +662,18 @@ onUnmounted(() => {
 
 .time-label {
   font-size: var(--h-text-xs);
-  color: #A33D30;
+  color: #D92614;
   font-weight: var(--h-font-medium);
 }
 
 .time-value {
   font-size: var(--h-text-sm);
-  color: #C94A3A;
+  color: #F82C17;
   font-weight: var(--h-font-bold);
 }
 
 .time-value.duration {
-  color: #1E8A6E;
+  color: #764AF1;
 }
 
 /* Sections */
@@ -784,7 +784,7 @@ onUnmounted(() => {
 .dark .kanban-column-title { color: var(--h-text-primary); }
 .dark .column-icon { color: var(--h-primary-light); }
 .dark .recipe-card__name { color: var(--h-text-primary); }
-.dark .recipe-card__portions { background: linear-gradient(135deg, #C94A3A 0%, #8B3428 100%); }
+.dark .recipe-card__portions { background: #F82C17; }
 .dark .portion-size-item.portion-small { background: rgba(255, 181, 71, 0.15); border-color: #FFB547; }
 .dark .portion-size-item.portion-large { background: rgba(24, 144, 255, 0.15); border-color: #1890FF; }
 .dark .size-badge { background: var(--h-bg-card); }
@@ -793,8 +793,8 @@ onUnmounted(() => {
 .dark .instructions-text { background: rgba(255, 255, 255, 0.05); color: var(--h-text-secondary); }
 .dark .completed-badge { background: rgba(5, 205, 153, 0.2); }
 .dark .recipe-card__time,
-.dark .recipe-card__times { background: rgba(201, 74, 58, 0.1); border-color: rgba(201, 74, 58, 0.2); }
-.dark .time-value { color: #C94A3A; }
+.dark .recipe-card__times { background: rgba(248, 44, 23, 0.1); border-color: rgba(248, 44, 23, 0.2); }
+.dark .time-value { color: #F82C17; }
 
 /* Responsive */
 @media (max-width: 1024px) {

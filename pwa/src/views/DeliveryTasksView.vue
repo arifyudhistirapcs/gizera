@@ -373,7 +373,7 @@ onUnmounted(() => {
 <style scoped>
 .delivery-tasks-container {
   min-height: 100vh;
-  background-color: #E8EDE5;
+  background-color: #F7F8FA;
   padding-top: 46px;
   padding-bottom: 50px;
 }

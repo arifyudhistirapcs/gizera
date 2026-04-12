@@ -320,7 +320,7 @@ onMounted(() => {
 
 /* Gradient Header */
 .dash-header {
-  background: linear-gradient(135deg, #C94A3A 0%, #D4553E 45%, #1E8A6E 100%);
+  background: #F82C17;
   padding: 20px 20px 28px;
   border-radius: 0 0 24px 24px;
   position: relative;
@@ -488,7 +488,7 @@ onMounted(() => {
   background: #F7F8FA;
   border: none;
   border-radius: 14px;
-  border-left: 3px solid #C94A3A;
+  border-left: 3px solid #F82C17;
 }
 
 .stok-kritis-info {
@@ -701,7 +701,7 @@ onMounted(() => {
 
 .supplier-rank.rank-1 {
   background: #FDEAE7;
-  color: #C94A3A;
+  color: #F82C17;
 }
 
 .supplier-rank.rank-2 {
@@ -711,7 +711,7 @@ onMounted(() => {
 
 .supplier-rank.rank-3 {
   background: #D1FAE5;
-  color: #1E8A6E;
+  color: #764AF1;
 }
 
 .supplier-rank.rank-4 {

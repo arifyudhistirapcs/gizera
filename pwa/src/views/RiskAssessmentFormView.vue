@@ -748,7 +748,7 @@ onUnmounted(() => {
 <style scoped>
 .risk-form-container {
   min-height: 100vh;
-  background-color: #E8EDE5;
+  background-color: #F7F8FA;
   padding-top: 46px;
   padding-bottom: 80px;
 }

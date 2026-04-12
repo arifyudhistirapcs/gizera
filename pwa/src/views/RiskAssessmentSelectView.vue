@@ -184,7 +184,7 @@ onMounted(() => fetchData())
 <style scoped>
 .risk-assessment-select {
   min-height: 100vh;
-  background-color: #E8EDE5;
+  background-color: #F7F8FA;
 }
 
 .loading-state {

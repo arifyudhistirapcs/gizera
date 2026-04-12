@@ -823,12 +823,12 @@ watch(() => props.collapsed, (newValue) => {
 
 /* Active state - Culinary Coral bg + white text */
 .menu-item.active {
-  background-color: #C94A3A;
+  background-color: #F82C17;
   color: #FFFFFF;
 }
 
 .dark .menu-item.active {
-  background-color: #C94A3A;
+  background-color: #F82C17;
   color: #FFFFFF;
 }
 
@@ -897,12 +897,12 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .submenu-item.active {
-  background-color: #C94A3A;
+  background-color: #F82C17;
   color: #FFFFFF;
 }
 
 .dark .submenu-item.active {
-  background-color: #C94A3A;
+  background-color: #F82C17;
   color: #FFFFFF;
 }
 
@@ -1073,7 +1073,7 @@ watch(() => props.collapsed, (newValue) => {
   display: inline-block;
   margin-top: 10px;
   padding: 6px 16px;
-  background: #C94A3A;
+  background: #F82C17;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -1086,6 +1086,6 @@ watch(() => props.collapsed, (newValue) => {
 }
 
 .sidebar-promo__btn:hover {
-  background: #A33D30;
+  background: #D92614;
 }
 </style>

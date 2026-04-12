@@ -5,23 +5,23 @@
  */
 
 /* ========================================
-   PRIMARY BUTTON - Culinary Coral (#C94A3A)
+   PRIMARY BUTTON - Culinary Coral (#F82C17)
    ======================================== */
 .ant-btn-primary {
-  background-color: #C94A3A !important;
-  border-color: #C94A3A !important;
+  background-color: #F82C17 !important;
+  border-color: #F82C17 !important;
   border-radius: 6px;
 }
 
 .ant-btn-primary:hover,
 .ant-btn-primary:focus {
-  background-color: #A33D30 !important;
-  border-color: #A33D30 !important;
+  background-color: #D92614 !important;
+  border-color: #D92614 !important;
 }
 
 .ant-btn-primary:active {
-  background-color: #8B3428 !important;
-  border-color: #8B3428 !important;
+  background-color: #D92614 !important;
+  border-color: #D92614 !important;
 }
 
 /* Danger button - keep red but softer */
@@ -692,8 +692,8 @@
 }
 
 .ant-tag-success, .ant-tag-green {
-  background: #D1FAE5 !important;
-  color: #1E8A6E !important;
+  background: #E8DAFE !important;
+  color: #764AF1 !important;
 }
 
 .ant-tag-warning, .ant-tag-orange {
@@ -703,7 +703,7 @@
 
 .ant-tag-error, .ant-tag-red {
   background: #FDEAE7 !important;
-  color: #C94A3A !important;
+  color: #F82C17 !important;
 }
 
 .ant-tag-blue, .ant-tag-processing {
@@ -817,22 +817,22 @@
 
 /* === SWITCH V2 === */
 .ant-switch-checked {
-  background: #C94A3A !important;
+  background: #F82C17 !important;
 }
 
 /* === CHECKBOX V2 === */
 .ant-checkbox-checked .ant-checkbox-inner {
-  background-color: #C94A3A !important;
-  border-color: #C94A3A !important;
+  background-color: #F82C17 !important;
+  border-color: #F82C17 !important;
 }
 
 /* === RADIO V2 === */
 .ant-radio-checked .ant-radio-inner {
-  border-color: #C94A3A !important;
+  border-color: #F82C17 !important;
 }
 
 .ant-radio-checked .ant-radio-inner::after {
-  background-color: #C94A3A !important;
+  background-color: #F82C17 !important;
 }
 
 /* === UPLOAD V2 === */
@@ -842,27 +842,27 @@
 }
 
 .ant-upload.ant-upload-drag:hover {
-  border-color: #C94A3A !important;
+  border-color: #F82C17 !important;
 }
 
 /* === STEPS V2 === */
 .ant-steps-item-process .ant-steps-item-icon {
-  background: #C94A3A !important;
-  border-color: #C94A3A !important;
+  background: #F82C17 !important;
+  border-color: #F82C17 !important;
 }
 
 .ant-steps-item-finish .ant-steps-item-icon {
-  border-color: #1E8A6E !important;
+  border-color: #764AF1 !important;
 }
 
 .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
-  color: #1E8A6E !important;
+  color: #764AF1 !important;
 }
 
 /* === TIMELINE V2 === */
 .ant-timeline-item-head-blue {
-  color: #C94A3A !important;
-  border-color: #C94A3A !important;
+  color: #F82C17 !important;
+  border-color: #F82C17 !important;
 }
 
 /* === SKELETON V2 === */
