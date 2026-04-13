@@ -14,6 +14,7 @@ var (
 	ErrGRNValidation     = errors.New("validasi goods receipt gagal")
 	ErrPONotApproved     = errors.New("purchase order belum disetujui")
 	ErrPOAlreadyReceived = errors.New("purchase order sudah diterima")
+	ErrPOAlreadyHasGRN   = errors.New("PO sudah memiliki GRN")
 )
 
 // GoodsReceiptService handles goods receipt business logic
@@ -21,6 +22,7 @@ type GoodsReceiptService struct {
 	db               *gorm.DB
 	inventoryService *InventoryService
 	cashFlowService  *CashFlowService
+	rabService       *RABService
 }
 
 // NewGoodsReceiptService creates a new goods receipt service
@@ -29,36 +31,44 @@ func NewGoodsReceiptService(db *gorm.DB, inventoryService *InventoryService, cas
 		db:               db,
 		inventoryService: inventoryService,
 		cashFlowService:  cashFlowService,
+		rabService:       NewRABService(db),
 	}
 }
 
 // QuantityDiscrepancy represents a discrepancy between ordered and received quantities
 type QuantityDiscrepancy struct {
-	IngredientID     uint    `json:"ingredient_id"`
-	IngredientName   string  `json:"ingredient_name"`
-	OrderedQuantity  float64 `json:"ordered_quantity"`
-	ReceivedQuantity float64 `json:"received_quantity"`
-	Difference       float64 `json:"difference"`
+	IngredientID      uint    `json:"ingredient_id"`
+	IngredientName    string  `json:"ingredient_name"`
+	OrderedQuantity   float64 `json:"ordered_quantity"`
+	ReceivedQuantity  float64 `json:"received_quantity"`
+	Difference        float64 `json:"difference"`
 	DifferencePercent float64 `json:"difference_percent"`
 }
 
 // CreateGoodsReceipt creates a new goods receipt and updates inventory
 func (s *GoodsReceiptService) CreateGoodsReceipt(grn *models.GoodsReceipt, items []models.GoodsReceiptItem, userID uint) error {
-	// Validate PO exists and is approved
+	// Validate PO exists and is shipping (or approved for legacy data)
 	var po models.PurchaseOrder
-	if err := s.db.Preload("POItems.Ingredient").First(&po, grn.POID).Error; err != nil {
+	if err := s.db.Session(&gorm.Session{NewDB: true}).Preload("POItems.Ingredient").First(&po, grn.POID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("purchase order tidak ditemukan")
 		}
 		return err
 	}
 
-	if po.Status != "approved" {
+	if po.Status != "shipping" && po.Status != "approved" {
 		return ErrPONotApproved
 	}
 
 	if po.Status == "received" {
 		return ErrPOAlreadyReceived
+	}
+
+	// 1:1 PO-GRN validation: check if PO already has a GRN
+	var existingGRNCount int64
+	s.db.Session(&gorm.Session{NewDB: true}).Model(&models.GoodsReceipt{}).Where("po_id = ?", grn.POID).Count(&existingGRNCount)
+	if existingGRNCount > 0 {
+		return ErrPOAlreadyHasGRN
 	}
 
 	// Validate items
@@ -91,8 +101,15 @@ func (s *GoodsReceiptService) CreateGoodsReceipt(grn *models.GoodsReceipt, items
 	grn.ReceivedBy = userID
 	grn.ReceiptDate = time.Now()
 
-	// Create GRN in transaction
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	// Set sppg_id from PO's target_sppg_id or sppg_id
+	if po.TargetSPPGID != nil {
+		grn.SPPGID = po.TargetSPPGID
+	} else if po.SPPGID != nil {
+		grn.SPPGID = po.SPPGID
+	}
+
+	// Create GRN in transaction (use fresh session to avoid tenant scope issues)
+	return s.db.Session(&gorm.Session{NewDB: true}).Transaction(func(tx *gorm.DB) error {
 		// Create GRN
 		if err := tx.Create(grn).Error; err != nil {
 			return err
@@ -121,6 +138,31 @@ func (s *GoodsReceiptService) CreateGoodsReceipt(grn *models.GoodsReceipt, items
 			}
 		}
 
+		// Update RABItem.grn_id: find RABItems linked to this PO and update
+		if po.RABID != nil {
+			if err := tx.Model(&models.RABItem{}).
+				Where("po_id = ? AND grn_id IS NULL", grn.POID).
+				Updates(map[string]interface{}{
+					"grn_id": grn.ID,
+					"status": "grn_received",
+				}).Error; err != nil {
+				return fmt.Errorf("gagal mengupdate RAB items dengan grn_id: %w", err)
+			}
+
+			// Auto-complete RAB: check if all items are received
+			rabSvc := s.rabService.WithDB(tx)
+			if err := rabSvc.CheckAndCompleteRAB(*po.RABID); err != nil {
+				return fmt.Errorf("gagal cek auto-complete RAB: %w", err)
+			}
+		}
+
+		// Update supplier quality_rating average
+		if grn.QualityRating > 0 {
+			if err := s.updateSupplierQualityRating(tx, po.SupplierID); err != nil {
+				return fmt.Errorf("gagal mengupdate quality rating supplier: %w", err)
+			}
+		}
+
 		// Create cash flow entry
 		if s.cashFlowService != nil {
 			cashFlowEntry := &models.CashFlowEntry{
@@ -141,6 +183,22 @@ func (s *GoodsReceiptService) CreateGoodsReceipt(grn *models.GoodsReceipt, items
 	})
 }
 
+// updateSupplierQualityRating calculates and updates the average quality_rating for a supplier
+func (s *GoodsReceiptService) updateSupplierQualityRating(tx *gorm.DB, supplierID uint) error {
+	var avgRating float64
+	err := tx.Model(&models.GoodsReceipt{}).
+		Joins("JOIN purchase_orders ON purchase_orders.id = goods_receipts.po_id").
+		Where("purchase_orders.supplier_id = ? AND goods_receipts.quality_rating > 0", supplierID).
+		Select("COALESCE(AVG(goods_receipts.quality_rating), 0)").
+		Scan(&avgRating).Error
+	if err != nil {
+		return err
+	}
+
+	return tx.Model(&models.Supplier{}).Where("id = ?", supplierID).
+		Update("quality_rating", avgRating).Error
+}
+
 // GetGoodsReceiptByID retrieves a goods receipt by ID with related data
 func (s *GoodsReceiptService) GetGoodsReceiptByID(id uint) (*models.GoodsReceipt, error) {
 	var grn models.GoodsReceipt
@@ -149,7 +207,7 @@ func (s *GoodsReceiptService) GetGoodsReceiptByID(id uint) (*models.GoodsReceipt
 		Preload("GRNItems.Ingredient").
 		Preload("Receiver").
 		First(&grn, id).Error
-	
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrGRNNotFound
@@ -191,7 +249,7 @@ func (s *GoodsReceiptService) GetGoodsReceiptsByPO(poID uint) (*models.GoodsRece
 		Preload("Receiver").
 		Where("po_id = ?", poID).
 		First(&grn).Error
-	
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrGRNNotFound
@@ -249,23 +307,25 @@ func (s *GoodsReceiptService) generateGRNNumber() (string, error) {
 	// Format: GRN-YYYYMMDD-XXXX
 	now := time.Now()
 	datePrefix := now.Format("20060102")
-	
+
+	baseDB := s.db.Session(&gorm.Session{NewDB: true})
+
 	// Count GRNs created today
 	var count int64
-	s.db.Model(&models.GoodsReceipt{}).
+	baseDB.Model(&models.GoodsReceipt{}).
 		Where("grn_number LIKE ?", fmt.Sprintf("GRN-%s-%%", datePrefix)).
 		Count(&count)
-	
+
 	// Generate GRN number
 	grnNumber := fmt.Sprintf("GRN-%s-%04d", datePrefix, count+1)
-	
+
 	// Check if it already exists (race condition protection)
 	var existing models.GoodsReceipt
-	err := s.db.Where("grn_number = ?", grnNumber).First(&existing).Error
+	err := baseDB.Where("grn_number = ?", grnNumber).First(&existing).Error
 	if err == nil {
 		// If exists, try with incremented number
 		grnNumber = fmt.Sprintf("GRN-%s-%04d", datePrefix, count+2)
 	}
-	
+
 	return grnNumber, nil
 }

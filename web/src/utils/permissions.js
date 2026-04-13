@@ -3,7 +3,7 @@
  */
 
 // Non-operational roles (management/oversight roles that don't do daily SPPG operations)
-export const NON_OPERATIONAL_ROLES = ['superadmin', 'admin_bgn', 'kepala_yayasan']
+export const NON_OPERATIONAL_ROLES = ['superadmin', 'admin_bgn', 'kepala_yayasan', 'supplier']
 
 // Define role permissions for each feature/module
 export const PERMISSIONS = {
@@ -42,10 +42,10 @@ export const PERMISSIONS = {
   KDS_UPDATE_STATUS: ['chef', 'packing'],
 
   // Supply Chain
-  SUPPLIER_VIEW: ['kepala_sppg', 'pengadaan'],
-  SUPPLIER_MANAGE: ['kepala_sppg', 'pengadaan'],
-  PO_VIEW: ['kepala_sppg', 'pengadaan'],
-  PO_CREATE: ['kepala_sppg', 'pengadaan'],
+  SUPPLIER_VIEW: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
+  SUPPLIER_MANAGE: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
+  PO_VIEW: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
+  PO_CREATE: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
   PO_APPROVE: ['kepala_sppg'],
   GRN_VIEW: ['kepala_sppg', 'pengadaan'],
   GRN_CREATE: ['kepala_sppg', 'pengadaan'],
@@ -72,6 +72,25 @@ export const PERMISSIONS = {
   CASH_FLOW_MANAGE: ['kepala_sppg', 'akuntan'],
   FINANCIAL_REPORT_VIEW: ['superadmin', 'admin_bgn', 'kepala_yayasan', 'kepala_sppg', 'akuntan'],
   FINANCIAL_REPORT_EXPORT: ['superadmin', 'admin_bgn', 'kepala_yayasan', 'kepala_sppg', 'akuntan'],
+
+  // RAB
+  RAB_VIEW: ['kepala_sppg', 'ahli_gizi', 'kepala_yayasan'],
+  RAB_APPROVE_SPPG: ['kepala_sppg'],
+  RAB_APPROVE_YAYASAN: ['kepala_yayasan'],
+  RAB_EDIT: ['kepala_sppg'],
+
+  // Invoice
+  INVOICE_VIEW: ['kepala_yayasan', 'supplier'],
+  INVOICE_CREATE: ['supplier'],
+  INVOICE_PAY: ['kepala_yayasan'],
+
+  // Supplier Product
+  SUPPLIER_PRODUCT_VIEW: ['kepala_yayasan', 'supplier'],
+  SUPPLIER_PRODUCT_MANAGE: ['supplier'],
+
+  // Supplier Portal
+  SUPPLIER_PORTAL_VIEW: ['supplier'],
+  SUPPLIER_DASHBOARD_VIEW: ['supplier'],
 
   // System
   AUDIT_TRAIL_VIEW: ['superadmin', 'admin_bgn', 'kepala_yayasan', 'kepala_sppg'],
@@ -152,7 +171,8 @@ export const getRoleLabel = (role) => {
     'packing': 'Staff Packing',
     'driver': 'Driver',
     'asisten_lapangan': 'Asisten Lapangan',
-    'kebersihan': 'Staff Kebersihan'
+    'kebersihan': 'Staff Kebersihan',
+    'supplier': 'Supplier'
   }
   return roleLabels[role] || 'User'
 }

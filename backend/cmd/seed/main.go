@@ -52,6 +52,9 @@ func main() {
 	seedAuditTrails(db)
 	seedWiFiConfig(db)
 	SeedSOPCategories(db)
+	seedSupplierUsers(db)
+	seedSupplierProducts(db)
+	seedSupplierYayasan(db)
 
 	log.Println("Database seeding completed successfully!")
 }
@@ -951,4 +954,129 @@ func seedWiFiConfig(db *gorm.DB) {
 	}
 
 	log.Printf("Seeded WiFi config and attendance for %d employees\n", len(employees))
+}
+
+func seedSupplierUsers(db *gorm.DB) {
+	log.Println("Seeding supplier users...")
+
+	var suppliers []models.Supplier
+	db.Find(&suppliers)
+
+	for _, supplier := range suppliers {
+		// Check if supplier user already exists
+		var existing models.User
+		if db.Where("email = ?", fmt.Sprintf("supplier_%d@supplier.com", supplier.ID)).First(&existing).Error == nil {
+			continue
+		}
+
+		hash, _ := utils.HashPassword("supplier123")
+		user := models.User{
+			NIK:          fmt.Sprintf("SUP%09d", supplier.ID),
+			Email:        fmt.Sprintf("supplier_%d@supplier.com", supplier.ID),
+			FullName:     fmt.Sprintf("Admin %s", supplier.Name),
+			PhoneNumber:  supplier.PhoneNumber,
+			Role:         "supplier",
+			SupplierID:   &supplier.ID,
+			PasswordHash: hash,
+			IsActive:     true,
+		}
+		db.FirstOrCreate(&user, models.User{Email: user.Email})
+		log.Printf("  Created supplier user: %s (supplier: %s)", user.Email, supplier.Name)
+	}
+
+	log.Printf("Seeded supplier users for %d suppliers\n", len(suppliers))
+}
+
+func seedSupplierProducts(db *gorm.DB) {
+	log.Println("Seeding supplier products...")
+
+	var suppliers []models.Supplier
+	db.Find(&suppliers)
+
+	var ingredients []models.Ingredient
+	db.Find(&ingredients)
+
+	if len(suppliers) == 0 || len(ingredients) == 0 {
+		log.Println("No suppliers or ingredients found, skipping")
+		return
+	}
+
+	// Map supplier categories to relevant ingredients
+	categoryIngredients := map[string][]string{
+		"Beras & Bahan Pokok": {"Beras Putih", "Gula Pasir", "Garam", "Tepung Terigu"},
+		"Daging & Unggas":     {"Daging Ayam", "Daging Sapi"},
+		"Sayuran":             {"Wortel", "Kacang Panjang", "Kangkung", "Cabai Merah", "Bawang Merah", "Bawang Putih"},
+		"Minyak & Bumbu":      {"Minyak Goreng", "Garam", "Gula Pasir", "Bawang Merah", "Bawang Putih"},
+		"Telur & Protein":     {"Telur"},
+		"Protein Nabati":      {"Tahu", "Tempe"},
+	}
+
+	count := 0
+	for _, supplier := range suppliers {
+		ingredientNames, ok := categoryIngredients[supplier.ProductCategory]
+		if !ok {
+			// Default: assign 3 random ingredients
+			for j := 0; j < 3 && j < len(ingredients); j++ {
+				ing := ingredients[rand.Intn(len(ingredients))]
+				product := models.SupplierProduct{
+					SupplierID:    supplier.ID,
+					IngredientID:  ing.ID,
+					UnitPrice:     float64(rand.Intn(50000) + 5000),
+					MinOrderQty:   float64(rand.Intn(10) + 1),
+					IsAvailable:   true,
+					StockQuantity: float64(rand.Intn(500) + 50),
+				}
+				db.FirstOrCreate(&product, models.SupplierProduct{SupplierID: supplier.ID, IngredientID: ing.ID})
+				count++
+			}
+			continue
+		}
+
+		for _, ingName := range ingredientNames {
+			var ing models.Ingredient
+			if db.Where("name = ?", ingName).First(&ing).Error != nil {
+				continue
+			}
+
+			product := models.SupplierProduct{
+				SupplierID:    supplier.ID,
+				IngredientID:  ing.ID,
+				UnitPrice:     float64(rand.Intn(50000) + 5000),
+				MinOrderQty:   float64(rand.Intn(10) + 1),
+				IsAvailable:   true,
+				StockQuantity: float64(rand.Intn(500) + 50),
+			}
+			db.FirstOrCreate(&product, models.SupplierProduct{SupplierID: supplier.ID, IngredientID: ing.ID})
+			count++
+		}
+	}
+
+	log.Printf("Seeded %d supplier products\n", count)
+}
+
+func seedSupplierYayasan(db *gorm.DB) {
+	log.Println("Seeding supplier-yayasan links...")
+
+	var yayasan models.Yayasan
+	if db.First(&yayasan).Error != nil {
+		log.Println("No yayasan found, skipping")
+		return
+	}
+
+	var suppliers []models.Supplier
+	db.Find(&suppliers)
+
+	count := 0
+	for _, supplier := range suppliers {
+		link := models.SupplierYayasan{
+			SupplierID: supplier.ID,
+			YayasanID:  yayasan.ID,
+		}
+		result := db.FirstOrCreate(&link, models.SupplierYayasan{SupplierID: supplier.ID, YayasanID: yayasan.ID})
+		if result.RowsAffected > 0 {
+			count++
+		}
+	}
+
+	log.Printf("Linked %d suppliers to yayasan %s\n", count, yayasan.Nama)
 }

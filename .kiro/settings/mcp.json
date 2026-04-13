@@ -11,7 +11,10 @@
       "autoApprove": [
         "query",
         "list_tables",
-        "describe_table"
+        "describe_table",
+        "connect_db",
+        "execute",
+        "execute"
       ]
     },
     "context7": {
@@ -41,7 +44,9 @@
         "playwright_evaluate",
         "playwright_close",
         "playwright_console_logs",
-        "playwright_console_logs"
+        "playwright_console_logs",
+        "playwright_get",
+        "playwright_post"
       ]
     }
   }

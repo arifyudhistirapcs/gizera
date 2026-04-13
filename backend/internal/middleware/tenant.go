@@ -60,6 +60,14 @@ var writeMethods = map[string]bool{
 	"DELETE": true,
 }
 
+// yayasanWriteWhitelist defines endpoints where kepala_yayasan is allowed to write
+var yayasanWriteWhitelist = []string{
+	"/api/v1/suppliers",
+	"/api/v1/purchase-orders",
+	"/api/v1/rab",
+	"/api/v1/invoices",
+}
+
 // IsSPPGLevelRole returns true if the given role is an SPPG-level operational role
 func IsSPPGLevelRole(role string) bool {
 	return sppgLevelRoles[role]
@@ -68,6 +76,16 @@ func IsSPPGLevelRole(role string) bool {
 // isOperationalEndpoint checks if the request path is an operational data endpoint
 func isOperationalEndpoint(path string) bool {
 	for _, prefix := range operationalPathPrefixes {
+		if strings.HasPrefix(path, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+// isYayasanWriteAllowed checks if the request path is in the yayasan write whitelist
+func isYayasanWriteAllowed(path string) bool {
+	for _, prefix := range yayasanWriteWhitelist {
 		if strings.HasPrefix(path, prefix) {
 			return true
 		}
@@ -123,8 +141,18 @@ func TenantMiddleware(db *gorm.DB) gin.HandlerFunc {
 			c.Next()
 
 		case role == "kepala_yayasan":
-			// Kepala Yayasan: read-only on operational data, scoped to yayasan's SPPGs
-			if err := enforceReadOnly(c, role); err != nil {
+			// Kepala Yayasan: scoped to yayasan's SPPGs
+			// Allow writes on whitelisted endpoints (suppliers, PO, RAB, invoices)
+			// Enforce read-only on all other operational endpoints
+			method := c.Request.Method
+			path := c.Request.URL.Path
+			if writeMethods[method] && isOperationalEndpoint(path) && !isYayasanWriteAllowed(path) {
+				c.JSON(http.StatusForbidden, gin.H{
+					"success":    false,
+					"error_code": "FORBIDDEN",
+					"message":    "Peran kepala_yayasan tidak diizinkan melakukan operasi tulis pada data operasional",
+				})
+				c.Abort()
 				return
 			}
 			yayasanIDVal, yExists := c.Get("yayasan_id")
@@ -143,6 +171,31 @@ func TenantMiddleware(db *gorm.DB) gin.HandlerFunc {
 					"success":    false,
 					"error_code": "UNAUTHORIZED",
 					"message":    "Konteks tenant tidak dapat diekstrak: yayasan_id tidak valid",
+				})
+				c.Abort()
+				return
+			}
+			c.Set("tenant_db", db)
+			c.Next()
+
+		case role == "supplier":
+			// Supplier: require supplier_id, entity-scoped isolation
+			supplierIDVal, sExists := c.Get("supplier_id")
+			if !sExists {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"success":    false,
+					"error_code": "UNAUTHORIZED",
+					"message":    "Konteks tenant tidak dapat diekstrak: supplier_id tidak ditemukan",
+				})
+				c.Abort()
+				return
+			}
+			supplierID, ok := supplierIDVal.(uint)
+			if !ok || supplierID == 0 {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"success":    false,
+					"error_code": "UNAUTHORIZED",
+					"message":    "Konteks tenant tidak dapat diekstrak: supplier_id tidak valid",
 				})
 				c.Abort()
 				return
@@ -307,4 +360,60 @@ type readOnlyError struct{}
 
 func (e *readOnlyError) Error() string {
 	return "read-only violation: write operation on operational data not allowed"
+}
+
+// YayasanTenantScope returns a GORM scope that filters by yayasan_id.
+// Used for yayasan-owned entities (Supplier via SupplierYayasan, PO, RAB, Invoice).
+func YayasanTenantScope(c *gin.Context) func(db *gorm.DB) *gorm.DB {
+	role, _ := c.Get("user_role")
+	yayasanID, _ := c.Get("yayasan_id")
+
+	return func(db *gorm.DB) *gorm.DB {
+		roleStr, ok := role.(string)
+		if !ok {
+			return db.Where("1 = 0")
+		}
+
+		switch roleStr {
+		case "superadmin", "admin_bgn":
+			if filterYayasan := c.Query("yayasan_id"); filterYayasan != "" {
+				return db.Where("yayasan_id = ?", filterYayasan)
+			}
+			return db
+		case "kepala_yayasan":
+			return db.Where("yayasan_id = ?", yayasanID)
+		default:
+			// SPPG-level roles: get yayasan_id from their SPPG
+			sppgID, _ := c.Get("sppg_id")
+			return db.Where("yayasan_id IN (?)",
+				db.Session(&gorm.Session{NewDB: true}).
+					Table("sppgs").Select("yayasan_id").Where("id = ?", sppgID))
+		}
+	}
+}
+
+// SupplierTenantScope returns a GORM scope that filters by supplier_id.
+// Used for supplier-owned entities (SupplierProduct, Invoice from supplier perspective).
+func SupplierTenantScope(c *gin.Context) func(db *gorm.DB) *gorm.DB {
+	supplierID, _ := c.Get("supplier_id")
+
+	return func(db *gorm.DB) *gorm.DB {
+		if supplierID == nil {
+			return db.Where("1 = 0")
+		}
+		return db.Where("supplier_id = ?", supplierID)
+	}
+}
+
+// GetSupplierID extracts the supplier_id from the Gin context for supplier role.
+func GetSupplierID(c *gin.Context) (uint, bool) {
+	supplierIDVal, exists := c.Get("supplier_id")
+	if !exists {
+		return 0, false
+	}
+	supplierID, ok := supplierIDVal.(uint)
+	if !ok || supplierID == 0 {
+		return 0, false
+	}
+	return supplierID, true
 }

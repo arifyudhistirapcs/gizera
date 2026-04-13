@@ -208,7 +208,7 @@ const isCollapsed = ref(props.collapsed)
 const expandedGroups = ref([])
 
 // Roles that should NOT see operational modules (KDS, Menu Planning, PO, Cooking, Packing, Attendance)
-const NON_OPERATIONAL_ROLES = ['superadmin', 'admin_bgn', 'kepala_yayasan']
+const NON_OPERATIONAL_ROLES = ['superadmin', 'admin_bgn', 'kepala_yayasan', 'supplier']
 
 /**
  * Multi-tenant management menu items — shown based on modules from auth store
@@ -369,7 +369,7 @@ const operationalMenuItems = [
         emoji: '🏪',
         icon: ShopOutlined,
         route: '/suppliers',
-        roles: ['kepala_sppg', 'pengadaan']
+        roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan']
       },
       {
         key: 'purchase-orders',
@@ -377,7 +377,7 @@ const operationalMenuItems = [
         emoji: '🛍️',
         icon: ShoppingCartOutlined,
         route: '/purchase-orders',
-        roles: ['kepala_sppg', 'pengadaan']
+        roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan']
       },
       {
         key: 'goods-receipts',
@@ -488,6 +488,96 @@ const operationalMenuItems = [
         icon: FileTextOutlined,
         route: '/financial-reports',
         roles: ['kepala_sppg', 'akuntan']
+      }
+    ]
+  },
+  {
+    key: 'rab-procurement',
+    label: 'RAB & Pengadaan',
+    emoji: '📊',
+    icon: FileTextOutlined,
+    roles: ['kepala_sppg', 'ahli_gizi', 'kepala_yayasan'],
+    children: [
+      {
+        key: 'rab',
+        label: 'Daftar RAB',
+        emoji: '📋',
+        icon: FileTextOutlined,
+        route: '/rab',
+        roles: ['kepala_sppg', 'ahli_gizi', 'kepala_yayasan']
+      },
+      {
+        key: 'invoices',
+        label: 'Invoice',
+        emoji: '🧾',
+        icon: FileTextOutlined,
+        route: '/invoices',
+        roles: ['kepala_yayasan']
+      },
+      {
+        key: 'rab-suppliers',
+        label: 'Supplier',
+        emoji: '🏪',
+        icon: ShopOutlined,
+        route: '/suppliers',
+        roles: ['kepala_yayasan']
+      },
+      {
+        key: 'rab-purchase-orders',
+        label: 'Purchase Order',
+        emoji: '🛍️',
+        icon: ShoppingCartOutlined,
+        route: '/purchase-orders',
+        roles: ['kepala_yayasan']
+      },
+      {
+        key: 'supplier-products-catalog',
+        label: 'Katalog Supplier',
+        emoji: '📦',
+        icon: ShopOutlined,
+        route: '/supplier-products',
+        roles: ['kepala_yayasan']
+      }
+    ]
+  },
+  {
+    key: 'supplier-portal',
+    label: 'Supplier Portal',
+    emoji: '🏪',
+    icon: ShopOutlined,
+    roles: ['supplier'],
+    children: [
+      {
+        key: 'supplier-dashboard',
+        label: 'Dashboard',
+        emoji: '📊',
+        icon: DashboardOutlined,
+        route: '/supplier-dashboard',
+        roles: ['supplier']
+      },
+      {
+        key: 'supplier-products-manage',
+        label: 'Katalog Produk',
+        emoji: '📦',
+        icon: ShoppingOutlined,
+        route: '/supplier-products/manage',
+        roles: ['supplier']
+      },
+      {
+        key: 'supplier-po',
+        label: 'Purchase Order',
+        emoji: '🛍️',
+        icon: ShoppingCartOutlined,
+        route: '/supplier-po',
+        roles: ['supplier']
+      },
+      {
+        key: 'supplier-invoices',
+        label: 'Invoice',
+        emoji: '🧾',
+        icon: FileTextOutlined,
+        route: '/supplier-invoices',
+        roles: ['supplier']
       }
     ]
   },

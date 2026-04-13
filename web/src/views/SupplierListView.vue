@@ -167,6 +167,9 @@
             <template v-else-if="column.key === 'quality_rating'">
               <a-rate :value="record.quality_rating || 0" disabled allow-half />
             </template>
+            <template v-else-if="column.key === 'product_count'">
+              <a-tag color="blue">{{ record.product_count || 0 }} produk</a-tag>
+            </template>
             <template v-else-if="column.key === 'actions'">
               <a-space>
                 <a-button type="link" size="small" @click="viewSupplier(record)">
@@ -421,6 +424,11 @@ const columns = [
     title: 'Rating Kualitas',
     key: 'quality_rating',
     width: 150
+  },
+  {
+    title: 'Katalog Produk',
+    key: 'product_count',
+    width: 130
   },
   {
     title: 'Status',

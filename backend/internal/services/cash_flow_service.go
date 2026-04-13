@@ -43,7 +43,7 @@ func (s *CashFlowService) CreateCashFlowEntryWithTx(tx *gorm.DB, entry *models.C
 	}
 
 	// Validate category
-	validCategories := []string{"bahan_baku", "gaji", "utilitas", "operasional"}
+	validCategories := []string{"bahan_baku", "gaji", "utilitas", "operasional", "pengadaan"}
 	isValidCategory := false
 	for _, cat := range validCategories {
 		if entry.Category == cat {

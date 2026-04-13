@@ -19,10 +19,11 @@ var (
 
 // JWTClaims represents the claims in the JWT token
 type JWTClaims struct {
-	UserID    uint   `json:"user_id"`
-	Role      string `json:"role"`
-	SPPGID    *uint  `json:"sppg_id,omitempty"`
-	YayasanID *uint  `json:"yayasan_id,omitempty"`
+	UserID     uint   `json:"user_id"`
+	Role       string `json:"role"`
+	SPPGID     *uint  `json:"sppg_id,omitempty"`
+	YayasanID  *uint  `json:"yayasan_id,omitempty"`
+	SupplierID *uint  `json:"supplier_id,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -64,7 +65,12 @@ func (s *AuthService) Login(identifier, password string) (*models.User, string, 
 	}
 
 	// Generate JWT token with tenant info
-	token, err := s.GenerateToken(user.ID, user.Role, user.SPPGID, user.YayasanID)
+	// For supplier role, include SupplierID in claims
+	var supplierID *uint
+	if user.Role == "supplier" {
+		supplierID = user.SupplierID
+	}
+	token, err := s.GenerateToken(user.ID, user.Role, user.SPPGID, user.YayasanID, supplierID)
 	if err != nil {
 		return nil, "", err
 	}
@@ -73,12 +79,13 @@ func (s *AuthService) Login(identifier, password string) (*models.User, string, 
 }
 
 // GenerateToken creates a new JWT token for a user
-func (s *AuthService) GenerateToken(userID uint, role string, sppgID *uint, yayasanID *uint) (string, error) {
+func (s *AuthService) GenerateToken(userID uint, role string, sppgID *uint, yayasanID *uint, supplierID *uint) (string, error) {
 	claims := JWTClaims{
-		UserID:    userID,
-		Role:      role,
-		SPPGID:    sppgID,
-		YayasanID: yayasanID,
+		UserID:     userID,
+		Role:       role,
+		SPPGID:     sppgID,
+		YayasanID:  yayasanID,
+		SupplierID: supplierID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -132,7 +139,7 @@ func (s *AuthService) RefreshToken(tokenString string) (string, error) {
 	}
 
 	// Generate new token preserving tenant claims
-	return s.GenerateToken(user.ID, user.Role, claims.SPPGID, claims.YayasanID)
+	return s.GenerateToken(user.ID, user.Role, claims.SPPGID, claims.YayasanID, claims.SupplierID)
 }
 
 // HashPassword hashes a password using bcrypt

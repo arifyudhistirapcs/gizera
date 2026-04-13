@@ -8,7 +8,15 @@
         @click="onNavClick(item)"
       >
         <div class="nav-icon-wrap" :class="{ 'nav-icon-wrap--active': isActive(item) }">
+          <van-badge v-if="item.name === 'supplierNotif' && unreadCount > 0" :content="unreadCount" :max="99">
+            <van-icon
+              :name="isActive(item) ? item.activeIcon : item.icon"
+              :color="isActive(item) ? '#fff' : '#8C8C8C'"
+              size="20"
+            />
+          </van-badge>
           <van-icon
+            v-else
             :name="isActive(item) ? item.activeIcon : item.icon"
             :color="isActive(item) ? '#fff' : '#8C8C8C'"
             size="20"
@@ -21,13 +29,16 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import api from '@/services/api'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const unreadCount = ref(0)
+let unreadInterval = null
 
 const NAV_CONFIG = {
   dashboard: { name: 'dashboard', label: 'Home', icon: 'wap-home-o', activeIcon: 'wap-home', route: '/dashboard' },
@@ -38,7 +49,11 @@ const NAV_CONFIG = {
   riskAssessment: { name: 'riskAssessment', label: 'Audit', icon: 'shield-o', activeIcon: 'shield-o', route: '/risk-assessment' },
   attendance: { name: 'attendance', label: 'Absensi', icon: 'clock-o', activeIcon: 'clock', route: '/attendance' },
   profile: { name: 'profile', label: 'Profil', icon: 'user-o', activeIcon: 'user-o', route: '/profile' },
-  schoolMonitoring: { name: 'schoolMonitoring', label: 'Monitoring', icon: 'eye-o', activeIcon: 'eye', route: '/school-monitoring' }
+  schoolMonitoring: { name: 'schoolMonitoring', label: 'Monitoring', icon: 'eye-o', activeIcon: 'eye', route: '/school-monitoring' },
+  supplierDashboard: { name: 'supplierDashboard', label: 'Home', icon: 'wap-home-o', activeIcon: 'wap-home', route: '/supplier-dashboard' },
+  supplierPO: { name: 'supplierPO', label: 'PO', icon: 'orders-o', activeIcon: 'orders-o', route: '/supplier-po' },
+  supplierInvoice: { name: 'supplierInvoice', label: 'Invoice', icon: 'bill-o', activeIcon: 'bill-o', route: '/supplier-invoices' },
+  supplierNotif: { name: 'supplierNotif', label: 'Notifikasi', icon: 'bell', activeIcon: 'bell', route: '/supplier-notifications' }
 }
 
 const ROLE_NAV_MAP = {
@@ -47,7 +62,8 @@ const ROLE_NAV_MAP = {
   kepala_sppg: [{ left: ['dashboard', 'monitoring'], center: 'attendance', right: ['menu', 'profile'] }],
   kepala_yayasan: [{ left: ['dashboardYayasan', 'riskAssessment'], center: 'attendance', right: ['profile'] }],
   ahli_gizi: [{ left: ['menu'], center: 'attendance', right: ['profile'] }],
-  sekolah: [{ left: ['schoolMonitoring'], center: 'attendance', right: ['profile'] }]
+  sekolah: [{ left: ['schoolMonitoring'], center: 'attendance', right: ['profile'] }],
+  supplier: [{ left: ['supplierDashboard', 'supplierPO'], center: 'supplierInvoice', right: ['supplierNotif', 'profile'] }]
 }
 
 const DEFAULT_NAV = { left: [], center: 'attendance', right: ['profile'] }
@@ -79,7 +95,27 @@ function onNavClick(item) {
 }
 
 watch(() => route.path, () => { activeItem.value = findActiveItem() }, { immediate: true })
-onMounted(() => { activeItem.value = findActiveItem() })
+onMounted(() => {
+  activeItem.value = findActiveItem()
+  // Fetch unread notification count for supplier
+  if (authStore.user?.role?.toLowerCase() === 'supplier') {
+    fetchUnreadCount()
+    unreadInterval = setInterval(fetchUnreadCount, 60000) // poll every 60s
+  }
+})
+
+onUnmounted(() => {
+  if (unreadInterval) clearInterval(unreadInterval)
+})
+
+async function fetchUnreadCount() {
+  try {
+    const res = await api.get('/notifications/unread-count')
+    unreadCount.value = res.data?.data?.count ?? res.data?.count ?? 0
+  } catch (e) {
+    // Silent fail
+  }
+}
 </script>
 
 <style scoped>

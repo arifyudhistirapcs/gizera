@@ -286,7 +286,7 @@ func (s *RecipeService) CalculateNutritionFromItems(recipeItems []models.RecipeI
 		// Get semi-finished goods details if not preloaded
 		var sfGoods models.SemiFinishedGoods
 		if item.SemiFinishedGoods.ID == 0 {
-			if err := s.db.First(&sfGoods, item.SemiFinishedGoodsID).Error; err != nil {
+			if err := s.db.Session(&gorm.Session{NewDB: true}).First(&sfGoods, item.SemiFinishedGoodsID).Error; err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
 					return nil, errors.New("komponen tidak ditemukan")
 				}

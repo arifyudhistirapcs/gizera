@@ -36,6 +36,12 @@ func AllModels() []interface{} {
 		&InventoryMovement{},
 		&StokOpnameForm{},
 		&StokOpnameItem{},
+		&RAB{},
+		&RABItem{},
+		&SupplierProduct{},
+		&SupplierYayasan{},
+		&Invoice{},
+		&Payment{},
 		
 		// Logistics & Distribution
 		&School{},

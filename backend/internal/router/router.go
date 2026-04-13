@@ -126,7 +126,7 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 			}
 
 			// Menu Planning routes
-			menuPlanningHandler := handlers.NewMenuPlanningHandler(db)
+			menuPlanningHandler := handlers.NewMenuPlanningHandler(db, nil) // rabGenerator set later after notificationService init
 			menuPlans := protected.Group("/menu-plans")
 			{
 				menuPlans.GET("", menuPlanningHandler.GetAllMenuPlans)
@@ -198,9 +198,15 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 			{
 				purchaseOrders.GET("", supplyChainHandler.GetAllPurchaseOrders)
 				purchaseOrders.POST("", supplyChainHandler.CreatePurchaseOrder)
+				purchaseOrders.POST("/batch-from-rab", supplyChainHandler.CreateBatchPOFromRAB)
 				purchaseOrders.GET("/:id", supplyChainHandler.GetPurchaseOrder)
 				purchaseOrders.PUT("/:id", supplyChainHandler.UpdatePurchaseOrder)
 				purchaseOrders.POST("/:id/approve", supplyChainHandler.ApprovePurchaseOrder)
+				purchaseOrders.POST("/:id/confirm", middleware.RequireRole("supplier"), supplyChainHandler.ConfirmPOBySupplier)
+				purchaseOrders.POST("/:id/shipping", middleware.RequireRole("supplier"), supplyChainHandler.MarkPOAsShipping)
+				purchaseOrders.POST("/:id/request-revision", middleware.RequireRole("supplier"), supplyChainHandler.RequestPORevisionBySupplier)
+				purchaseOrders.POST("/:id/accept-revision", middleware.RequireRole("kepala_yayasan"), supplyChainHandler.AcceptSupplierRevision)
+				purchaseOrders.POST("/:id/revise", middleware.RequireRole("kepala_yayasan"), supplyChainHandler.RevisePOByYayasan)
 			}
 
 			// Goods Receipt routes
@@ -621,6 +627,67 @@ func Setup(db *gorm.DB, firebaseApp *firebase.App, cfg *config.Config, cacheServ
 				riskAssessment.GET("/stats",
 					middleware.RequireRole("kepala_yayasan", "superadmin"),
 					raHandler.GetStats)
+			}
+
+			// === RAB, Supplier Portal, Invoice routes ===
+
+			// Initialize new services
+			rabGeneratorService := services.NewRABGeneratorService(db, notificationService)
+			approvalEngineService := services.NewApprovalEngineService(db, notificationService)
+			rabService := services.NewRABService(db)
+			supplierProductService := services.NewSupplierProductService(db)
+			cashFlowService := services.NewCashFlowService(db)
+			invoiceService := services.NewInvoiceService(db, cashFlowService, notificationService)
+
+			// Set RAB generator on menu planning handler (deferred init)
+			menuPlanningHandler.SetRABGenerator(rabGeneratorService)
+
+			// Initialize new handlers
+			rabHandler := handlers.NewRABHandler(rabService, rabGeneratorService, approvalEngineService)
+			supplierPortalHandler := handlers.NewSupplierPortalHandler(db, supplierProductService, invoiceService, services.NewPurchaseOrderService(db))
+			invoiceHandler := handlers.NewInvoiceHandler(invoiceService)
+
+			// RAB routes
+			rab := protected.Group("/rab")
+			rab.Use(middleware.RequirePermission("rab_management"))
+			{
+				rab.GET("", rabHandler.GetRABList)
+				rab.GET("/:id", rabHandler.GetRABDetail)
+				rab.PUT("/:id", rabHandler.UpdateRAB)
+				rab.POST("/:id/approve-sppg", rabHandler.ApproveSPPG)
+				rab.POST("/:id/approve-yayasan", rabHandler.ApproveYayasan)
+				rab.POST("/:id/reject", rabHandler.RejectRAB)
+				rab.POST("/:id/resubmit", rabHandler.ResubmitRAB)
+				rab.GET("/:id/comparison", rabHandler.GetRABComparison)
+				rab.GET("/:id/po-tracking", rabHandler.GetPOTracking)
+			}
+
+			// Supplier Product routes
+			supplierProducts := protected.Group("/supplier-products")
+			{
+				supplierProducts.GET("", supplierPortalHandler.GetSupplierProducts)
+				supplierProducts.POST("", middleware.RequireRole("supplier"), supplierPortalHandler.CreateSupplierProduct)
+				supplierProducts.PUT("/:id", middleware.RequireRole("supplier"), supplierPortalHandler.UpdateSupplierProduct)
+				supplierProducts.DELETE("/:id", middleware.RequireRole("supplier"), supplierPortalHandler.DeleteSupplierProduct)
+			}
+
+			// Invoice routes
+			invoices := protected.Group("/invoices")
+			invoices.Use(middleware.RequirePermission("invoice_management"))
+			{
+				invoices.GET("", invoiceHandler.GetInvoices)
+				invoices.POST("", middleware.RequireRole("supplier"), invoiceHandler.CreateInvoice)
+				invoices.GET("/:id", invoiceHandler.GetInvoiceDetail)
+				invoices.POST("/:id/pay", middleware.RequireRole("kepala_yayasan"), invoiceHandler.PayInvoice)
+				invoices.POST("/:id/upload-proof", middleware.RequireRole("kepala_yayasan"), invoiceHandler.UploadPaymentProof)
+			}
+
+			// Supplier Dashboard routes
+			supplierDashboard := protected.Group("/supplier")
+			supplierDashboard.Use(middleware.RequireRole("supplier"))
+			{
+				supplierDashboard.GET("/dashboard", supplierPortalHandler.GetSupplierDashboard)
+				supplierDashboard.GET("/payments", supplierPortalHandler.GetSupplierPayments)
 			}
 		}
 	}

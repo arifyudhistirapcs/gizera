@@ -12,8 +12,9 @@ type User struct {
 	PasswordHash string    `gorm:"size:255;not null" json:"-"`
 	FullName     string    `gorm:"size:100;not null" json:"full_name" validate:"required"`
 	PhoneNumber  string    `gorm:"size:20" json:"phone_number"`
-	Role         string    `gorm:"size:50;not null;index" json:"role" validate:"required,oneof=superadmin admin_bgn kepala_yayasan kepala_sppg akuntan ahli_gizi pengadaan chef packing driver asisten_lapangan kebersihan"`
+	Role         string    `gorm:"size:50;not null;index" json:"role" validate:"required,oneof=superadmin admin_bgn kepala_yayasan kepala_sppg akuntan ahli_gizi pengadaan chef packing driver asisten_lapangan kebersihan supplier"`
 	SPPGID       *uint     `gorm:"index" json:"sppg_id"`
+	SupplierID   *uint     `gorm:"index" json:"supplier_id"`
 	YayasanID    *uint     `gorm:"index" json:"yayasan_id"`
 	IsActive     bool      `gorm:"default:true;index" json:"is_active"`
 	CreatedBy    *uint     `gorm:"index" json:"created_by"`

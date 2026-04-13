@@ -61,6 +61,9 @@ func JWTAuth(jwtSecret string) gin.HandlerFunc {
 		if claims.YayasanID != nil {
 			c.Set("yayasan_id", *claims.YayasanID)
 		}
+		if claims.SupplierID != nil {
+			c.Set("supplier_id", *claims.SupplierID)
+		}
 
 		c.Next()
 	}
@@ -143,6 +146,18 @@ func NewPermissionChecker() *PermissionChecker {
 
 	// User provisioning — superadmin, kepala_yayasan, kepala_sppg
 	pc.permissions["user_provisioning"] = []string{"superadmin", "kepala_yayasan", "kepala_sppg"}
+
+	// RAB management — kepala_sppg, kepala_yayasan, ahli_gizi
+	pc.permissions["rab_management"] = []string{"kepala_sppg", "kepala_yayasan", "ahli_gizi"}
+
+	// Supplier portal — supplier only
+	pc.permissions["supplier_portal"] = []string{"supplier"}
+
+	// Yayasan procurement — kepala_yayasan only
+	pc.permissions["yayasan_procurement"] = []string{"kepala_yayasan"}
+
+	// Invoice management — kepala_yayasan and supplier
+	pc.permissions["invoice_management"] = []string{"kepala_yayasan", "supplier"}
 
 	return pc
 }

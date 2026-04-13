@@ -95,6 +95,13 @@
                   {{ po.po_number }} - {{ po.supplier?.name }}
                 </a-select-option>
               </a-select>
+              <a-alert
+                v-if="poHasGRN"
+                message="PO ini sudah memiliki GRN. Membuat GRN baru akan ditolak."
+                type="warning"
+                show-icon
+                style="margin-top: 8px"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -270,7 +277,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import goodsReceiptService from '@/services/goodsReceiptService'
 import purchaseOrderService from '@/services/purchaseOrderService'
 import dayjs from 'dayjs'
@@ -287,7 +294,7 @@ const approvedPOs = ref([])
 const searchText = ref('')
 const formRef = ref()
 const fileList = ref([])
-
+const poHasGRN = ref(false)
 const pagination = reactive({
   current: 1,
   pageSize: 10,
@@ -434,7 +441,7 @@ const fetchGoodsReceipts = async () => {
 
 const fetchApprovedPOs = async () => {
   try {
-    const response = await purchaseOrderService.getPurchaseOrders({ status: 'approved' })
+    const response = await purchaseOrderService.getPurchaseOrders({ status: 'shipping' })
     approvedPOs.value = response.data.purchase_orders || []
   } catch (error) {
     console.error('Gagal memuat data PO:', error)
@@ -458,9 +465,15 @@ const showCreateModal = () => {
 }
 
 const handlePOChange = async (poId) => {
+  poHasGRN.value = false
   try {
     const response = await purchaseOrderService.getPurchaseOrder(poId)
     const po = response.data.purchase_order
+    
+    // Check if PO already has GRN
+    if (po.has_grn || po.grn_id) {
+      poHasGRN.value = true
+    }
     
     formData.items = po.po_items.map(item => ({
       ingredient_id: item.ingredient_id,
@@ -578,7 +591,12 @@ const handleSubmit = async () => {
     console.error('Full error:', error)
     if (error.response?.data) {
       console.error('Error response:', error.response.data)
-      message.error(error.response.data.message || 'Gagal menyimpan penerimaan barang')
+      const errMsg = error.response.data.message || ''
+      if (errMsg.includes('PO_ALREADY_HAS_GRN') || errMsg.includes('already has')) {
+        message.error('PO ini sudah memiliki GRN. Tidak dapat membuat GRN baru.')
+      } else {
+        message.error(errMsg || 'Gagal menyimpan penerimaan barang')
+      }
     } else {
       message.error('Gagal menyimpan penerimaan barang')
     }

@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Tenant & RBAC fields from /auth/me
   const sppgId = ref(null)
   const yayasanId = ref(null)
+  const supplierId = ref(null)
   const role = ref(null)
   const modules = ref([])
   const permissions = ref([])
@@ -21,6 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isSuperadmin = computed(() => role.value === 'superadmin')
   const isAdminBGN = computed(() => role.value === 'admin_bgn')
   const isKepalaYayasan = computed(() => role.value === 'kepala_yayasan')
+  const isSupplier = computed(() => role.value === 'supplier')
 
   // Initialize user from localStorage if token exists
   const initAuth = () => {
@@ -41,6 +43,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!userData) {
       sppgId.value = null
       yayasanId.value = null
+      supplierId.value = null
       role.value = null
       modules.value = []
       permissions.value = []
@@ -48,6 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     sppgId.value = userData.sppg_id ?? null
     yayasanId.value = userData.yayasan_id ?? null
+    supplierId.value = userData.supplier_id ?? null
     role.value = userData.role ?? null
     modules.value = Array.isArray(userData.modules) ? userData.modules : []
     permissions.value = Array.isArray(userData.permissions) ? userData.permissions : []
@@ -136,6 +140,7 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     sppgId,
     yayasanId,
+    supplierId,
     role,
     modules,
     permissions,
@@ -143,6 +148,7 @@ export const useAuthStore = defineStore('auth', () => {
     isSuperadmin,
     isAdminBGN,
     isKepalaYayasan,
+    isSupplier,
     login,
     logout,
     refreshToken,

@@ -40,11 +40,12 @@ type CashFlowEntry struct {
 	SPPGID        *uint     `gorm:"index" json:"sppg_id"`
 	TransactionID string    `gorm:"uniqueIndex;size:50;not null" json:"transaction_id" validate:"required"`
 	Date          time.Time `gorm:"index;not null" json:"date"`
-	Category      string    `gorm:"size:50;not null;index" json:"category" validate:"required,oneof=bahan_baku gaji utilitas operasional lainnya"` // bahan_baku, gaji, utilitas, operasional, lainnya
+	Category      string    `gorm:"size:50;not null;index" json:"category" validate:"required,oneof=bahan_baku gaji utilitas operasional pengadaan lainnya"` // bahan_baku, gaji, utilitas, operasional, pengadaan, lainnya
 	Type          string    `gorm:"size:20;not null;index" json:"type" validate:"required,oneof=income expense"`                                  // income, expense
 	Amount        float64   `gorm:"not null" json:"amount" validate:"required,gt=0"`
 	Description   string    `gorm:"type:text" json:"description"`
 	Reference     string    `gorm:"size:100;index" json:"reference"` // GRN number, employee ID, etc.
+	YayasanID     *uint     `gorm:"index" json:"yayasan_id"`
 	CreatedBy     uint      `gorm:"not null;index" json:"created_by"`
 	CreatedAt     time.Time `json:"created_at"`
 	Creator       User      `gorm:"foreignKey:CreatedBy" json:"creator,omitempty"`

@@ -110,7 +110,7 @@ func (s *SemiFinishedService) UpdateSemiFinishedGoods(id uint, updates *models.S
 	// We don't calculate from ingredients because semi-finished goods nutrition
 	// may differ from raw ingredients due to cooking process
 
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	return s.db.Session(&gorm.Session{NewDB: true}).Transaction(func(tx *gorm.DB) error {
 		// Update goods (excluding is_active to prevent accidental deactivation)
 		if err := tx.Model(&models.SemiFinishedGoods{}).Where("id = ?", id).Updates(map[string]interface{}{
 			"name":                       updates.Name,

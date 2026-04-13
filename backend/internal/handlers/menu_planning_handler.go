@@ -17,14 +17,22 @@ import (
 type MenuPlanningHandler struct {
 	db                  *gorm.DB
 	menuPlanningService *services.MenuPlanningService
+	rabGenerator        *services.RABGeneratorService // optional — nil is OK
 }
 
 // NewMenuPlanningHandler creates a new menu planning handler
-func NewMenuPlanningHandler(db *gorm.DB) *MenuPlanningHandler {
+// rabGenerator is optional — pass nil if RAB generation is not needed
+func NewMenuPlanningHandler(db *gorm.DB, rabGenerator *services.RABGeneratorService) *MenuPlanningHandler {
 	return &MenuPlanningHandler{
 		db:                  db,
 		menuPlanningService: services.NewMenuPlanningService(db),
+		rabGenerator:        rabGenerator,
 	}
+}
+
+// SetRABGenerator sets the RAB generator service (for deferred initialization)
+func (h *MenuPlanningHandler) SetRABGenerator(rabGenerator *services.RABGeneratorService) {
+	h.rabGenerator = rabGenerator
 }
 
 // CreateMenuPlanRequest represents create menu plan request
@@ -407,6 +415,40 @@ func (h *MenuPlanningHandler) ApproveMenuPlan(c *gin.Context) {
 			"message":    "Terjadi kesalahan pada server",
 		})
 		return
+	}
+
+	// After successful approval, trigger RAB generation (graceful — don't fail approval)
+	if h.rabGenerator != nil {
+		go func() {
+			var sppgID uint
+			var yayasanID uint
+
+			if sID, ok := c.Get("sppg_id"); ok {
+				sppgID, _ = sID.(uint)
+			}
+			if yID, ok := c.Get("yayasan_id"); ok {
+				yayasanID, _ = yID.(uint)
+			}
+
+			// If sppg_id is available but yayasan_id is not, look up yayasan from SPPG
+			if sppgID > 0 && yayasanID == 0 {
+				var sppg struct{ YayasanID *uint }
+				if err := h.db.Table("sppgs").Select("yayasan_id").Where("id = ?", sppgID).Scan(&sppg).Error; err == nil && sppg.YayasanID != nil {
+					yayasanID = *sppg.YayasanID
+				}
+			}
+
+			if sppgID > 0 && yayasanID > 0 {
+				_, err := h.rabGenerator.GenerateRABFromMenuPlan(uint(id), sppgID, yayasanID, userID.(uint))
+				if err != nil {
+					log.Printf("RAB generation failed for menu plan %d (non-fatal): %v", id, err)
+				} else {
+					log.Printf("RAB generated successfully for menu plan %d", id)
+				}
+			} else {
+				log.Printf("RAB generation skipped for menu plan %d: sppg_id=%d, yayasan_id=%d", id, sppgID, yayasanID)
+			}
+		}()
 	}
 
 	c.JSON(http.StatusOK, gin.H{

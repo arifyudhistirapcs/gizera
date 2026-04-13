@@ -149,3 +149,4 @@ func (s *PickupTaskService) WithDB(db *gorm.DB) *PickupTaskService {
 		activityTrackerService: s.activityTrackerService,
 	}
 }
+

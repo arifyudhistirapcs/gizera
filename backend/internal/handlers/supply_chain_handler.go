@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -103,6 +105,21 @@ func (h *SupplyChainHandler) CreateSupplier(c *gin.Context) {
 		return
 	}
 
+	// If kepala_yayasan, also create SupplierYayasan junction record
+	role, _ := c.Get("user_role")
+	if roleStr, ok := role.(string); ok && roleStr == "kepala_yayasan" {
+		if yayasanIDVal, yOk := c.Get("yayasan_id"); yOk {
+			yayasanID := yayasanIDVal.(uint)
+			supplierYayasan := &models.SupplierYayasan{
+				SupplierID: supplier.ID,
+				YayasanID:  yayasanID,
+			}
+			if err := h.db.Create(supplierYayasan).Error; err != nil {
+				log.Printf("Warning: failed to create SupplierYayasan for supplier %d, yayasan %d: %v", supplier.ID, yayasanID, err)
+			}
+		}
+	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"success":  true,
 		"message":  "Supplier berhasil dibuat",
@@ -154,6 +171,52 @@ func (h *SupplyChainHandler) GetAllSuppliers(c *gin.Context) {
 	query := c.Query("q")
 	productCategory := c.Query("product_category")
 
+	// Check if kepala_yayasan — use JOIN on supplier_yayasans
+	role, _ := c.Get("user_role")
+	roleStr, _ := role.(string)
+
+	if roleStr == "kepala_yayasan" {
+		yayasanIDVal, yOk := c.Get("yayasan_id")
+		if !yOk {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success":    false,
+				"error_code": "UNAUTHORIZED",
+				"message":    "Yayasan ID tidak ditemukan",
+			})
+			return
+		}
+		yayasanID := yayasanIDVal.(uint)
+
+		var suppliers []models.Supplier
+		db := h.db.Joins("JOIN supplier_yayasans ON supplier_yayasans.supplier_id = suppliers.id").
+			Where("supplier_yayasans.yayasan_id = ?", yayasanID)
+
+		if activeOnly {
+			db = db.Where("suppliers.is_active = ?", true)
+		}
+		if query != "" {
+			db = db.Where("suppliers.name ILIKE ?", "%"+query+"%")
+		}
+		if productCategory != "" {
+			db = db.Where("suppliers.product_category = ?", productCategory)
+		}
+
+		if err := db.Order("suppliers.name ASC").Find(&suppliers).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Terjadi kesalahan pada server",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"success":   true,
+			"suppliers": suppliers,
+		})
+		return
+	}
+
 	scopedService := h.supplierService.WithDB(getTenantScopedDB(c, h.db))
 	var suppliers []models.Supplier
 	var err error
@@ -200,6 +263,34 @@ func (h *SupplyChainHandler) UpdateSupplier(c *gin.Context) {
 			"details":    err.Error(),
 		})
 		return
+	}
+
+	// If kepala_yayasan, verify supplier is linked to their yayasan
+	role, _ := c.Get("user_role")
+	if roleStr, ok := role.(string); ok && roleStr == "kepala_yayasan" {
+		yayasanIDVal, yOk := c.Get("yayasan_id")
+		if !yOk {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success":    false,
+				"error_code": "UNAUTHORIZED",
+				"message":    "Yayasan ID tidak ditemukan",
+			})
+			return
+		}
+		yayasanID := yayasanIDVal.(uint)
+
+		var count int64
+		h.db.Model(&models.SupplierYayasan{}).
+			Where("supplier_id = ? AND yayasan_id = ?", uint(id), yayasanID).
+			Count(&count)
+		if count == 0 {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success":    false,
+				"error_code": "FORBIDDEN",
+				"message":    "Supplier tidak terhubung dengan yayasan Anda",
+			})
+			return
+		}
 	}
 
 	supplier := &models.Supplier{
@@ -396,10 +487,24 @@ func (h *SupplyChainHandler) GetPurchaseOrder(c *gin.Context) {
 		return
 	}
 
-	scopedService := h.purchaseOrderService.WithDB(getTenantScopedDB(c, h.db))
-	po, err := scopedService.GetPurchaseOrderByID(uint(id))
+	// Use fresh session to avoid tenant scope issues for supplier/yayasan roles
+	role, _ := c.Get("user_role")
+	roleStr, _ := role.(string)
+
+	var po models.PurchaseOrder
+	db := h.db.Session(&gorm.Session{NewDB: true})
+	err = db.
+		Preload("Supplier").
+		Preload("POItems.Ingredient").
+		Preload("Creator").
+		Preload("Approver").
+		Preload("RAB").
+		Preload("TargetSPPG").
+		Preload("Yayasan").
+		First(&po, uint(id)).Error
+
 	if err != nil {
-		if err == services.ErrPONotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"success":    false,
 				"error_code": "PO_NOT_FOUND",
@@ -407,13 +512,25 @@ func (h *SupplyChainHandler) GetPurchaseOrder(c *gin.Context) {
 			})
 			return
 		}
-
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
 			"error_code": "INTERNAL_ERROR",
 			"message":    "Terjadi kesalahan pada server",
 		})
 		return
+	}
+
+	// Verify access: supplier can only see their own POs
+	if roleStr == "supplier" {
+		supplierID, _ := middleware.GetSupplierID(c)
+		if po.SupplierID != supplierID {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success":    false,
+				"error_code": "FORBIDDEN",
+				"message":    "Anda tidak memiliki akses ke PO ini",
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -426,8 +543,52 @@ func (h *SupplyChainHandler) GetPurchaseOrder(c *gin.Context) {
 func (h *SupplyChainHandler) GetAllPurchaseOrders(c *gin.Context) {
 	status := c.Query("status")
 
-	scopedService := h.purchaseOrderService.WithDB(getTenantScopedDB(c, h.db))
-	pos, err := scopedService.GetAllPurchaseOrders(status)
+	// For kepala_yayasan, use yayasan-aware query to include POs with yayasan_id
+	role, _ := c.Get("user_role")
+	roleStr, _ := role.(string)
+
+	var pos []models.PurchaseOrder
+	var err error
+
+	if roleStr == "kepala_yayasan" {
+		yayasanIDVal, _ := c.Get("yayasan_id")
+		yayasanID, _ := yayasanIDVal.(uint)
+
+		query := h.db.Session(&gorm.Session{NewDB: true}).
+			Preload("Supplier").
+			Preload("POItems.Ingredient").
+			Preload("Creator").
+			Preload("Approver").
+			Preload("RAB").
+			Preload("TargetSPPG").
+			Where("yayasan_id = ? OR sppg_id IN (?)",
+				yayasanID,
+				h.db.Session(&gorm.Session{NewDB: true}).Table("sppgs").Select("id").Where("yayasan_id = ?", yayasanID))
+
+		if status != "" {
+			query = query.Where("status = ?", status)
+		}
+		err = query.Order("order_date DESC").Find(&pos).Error
+	} else if roleStr == "supplier" {
+		supplierID, _ := middleware.GetSupplierID(c)
+		query := h.db.Session(&gorm.Session{NewDB: true}).
+			Preload("Supplier").
+			Preload("POItems.Ingredient").
+			Preload("Creator").
+			Preload("RAB").
+			Preload("TargetSPPG").
+			Preload("Yayasan").
+			Where("supplier_id = ?", supplierID)
+
+		if status != "" {
+			query = query.Where("status = ?", status)
+		}
+		err = query.Order("order_date DESC").Find(&pos).Error
+	} else {
+		scopedService := h.purchaseOrderService.WithDB(getTenantScopedDB(c, h.db))
+		pos, err = scopedService.GetAllPurchaseOrders(status)
+	}
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
@@ -565,6 +726,114 @@ func (h *SupplyChainHandler) ApprovePurchaseOrder(c *gin.Context) {
 	})
 }
 
+// CreateBatchPORequest represents batch PO creation from RAB request
+type CreateBatchPORequest struct {
+	RABID            uint   `json:"rab_id" binding:"required"`
+	ExpectedDelivery string `json:"expected_delivery" binding:"required"`
+}
+
+// CreateBatchPOFromRAB creates multiple POs from an approved RAB, grouped by supplier
+func (h *SupplyChainHandler) CreateBatchPOFromRAB(c *gin.Context) {
+	var req CreateBatchPORequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "VALIDATION_ERROR",
+			"message":    "Data tidak valid",
+			"details":    err.Error(),
+		})
+		return
+	}
+
+	// Parse expected delivery date
+	expectedDelivery, err := time.Parse("2006-01-02", req.ExpectedDelivery)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_DATE",
+			"message":    "Format tanggal tidak valid (gunakan YYYY-MM-DD)",
+		})
+		return
+	}
+
+	// Get user ID from context
+	userID, ok := getUserIDFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success":    false,
+			"error_code": "UNAUTHORIZED",
+			"message":    "User tidak terautentikasi",
+		})
+		return
+	}
+
+	// Get yayasan_id from context
+	yayasanID := getYayasanIDFromContext(c)
+
+	// Load RAB to get target SPPG ID
+	var rab models.RAB
+	baseDB := h.db.Session(&gorm.Session{NewDB: true})
+	if err := baseDB.First(&rab, req.RABID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success":    false,
+			"error_code": "NOT_FOUND",
+			"message":    "RAB tidak ditemukan",
+		})
+		return
+	}
+
+	// Determine target SPPG ID from RAB
+	var targetSPPGID uint
+	if rab.SPPGID != nil {
+		targetSPPGID = *rab.SPPGID
+	}
+
+	// If yayasan_id is 0 (superadmin), use RAB's yayasan_id
+	if yayasanID == 0 && rab.YayasanID != nil {
+		yayasanID = *rab.YayasanID
+	}
+
+	result, err := h.purchaseOrderService.CreatePurchaseOrdersFromRAB(
+		req.RABID, yayasanID, targetSPPGID, expectedDelivery, userID,
+	)
+	if err != nil {
+		switch err {
+		case services.ErrRABNotFound:
+			c.JSON(http.StatusNotFound, gin.H{
+				"success":    false,
+				"error_code": "NOT_FOUND",
+				"message":    "RAB tidak ditemukan",
+			})
+		case services.ErrRABNotApprovedYayasan:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "RAB_NOT_APPROVED",
+				"message":    "RAB belum disetujui yayasan",
+			})
+		case services.ErrNoPendingRABItems:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "NO_PENDING_ITEMS",
+				"message":    "Tidak ada item RAB yang belum memiliki PO",
+			})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Gagal membuat batch PO",
+				"details":    err.Error(),
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": fmt.Sprintf("Berhasil membuat %d purchase order dari RAB", result.Created),
+		"data":    result,
+	})
+}
+
 // Goods Receipt Endpoints
 
 // CreateGoodsReceiptRequest represents create GRN request
@@ -598,8 +867,16 @@ func (h *SupplyChainHandler) CreateGoodsReceipt(c *gin.Context) {
 	// Get user ID from context
 	userID, _ := c.Get("user_id")
 
+	// Get SPPG ID from tenant context for the GRN record
+	sppgIDVal, _ := c.Get("sppg_id")
+	var sppgIDPtr *uint
+	if sppgID, ok := sppgIDVal.(uint); ok && sppgID > 0 {
+		sppgIDPtr = &sppgID
+	}
+
 	grn := &models.GoodsReceipt{
 		POID:          req.POID,
+		SPPGID:        sppgIDPtr,
 		Notes:         req.Notes,
 		QualityRating: req.QualityRating,
 	}
@@ -980,5 +1257,318 @@ func (h *SupplyChainHandler) InitializeInventoryItem(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Bahan berhasil ditambahkan ke inventory",
+	})
+}
+
+// === PO Confirmation/Revision by Supplier ===
+
+// ConfirmPOBySupplier handles POST /purchase-orders/:id/confirm
+// Supplier confirms PO as-is (pending → confirmed)
+func (h *SupplyChainHandler) ConfirmPOBySupplier(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_ID",
+			"message":    "ID tidak valid",
+		})
+		return
+	}
+
+	supplierID, ok := middleware.GetSupplierID(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success":    false,
+			"error_code": "UNAUTHORIZED",
+			"message":    "Supplier ID tidak ditemukan",
+		})
+		return
+	}
+
+	if err := h.purchaseOrderService.ConfirmBySupplier(uint(id), supplierID); err != nil {
+		switch err {
+		case services.ErrPONotFound:
+			c.JSON(http.StatusNotFound, gin.H{
+				"success":    false,
+				"error_code": "PO_NOT_FOUND",
+				"message":    "Purchase order tidak ditemukan",
+			})
+		case services.ErrSupplierMismatch:
+			c.JSON(http.StatusForbidden, gin.H{
+				"success":    false,
+				"error_code": "FORBIDDEN",
+				"message":    "Anda tidak memiliki akses ke PO ini",
+			})
+		case services.ErrInvalidPOStatus:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_STATUS",
+				"message":    "PO hanya dapat dikonfirmasi jika statusnya pending",
+			})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Terjadi kesalahan pada server",
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Purchase order berhasil dikonfirmasi oleh supplier",
+	})
+}
+
+// MarkPOAsShipping handles POST /purchase-orders/:id/shipping
+// Supplier marks PO as shipping (approved → shipping)
+func (h *SupplyChainHandler) MarkPOAsShipping(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_ID",
+			"message":    "ID tidak valid",
+		})
+		return
+	}
+
+	supplierID, ok := middleware.GetSupplierID(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success":    false,
+			"error_code": "UNAUTHORIZED",
+			"message":    "Supplier ID tidak ditemukan",
+		})
+		return
+	}
+
+	if err := h.purchaseOrderService.MarkAsShipping(uint(id), supplierID); err != nil {
+		switch err {
+		case services.ErrPONotFound:
+			c.JSON(http.StatusNotFound, gin.H{
+				"success":    false,
+				"error_code": "PO_NOT_FOUND",
+				"message":    "Purchase order tidak ditemukan",
+			})
+		case services.ErrSupplierMismatch:
+			c.JSON(http.StatusForbidden, gin.H{
+				"success":    false,
+				"error_code": "FORBIDDEN",
+				"message":    "Anda tidak memiliki akses ke PO ini",
+			})
+		case services.ErrInvalidPOStatus:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_STATUS",
+				"message":    "PO hanya dapat dikirim jika statusnya sudah disetujui",
+			})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Terjadi kesalahan pada server",
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Status PO berhasil diubah ke sedang dikirim",
+	})
+}
+
+// SupplierRevisionRequest represents supplier revision request body
+type SupplierRevisionRequest struct {
+	Notes string                     `json:"notes" binding:"required"`
+	Items []PurchaseOrderItemRequest `json:"items" binding:"required,min=1"`
+}
+
+// RequestPORevisionBySupplier handles POST /purchase-orders/:id/request-revision
+// Supplier requests changes on a PO (pending → revision_by_supplier)
+func (h *SupplyChainHandler) RequestPORevisionBySupplier(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_ID",
+			"message":    "ID tidak valid",
+		})
+		return
+	}
+
+	supplierID, ok := middleware.GetSupplierID(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success":    false,
+			"error_code": "UNAUTHORIZED",
+			"message":    "Supplier ID tidak ditemukan",
+		})
+		return
+	}
+
+	var req SupplierRevisionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "VALIDATION_ERROR",
+			"message":    "Data tidak valid",
+			"details":    err.Error(),
+		})
+		return
+	}
+
+	var items []models.PurchaseOrderItem
+	for _, item := range req.Items {
+		items = append(items, models.PurchaseOrderItem{
+			IngredientID: item.IngredientID,
+			Quantity:     item.Quantity,
+			UnitPrice:    item.UnitPrice,
+		})
+	}
+
+	if err := h.purchaseOrderService.RequestRevisionBySupplier(uint(id), supplierID, items, req.Notes); err != nil {
+		switch err {
+		case services.ErrPONotFound:
+			c.JSON(http.StatusNotFound, gin.H{
+				"success":    false,
+				"error_code": "PO_NOT_FOUND",
+				"message":    "Purchase order tidak ditemukan",
+			})
+		case services.ErrSupplierMismatch:
+			c.JSON(http.StatusForbidden, gin.H{
+				"success":    false,
+				"error_code": "FORBIDDEN",
+				"message":    "Anda tidak memiliki akses ke PO ini",
+			})
+		case services.ErrInvalidPOStatus:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_STATUS",
+				"message":    "PO hanya dapat direvisi jika statusnya pending",
+			})
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "REVISION_ERROR",
+				"message":    err.Error(),
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Permintaan revisi PO berhasil dikirim",
+	})
+}
+
+// AcceptSupplierRevision handles POST /purchase-orders/:id/accept-revision
+// Yayasan accepts supplier's revision (revision_by_supplier → confirmed)
+func (h *SupplyChainHandler) AcceptSupplierRevision(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_ID",
+			"message":    "ID tidak valid",
+		})
+		return
+	}
+
+	if err := h.purchaseOrderService.AcceptSupplierRevision(uint(id)); err != nil {
+		switch err {
+		case services.ErrPONotFound:
+			c.JSON(http.StatusNotFound, gin.H{
+				"success":    false,
+				"error_code": "PO_NOT_FOUND",
+				"message":    "Purchase order tidak ditemukan",
+			})
+		case services.ErrInvalidPOStatus:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_STATUS",
+				"message":    "PO hanya dapat diterima jika statusnya revision_by_supplier",
+			})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": "INTERNAL_ERROR",
+				"message":    "Terjadi kesalahan pada server",
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Revisi supplier berhasil diterima",
+	})
+}
+
+// RevisePOByYayasan handles POST /purchase-orders/:id/revise
+// Yayasan revises PO and sends back to supplier (revision_by_supplier → pending)
+func (h *SupplyChainHandler) RevisePOByYayasan(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "INVALID_ID",
+			"message":    "ID tidak valid",
+		})
+		return
+	}
+
+	var req struct {
+		Items []PurchaseOrderItemRequest `json:"items" binding:"required,min=1"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success":    false,
+			"error_code": "VALIDATION_ERROR",
+			"message":    "Data tidak valid",
+			"details":    err.Error(),
+		})
+		return
+	}
+
+	var items []models.PurchaseOrderItem
+	for _, item := range req.Items {
+		items = append(items, models.PurchaseOrderItem{
+			IngredientID: item.IngredientID,
+			Quantity:     item.Quantity,
+			UnitPrice:    item.UnitPrice,
+		})
+	}
+
+	if err := h.purchaseOrderService.RevisePOByYayasan(uint(id), items); err != nil {
+		switch err {
+		case services.ErrPONotFound:
+			c.JSON(http.StatusNotFound, gin.H{
+				"success":    false,
+				"error_code": "PO_NOT_FOUND",
+				"message":    "Purchase order tidak ditemukan",
+			})
+		case services.ErrInvalidPOStatus:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "INVALID_STATUS",
+				"message":    "PO hanya dapat direvisi jika statusnya revision_by_supplier",
+			})
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success":    false,
+				"error_code": "REVISE_PO_ERROR",
+				"message":    err.Error(),
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "PO berhasil direvisi dan dikirim kembali ke supplier",
 	})
 }

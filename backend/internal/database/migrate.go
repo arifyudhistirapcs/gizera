@@ -50,6 +50,16 @@ func Migrate(db *gorm.DB) error {
 		return err
 	}
 
+	// Run RAB Procurement migration (new tables, columns, indexes, data migration)
+	if err := MigrateRABProcurement(db); err != nil {
+		return err
+	}
+
+	// Add supplier_revision_notes column and widen status column on purchase_orders
+	if err := MigratePOSupplierRevision(db); err != nil {
+		return err
+	}
+
 	// Create indexes for frequently queried columns
 	if err := createIndexes(db); err != nil {
 		return err
@@ -630,5 +640,147 @@ func MigrateMultiTenant(db *gorm.DB) error {
 	}
 
 	log.Println("Multi-tenant migration completed successfully")
+	return nil
+}
+
+// MigrateRABProcurement creates new tables and indexes for the RAB, Procurement & Supplier Portal feature.
+// GORM AutoMigrate handles both table creation (RAB, RABItem, SupplierProduct, SupplierYayasan, Invoice, Payment)
+// and adding new columns to existing tables (purchase_orders.yayasan_id/rab_id/target_sppg_id,
+// users.supplier_id, cash_flow_entries.yayasan_id) because the model structs already contain these fields.
+func MigrateRABProcurement(db *gorm.DB) error {
+	log.Println("Starting RAB Procurement migration...")
+
+	// Step 1: AutoMigrate new and modified models.
+	// AllModels() already includes these, but we run explicitly to ensure
+	// new columns on existing tables are picked up even if called standalone.
+	if err := db.AutoMigrate(
+		&models.RAB{},
+		&models.RABItem{},
+		&models.SupplierProduct{},
+		&models.SupplierYayasan{},
+		&models.Invoice{},
+		&models.Payment{},
+		&models.PurchaseOrder{},
+		&models.User{},
+		&models.CashFlowEntry{},
+	); err != nil {
+		return fmt.Errorf("RAB Procurement AutoMigrate failed: %w", err)
+	}
+	log.Println("RAB Procurement tables and columns migrated successfully")
+
+	// Step 2: Create additional performance indexes
+	rabIndexes := []struct {
+		name string
+		sql  string
+	}{
+		{"idx_rabs_status", "CREATE INDEX IF NOT EXISTS idx_rabs_status ON rabs(status)"},
+		{"idx_rabs_sppg_id", "CREATE INDEX IF NOT EXISTS idx_rabs_sppg_id ON rabs(sppg_id)"},
+		{"idx_rabs_yayasan_id", "CREATE INDEX IF NOT EXISTS idx_rabs_yayasan_id ON rabs(yayasan_id)"},
+		{"idx_rab_items_status", "CREATE INDEX IF NOT EXISTS idx_rab_items_status ON rab_items(status)"},
+		{"idx_supplier_products_available", "CREATE INDEX IF NOT EXISTS idx_supplier_products_available ON supplier_products(is_available)"},
+		{"idx_invoices_status", "CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status)"},
+	}
+
+	for _, idx := range rabIndexes {
+		if err := db.Exec(idx.sql).Error; err != nil {
+			log.Printf("Warning: Failed to create index %s: %v", idx.name, err)
+		}
+	}
+	log.Println("RAB Procurement indexes created successfully")
+
+	// Step 3: Migrate existing supplier data from SPPG-level to Yayasan-level
+	if err := MigrateSupplierToYayasan(db); err != nil {
+		return fmt.Errorf("supplier-to-yayasan migration failed: %w", err)
+	}
+
+	log.Println("RAB Procurement migration completed successfully")
+	return nil
+}
+
+// MigrateSupplierToYayasan migrates existing suppliers from SPPG-level to Yayasan-level
+// by creating SupplierYayasan junction records. This is idempotent — duplicates are skipped.
+func MigrateSupplierToYayasan(db *gorm.DB) error {
+	log.Println("Starting supplier-to-yayasan data migration...")
+
+	// Query suppliers that have a non-null sppg_id, joined with sppgs to get yayasan_id
+	type supplierYayasanRow struct {
+		SupplierID uint
+		YayasanID  uint
+	}
+
+	var rows []supplierYayasanRow
+	if err := db.Raw(`
+		SELECT s.id AS supplier_id, sp.yayasan_id
+		FROM suppliers s
+		JOIN sppgs sp ON s.sppg_id = sp.id
+		WHERE s.sppg_id IS NOT NULL AND sp.yayasan_id IS NOT NULL
+	`).Scan(&rows).Error; err != nil {
+		return fmt.Errorf("failed to query suppliers with SPPG: %w", err)
+	}
+
+	if len(rows) == 0 {
+		log.Println("No suppliers with sppg_id found — skipping data migration")
+		return nil
+	}
+
+	log.Printf("Found %d supplier-SPPG mappings to migrate", len(rows))
+
+	migrated := 0
+	skipped := 0
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		for _, row := range rows {
+			// Check if SupplierYayasan already exists (idempotent)
+			var count int64
+			if err := tx.Model(&models.SupplierYayasan{}).
+				Where("supplier_id = ? AND yayasan_id = ?", row.SupplierID, row.YayasanID).
+				Count(&count).Error; err != nil {
+				return fmt.Errorf("failed to check existing SupplierYayasan (supplier=%d, yayasan=%d): %w",
+					row.SupplierID, row.YayasanID, err)
+			}
+
+			if count > 0 {
+				skipped++
+				continue
+			}
+
+			// Create the junction record
+			sy := models.SupplierYayasan{
+				SupplierID: row.SupplierID,
+				YayasanID:  row.YayasanID,
+			}
+			if err := tx.Create(&sy).Error; err != nil {
+				return fmt.Errorf("failed to create SupplierYayasan (supplier=%d, yayasan=%d): %w",
+					row.SupplierID, row.YayasanID, err)
+			}
+			migrated++
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Supplier-to-yayasan migration complete: %d migrated, %d skipped (already existed)", migrated, skipped)
+	return nil
+}
+
+// MigratePOSupplierRevision adds supplier_revision_notes column and widens the status column
+// on purchase_orders to support the PO confirmation/revision flow by supplier.
+func MigratePOSupplierRevision(db *gorm.DB) error {
+	log.Println("Starting PO Supplier Revision migration...")
+
+	// Add supplier_revision_notes column
+	if err := db.Exec("ALTER TABLE purchase_orders ADD COLUMN IF NOT EXISTS supplier_revision_notes TEXT").Error; err != nil {
+		log.Printf("Warning: Failed to add supplier_revision_notes column: %v", err)
+	}
+
+	// Widen status column to accommodate new statuses (e.g. 'revision_by_supplier')
+	if err := db.Exec("ALTER TABLE purchase_orders ALTER COLUMN status TYPE VARCHAR(30)").Error; err != nil {
+		log.Printf("Warning: Failed to widen status column: %v", err)
+	}
+
+	log.Println("PO Supplier Revision migration completed successfully")
 	return nil
 }

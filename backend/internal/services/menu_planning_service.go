@@ -170,7 +170,7 @@ func (s *MenuPlanningService) ApproveMenu(id uint, approverID uint) error {
 
 	// Update status
 	now := time.Now()
-	return s.db.Model(&models.MenuPlan{}).Where("id = ?", id).Updates(map[string]interface{}{
+	return s.db.Session(&gorm.Session{NewDB: true}).Model(&models.MenuPlan{}).Where("id = ?", id).Updates(map[string]interface{}{
 		"status":      "approved",
 		"approved_by": approverID,
 		"approved_at": now,
@@ -532,8 +532,9 @@ func (s *MenuPlanningService) ValidatePortionSizeAllocations(
 		}
 
 		// Fetch school to check category (Requirement 3.3, 12)
+		// Use a completely fresh DB session to avoid accumulated WHERE conditions from loop iterations
 		var school models.School
-		if err := s.db.First(&school, alloc.SchoolID).Error; err != nil {
+		if err := s.db.Session(&gorm.Session{NewDB: true}).First(&school, alloc.SchoolID).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return false, fmt.Sprintf("school not found: school_id %d", alloc.SchoolID)
 			}
@@ -593,7 +594,7 @@ func (s *MenuPlanningService) CreateMenuItemWithAllocations(
 	// Verify all schools exist and validate portion size compatibility (Requirement 1.4, 12)
 	for _, alloc := range input.SchoolAllocations {
 		var school models.School
-		if err := s.db.First(&school, alloc.SchoolID).Error; err != nil {
+		if err := s.db.Session(&gorm.Session{NewDB: true}).First(&school, alloc.SchoolID).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, fmt.Errorf("school_id %d not found", alloc.SchoolID)
 			}
@@ -659,7 +660,7 @@ func (s *MenuPlanningService) CreateMenuItemWithAllocations(
 	}
 
 	// Load relationships (Requirement 2.4)
-	err = s.db.Preload("Recipe").
+	err = s.db.Session(&gorm.Session{NewDB: true}).Preload("Recipe").
 		Preload("SchoolAllocations.School").
 		First(&menuItem, menuItem.ID).Error
 
@@ -702,7 +703,7 @@ func (s *MenuPlanningService) UpdateMenuItemWithAllocations(
 	// Verify all schools exist and validate portion size compatibility (Requirement 1.4, 12)
 	for _, alloc := range input.SchoolAllocations {
 		var school models.School
-		if err := s.db.First(&school, alloc.SchoolID).Error; err != nil {
+		if err := s.db.Session(&gorm.Session{NewDB: true}).First(&school, alloc.SchoolID).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, fmt.Errorf("school_id %d not found", alloc.SchoolID)
 			}
@@ -853,7 +854,7 @@ func (s *MenuPlanningService) GetAllocationsByDate(date time.Time) ([]models.Men
 func (s *MenuPlanningService) DeleteMenuItem(menuPlanID uint, menuItemID uint) error {
 	// Get menu item to verify it exists and belongs to the menu plan
 	var menuItem models.MenuItem
-	if err := s.db.First(&menuItem, menuItemID).Error; err != nil {
+	if err := s.db.Session(&gorm.Session{NewDB: true}).First(&menuItem, menuItemID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("menu item with ID %d not found", menuItemID)
 		}
@@ -880,7 +881,7 @@ func (s *MenuPlanningService) DeleteMenuItem(menuPlanID uint, menuItemID uint) e
 	}
 
 	// Delete in transaction to ensure atomicity
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	return s.db.Session(&gorm.Session{NewDB: true}).Transaction(func(tx *gorm.DB) error {
 		// Delete allocations first
 		if err := tx.Where("menu_item_id = ?", menuItemID).Delete(&models.MenuItemSchoolAllocation{}).Error; err != nil {
 			return err

@@ -112,8 +112,8 @@ func AuthRateLimitMiddleware() gin.HandlerFunc {
 
 // APIRateLimitMiddleware creates a rate limiting middleware for general API endpoints
 func APIRateLimitMiddleware() gin.HandlerFunc {
-	// Allow 100 requests per minute per IP
-	return RateLimitMiddleware(100, time.Minute)
+	// Allow 500 requests per minute per IP
+	return RateLimitMiddleware(500, time.Minute)
 }
 
 // PerUserRateLimiter implements rate limiting per user ID

@@ -22,6 +22,8 @@ function getDefaultRouteForRole(role) {
       return '/menu-planning'
     case 'pengadaan':
       return '/purchase-orders'
+    case 'supplier':
+      return '/supplier-dashboard'
     case 'akuntan':
       return '/financial-reports'
     case 'chef':
@@ -209,7 +211,7 @@ const router = createRouter({
           component: () => import('@/views/SupplierListView.vue'),
           meta: {
             requiresAuth: true,
-            roles: ['kepala_sppg', 'pengadaan'],
+            roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
             title: 'Manajemen Supplier'
           }
         },
@@ -219,7 +221,7 @@ const router = createRouter({
           component: () => import('@/views/PurchaseOrderListView.vue'),
           meta: {
             requiresAuth: true,
-            roles: ['kepala_sppg', 'pengadaan'],
+            roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
             title: 'Purchase Order'
           }
         },
@@ -491,6 +493,90 @@ const router = createRouter({
             requiresAuth: true,
             roles: ['kepala_sppg', 'kepala_yayasan', 'akuntan'],
             title: 'Ulasan & Rating'
+          }
+        },
+        // --- RAB routes ---
+        {
+          path: 'rab',
+          name: 'rab',
+          component: () => import('@/views/RABListView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['kepala_sppg', 'ahli_gizi', 'kepala_yayasan'],
+            title: 'Daftar RAB'
+          }
+        },
+        {
+          path: 'rab/:id',
+          name: 'rab-detail',
+          component: () => import('@/views/RABDetailView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['kepala_sppg', 'ahli_gizi', 'kepala_yayasan'],
+            title: 'Detail RAB'
+          }
+        },
+        // --- Invoice routes ---
+        {
+          path: 'invoices',
+          name: 'invoices',
+          component: () => import('@/views/InvoiceListView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['kepala_yayasan', 'supplier'],
+            title: 'Invoice'
+          }
+        },
+        // --- Supplier Product Catalog (kepala_yayasan) ---
+        {
+          path: 'supplier-products',
+          name: 'supplier-products',
+          component: () => import('@/views/SupplierProductListView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['kepala_yayasan'],
+            title: 'Katalog Supplier'
+          }
+        },
+        // --- Supplier Portal routes ---
+        {
+          path: 'supplier-dashboard',
+          name: 'supplier-dashboard',
+          component: () => import('@/views/SupplierDashboardView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['supplier'],
+            title: 'Dashboard Supplier'
+          }
+        },
+        {
+          path: 'supplier-products/manage',
+          name: 'supplier-products-manage',
+          component: () => import('@/views/SupplierProductManageView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['supplier'],
+            title: 'Kelola Produk'
+          }
+        },
+        {
+          path: 'supplier-po',
+          name: 'supplier-po',
+          component: () => import('@/views/SupplierPOListView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['supplier'],
+            title: 'Purchase Order'
+          }
+        },
+        {
+          path: 'supplier-invoices',
+          name: 'supplier-invoices',
+          component: () => import('@/views/SupplierInvoiceView.vue'),
+          meta: {
+            requiresAuth: true,
+            roles: ['supplier'],
+            title: 'Invoice Supplier'
           }
         },
         // --- Risk Assessment routes ---

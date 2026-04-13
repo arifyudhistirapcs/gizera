@@ -72,7 +72,7 @@ func TestUpdateMenuItem_ValidUpdate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare update request
 	updateReq := UpdateMenuItemRequest{
@@ -152,7 +152,7 @@ func TestUpdateMenuItem_InvalidSum(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare update request with invalid sum
 	updateReq := UpdateMenuItemRequest{
@@ -211,7 +211,7 @@ func TestUpdateMenuItem_NonExistentMenuItem(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare update request for non-existent menu item
 	updateReq := UpdateMenuItemRequest{
@@ -285,7 +285,7 @@ func TestGetMenuItem_Success(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Create test request
 	w := httptest.NewRecorder()
@@ -351,7 +351,7 @@ func TestGetMenuItem_NotFound(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Create test request with non-existent item_id
 	w := httptest.NewRecorder()
@@ -417,7 +417,7 @@ func TestGetMenuItem_WrongMenuPlan(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Try to get menu item using menuPlan2 ID (wrong menu plan)
 	w := httptest.NewRecorder()
@@ -469,7 +469,7 @@ func TestCreateMenuItem_ValidRequest_SDSchool(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare create request with mixed portions for SD school
 	createReq := CreateMenuItemRequest{
@@ -557,7 +557,7 @@ func TestCreateMenuItem_ValidRequest_SMPSchool(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare create request with large portions only for SMP school
 	createReq := CreateMenuItemRequest{
@@ -639,7 +639,7 @@ func TestCreateMenuItem_ValidRequest_MultipleSchools(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare create request with multiple schools
 	createReq := CreateMenuItemRequest{
@@ -714,7 +714,7 @@ func TestCreateMenuItem_InvalidSum(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare create request with invalid sum
 	createReq := CreateMenuItemRequest{
@@ -775,7 +775,7 @@ func TestCreateMenuItem_SMPWithSmallPortions(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare create request with small portions for SMP school (invalid)
 	createReq := CreateMenuItemRequest{
@@ -828,7 +828,7 @@ func TestCreateMenuItem_EmptyAllocations(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare create request with empty allocations
 	createReq := CreateMenuItemRequest{
@@ -887,7 +887,7 @@ func TestCreateMenuItem_NegativePortions(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Prepare create request with negative portions
 	createReq := CreateMenuItemRequest{
@@ -969,7 +969,7 @@ func TestGetMenuItem_WithPortionSizes(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Create test request
 	w := httptest.NewRecorder()
@@ -1068,7 +1068,7 @@ func TestGetMenuItem_AlphabeticalOrder(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Create test request
 	w := httptest.NewRecorder()
@@ -1119,7 +1119,7 @@ func TestGetMenuItem_NotFound_WithPortionSizes(t *testing.T) {
 	db.Create(&menuPlan)
 
 	// Create handler
-	handler := NewMenuPlanningHandler(db)
+	handler := NewMenuPlanningHandler(db, nil)
 
 	// Create test request with non-existent item ID
 	w := httptest.NewRecorder()

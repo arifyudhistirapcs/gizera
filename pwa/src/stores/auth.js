@@ -19,6 +19,8 @@ export const useAuthStore = defineStore('auth', () => {
   const isKepalaYayasan = computed(() => userRole.value === 'kepala_yayasan')
   const isSuperadmin = computed(() => userRole.value === 'superadmin')
   const isKepalaSPPG = computed(() => userRole.value === 'kepala_sppg')
+  const isSupplier = computed(() => userRole.value === 'supplier')
+  const supplierId = computed(() => user.value?.supplier_id ?? null)
 
   function setAuth(userData, authToken) {
     user.value = userData
@@ -83,6 +85,8 @@ export const useAuthStore = defineStore('auth', () => {
     isKepalaYayasan,
     isSuperadmin,
     isKepalaSPPG,
+    isSupplier,
+    supplierId,
     setAuth,
     clearAuth,
     login,

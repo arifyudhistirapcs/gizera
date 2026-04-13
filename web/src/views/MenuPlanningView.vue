@@ -799,6 +799,10 @@ const removeMenuItem = async (item) => {
     await menuPlanningService.deleteMenuItem(currentMenuPlan.value.id, item.id)
     message.success('Menu berhasil dihapus')
     
+    // Close detail modal
+    detailModalVisible.value = false
+    detailItem.value = null
+    
     // Reload menu plan to get updated data
     await loadMenuPlan()
   } catch (error) {

@@ -39,7 +39,9 @@
               size="large"
             >
               <a-select-option value="pending">Pending</a-select-option>
+              <a-select-option value="revision_by_supplier">Revisi oleh Supplier</a-select-option>
               <a-select-option value="approved">Disetujui</a-select-option>
+              <a-select-option value="shipping">Sedang Dikirim</a-select-option>
               <a-select-option value="received">Diterima</a-select-option>
               <a-select-option value="cancelled">Dibatalkan</a-select-option>
             </a-select>
@@ -60,6 +62,12 @@
               <a-tag :color="getStatusColor(record.status)">
                 {{ getStatusText(record.status) }}
               </a-tag>
+            </template>
+            <template v-else-if="column.key === 'rab_number'">
+              {{ record.rab?.rab_number || '-' }}
+            </template>
+            <template v-else-if="column.key === 'target_sppg'">
+              {{ record.target_sppg?.nama || record.target_sppg?.name || '-' }}
             </template>
             <template v-else-if="column.key === 'total_amount'">
               {{ formatCurrency(record.total_amount) }}
@@ -84,7 +92,7 @@
                   Setujui
                 </a-button>
                 <a-button
-                  v-if="record.status === 'pending'"
+                  v-if="record.status === 'pending' && !isKepalaYayasan"
                   type="link"
                   size="small"
                   @click="editPO(record)"
@@ -98,8 +106,199 @@
       </a-space>
     </a-card>
 
-    <!-- Create/Edit Modal -->
+    <!-- ============================================ -->
+    <!-- BATCH CREATE MODAL (kepala_yayasan only)     -->
+    <!-- ============================================ -->
     <a-modal
+      v-if="isKepalaYayasan && !editingPO"
+      v-model:open="modalVisible"
+      :title="'Buat PO Batch dari RAB'"
+      :confirm-loading="submitting"
+      :ok-text="batchCurrentStep === 0 ? 'Lanjut' : 'Buat PO Batch'"
+      :ok-button-props="{ disabled: batchCurrentStep === 0 ? !batchSelectedRABId : !batchExpectedDelivery || batchSupplierGroups.length === 0 }"
+      @ok="handleBatchStepNext"
+      @cancel="handleBatchCancel"
+      width="960px"
+    >
+      <a-steps :current="batchCurrentStep" style="margin-bottom: 24px" size="small">
+        <a-step title="Pilih RAB" />
+        <a-step title="Review & Tanggal Kirim" />
+      </a-steps>
+
+      <!-- Step 0: Select RAB -->
+      <div v-if="batchCurrentStep === 0">
+        <a-form layout="vertical">
+          <a-form-item label="RAB (Status: Approved Yayasan)" required>
+            <a-select
+              v-model:value="batchSelectedRABId"
+              placeholder="Pilih RAB yang sudah disetujui yayasan"
+              show-search
+              allow-clear
+              :filter-option="filterRAB"
+              :loading="batchLoadingRABs"
+              @change="handleBatchRABChange"
+              style="width: 100%"
+              size="large"
+            >
+              <a-select-option v-for="r in approvedRABs" :key="r.id" :value="r.id">
+                {{ r.rab_number }} — {{ r.menu_plan ? formatDate(r.menu_plan.week_start) + ' s/d ' + formatDate(r.menu_plan.week_end) : '' }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+
+          <a-form-item label="SPPG Tujuan">
+            <a-select
+              :value="batchSPPGId"
+              disabled
+              placeholder="Otomatis dari RAB"
+              style="width: 100%"
+              size="large"
+            >
+              <a-select-option v-if="batchSPPGId" :value="batchSPPGId">
+                {{ batchSPPGName }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-form>
+
+        <!-- Loading state -->
+        <div v-if="batchLoadingDetail" style="text-align: center; padding: 40px 0">
+          <a-spin size="large" />
+          <p style="margin-top: 12px; color: rgba(0,0,0,0.45)">Memuat detail RAB...</p>
+        </div>
+
+        <!-- Preview grouped items after RAB selected -->
+        <div v-if="batchSelectedRABId && !batchLoadingDetail && batchAllItems.length > 0">
+          <a-divider>Preview Item RAB</a-divider>
+          <a-row :gutter="16" style="margin-bottom: 16px">
+            <a-col :span="8">
+              <a-statistic
+                title="Total Supplier"
+                :value="batchSupplierGroups.length"
+                suffix="supplier"
+                :value-style="{ color: '#1890ff' }"
+              />
+            </a-col>
+            <a-col :span="8">
+              <a-statistic
+                title="Total Item (ada supplier)"
+                :value="batchTotalItemsWithSupplier"
+                suffix="item"
+                :value-style="{ color: '#52c41a' }"
+              />
+            </a-col>
+            <a-col :span="8">
+              <a-statistic
+                title="Tanpa Supplier"
+                :value="batchItemsWithoutSupplier.length"
+                suffix="item"
+                :value-style="{ color: batchItemsWithoutSupplier.length > 0 ? '#faad14' : '#52c41a' }"
+              />
+            </a-col>
+          </a-row>
+        </div>
+      </div>
+
+      <!-- Step 1: Review grouped items + delivery date -->
+      <div v-if="batchCurrentStep === 1">
+        <a-form layout="vertical">
+          <a-form-item label="Tanggal Pengiriman Diharapkan" required>
+            <a-date-picker
+              v-model:value="batchExpectedDelivery"
+              style="width: 100%"
+              format="DD/MM/YYYY"
+              placeholder="Pilih tanggal pengiriman"
+              :disabled-date="disabledDate"
+              size="large"
+            />
+          </a-form-item>
+        </a-form>
+
+        <a-divider>Ringkasan PO yang Akan Dibuat</a-divider>
+
+        <!-- Summary stats -->
+        <a-row :gutter="16" style="margin-bottom: 16px">
+          <a-col :span="8">
+            <a-statistic
+              title="Jumlah PO"
+              :value="batchSupplierGroups.length"
+              :value-style="{ color: '#1890ff' }"
+            />
+          </a-col>
+          <a-col :span="8">
+            <a-statistic
+              title="Total Item"
+              :value="batchTotalItemsWithSupplier"
+              :value-style="{ color: '#52c41a' }"
+            />
+          </a-col>
+          <a-col :span="8">
+            <a-statistic
+              title="Total Nilai"
+              :value="formatCurrency(batchGrandTotal)"
+              :value-style="{ color: '#1890ff', fontSize: '20px' }"
+            />
+          </a-col>
+        </a-row>
+
+        <!-- Supplier groups -->
+        <a-collapse v-model:activeKey="batchActiveKeys" style="margin-bottom: 16px">
+          <a-collapse-panel
+            v-for="group in batchSupplierGroups"
+            :key="group.supplierName"
+            :header="`📦 ${group.supplierName} (${group.items.length} item) — Total: ${formatCurrency(group.total)}`"
+          >
+            <a-table
+              :columns="batchItemColumns"
+              :data-source="group.items"
+              :pagination="false"
+              size="small"
+              row-key="id"
+            >
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'name'">
+                  {{ record.ingredient?.name || record.ingredient_name || '-' }}
+                </template>
+                <template v-else-if="column.key === 'quantity'">
+                  {{ formatNumber(record.quantity) }} {{ record.unit }}
+                </template>
+                <template v-else-if="column.key === 'unit_price'">
+                  {{ formatCurrency(record.unit_price || record.estimated_price) }}
+                </template>
+                <template v-else-if="column.key === 'subtotal'">
+                  {{ formatCurrency((record.quantity || 0) * (record.unit_price || record.estimated_price || 0)) }}
+                </template>
+              </template>
+            </a-table>
+          </a-collapse-panel>
+        </a-collapse>
+
+        <!-- Items without supplier -->
+        <a-alert
+          v-if="batchItemsWithoutSupplier.length > 0"
+          type="warning"
+          show-icon
+          style="margin-bottom: 16px"
+        >
+          <template #message>
+            ⚠️ Tanpa Supplier ({{ batchItemsWithoutSupplier.length }} item) — Tidak akan dibuat PO
+          </template>
+          <template #description>
+            <ul style="margin: 8px 0 0 0; padding-left: 20px">
+              <li v-for="item in batchItemsWithoutSupplier" :key="item.id">
+                {{ item.ingredient?.name || item.ingredient_name || '-' }}: {{ formatNumber(item.quantity) }} {{ item.unit }}
+              </li>
+            </ul>
+          </template>
+        </a-alert>
+      </div>
+    </a-modal>
+
+    <!-- ============================================ -->
+    <!-- STANDARD CREATE/EDIT MODAL (non-yayasan)     -->
+    <!-- ============================================ -->
+    <a-modal
+      v-if="!isKepalaYayasan || editingPO"
       v-model:open="modalVisible"
       :title="editingPO ? 'Edit Purchase Order' : 'Buat Purchase Order Baru'"
       :confirm-loading="submitting"
@@ -113,6 +312,39 @@
         :rules="rules"
         layout="vertical"
       >
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="RAB" name="rab_id">
+              <a-select
+                v-model:value="formData.rab_id"
+                placeholder="Pilih RAB (approved yayasan)"
+                show-search
+                allow-clear
+                :filter-option="filterRAB"
+                @change="handleRABChange"
+              >
+                <a-select-option v-for="r in approvedRABs" :key="r.id" :value="r.id">
+                  {{ r.rab_number }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="SPPG Tujuan" name="target_sppg_id">
+              <a-select
+                v-model:value="formData.target_sppg_id"
+                placeholder="Pilih SPPG tujuan"
+                show-search
+                allow-clear
+                :filter-option="filterSPPG"
+              >
+                <a-select-option v-for="s in sppgList" :key="s.id" :value="s.id">
+                  {{ s.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="Supplier" name="supplier_id">
@@ -225,9 +457,60 @@
     <a-modal
       v-model:open="detailModalVisible"
       title="Detail Purchase Order"
-      :footer="null"
       width="900px"
+      @cancel="closeDetailModal"
     >
+      <template #footer>
+        <a-space>
+          <a-button @click="exportPOToPDF(selectedPO)">
+            <template #icon><FilePdfOutlined /></template>
+            Export PDF
+          </a-button>
+
+          <!-- Pending: kepala_sppg can approve -->
+          <a-button v-if="selectedPO?.status === 'pending' && canApprove" type="primary" @click="approvePO(selectedPO)">
+            Setujui PO
+          </a-button>
+
+          <!-- revision_by_supplier: kepala_yayasan actions -->
+          <template v-if="selectedPO?.status === 'revision_by_supplier' && isKepalaYayasan && !showReviseForm">
+            <a-button
+              type="primary"
+              :loading="revisionActionLoading"
+              @click="handleAcceptRevision"
+            >
+              <template #icon><CheckOutlined /></template>
+              Terima Perubahan
+            </a-button>
+            <a-button
+              type="primary"
+              style="background-color: #fa8c16; border-color: #fa8c16"
+              @click="openReviseForm"
+            >
+              <template #icon><EditOutlined /></template>
+              Revisi Ulang
+            </a-button>
+          </template>
+
+          <!-- Revise form submit -->
+          <template v-if="showReviseForm">
+            <a-button @click="cancelReviseForm">Batal</a-button>
+            <a-button
+              type="primary"
+              :loading="revisionActionLoading"
+              :disabled="reviseItems.length === 0"
+              @click="handleSubmitRevise"
+            >
+              Kirim Revisi ke Supplier
+            </a-button>
+          </template>
+
+          <!-- confirmed: no longer needed, supplier confirm goes straight to approved -->
+
+          <a-button v-if="!showReviseForm" @click="closeDetailModal">Tutup</a-button>
+        </a-space>
+      </template>
+
       <a-descriptions v-if="selectedPO" bordered :column="2">
         <a-descriptions-item label="Nomor PO" :span="2">
           <strong>{{ selectedPO.po_number }}</strong>
@@ -254,34 +537,127 @@
         </a-descriptions-item>
       </a-descriptions>
 
-      <a-divider>Item Pesanan</a-divider>
-
-      <a-table
-        :columns="detailItemColumns"
-        :data-source="selectedPO?.po_items || []"
-        :pagination="false"
-        size="small"
+      <!-- Alert for revision_by_supplier status -->
+      <a-alert
+        v-if="selectedPO?.status === 'revision_by_supplier' && !showReviseForm"
+        type="warning"
+        show-icon
+        style="margin-top: 16px"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'unit_price'">
-            {{ formatCurrency(record.unit_price) }}
-          </template>
-          <template v-else-if="column.key === 'subtotal'">
-            {{ formatCurrency(record.subtotal) }}
-          </template>
+        <template #message>Supplier mengajukan perubahan pada PO ini</template>
+        <template #description>
+          <div v-if="selectedPO.supplier_revision_notes">
+            <strong>Catatan dari supplier:</strong>
+            <p style="margin: 8px 0 0 0; white-space: pre-wrap">{{ selectedPO.supplier_revision_notes }}</p>
+          </div>
         </template>
-      </a-table>
+      </a-alert>
 
-      <template v-if="selectedPO?.status === 'pending' && canApprove">
-        <a-divider />
-        <a-row justify="end">
-          <a-space>
-            <a-button @click="detailModalVisible = false">Tutup</a-button>
-            <a-button type="primary" @click="approvePO(selectedPO)">
-              Setujui PO
-            </a-button>
-          </a-space>
-        </a-row>
+      <!-- Alert for approved status -->
+      <a-alert
+        v-if="selectedPO?.status === 'approved' && !showReviseForm"
+        type="success"
+        show-icon
+        style="margin-top: 16px"
+        message="PO telah disetujui"
+        description="PO telah disetujui oleh supplier dan siap untuk pengiriman."
+      />
+
+      <!-- Alert for shipping status -->
+      <a-alert
+        v-if="selectedPO?.status === 'shipping' && !showReviseForm"
+        type="info"
+        show-icon
+        style="margin-top: 16px"
+        message="Barang sedang dikirim"
+        description="Supplier sedang mengirim barang ke SPPG tujuan. Menunggu penerimaan (GRN) dari pihak SPPG."
+      />
+
+      <!-- Revise form (kepala_yayasan edits items to send back to supplier) -->
+      <template v-if="showReviseForm">
+        <a-divider>Revisi Item PO</a-divider>
+
+        <a-alert
+          type="info"
+          show-icon
+          style="margin-bottom: 16px"
+          message="Ubah item PO lalu kirim kembali ke supplier. Status PO akan kembali ke Pending."
+        />
+
+        <a-table
+          :columns="reviseItemColumns"
+          :data-source="reviseItems"
+          :pagination="false"
+          size="small"
+          row-key="ingredient_id"
+        >
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'ingredient_name'">
+              {{ record.ingredient?.name || record.ingredient_name || '-' }}
+            </template>
+            <template v-else-if="column.key === 'unit'">
+              {{ record.ingredient?.unit || '-' }}
+            </template>
+            <template v-else-if="column.key === 'quantity'">
+              <a-input-number
+                v-model:value="record.quantity"
+                :min="0.01"
+                :step="0.1"
+                style="width: 100%"
+              />
+            </template>
+            <template v-else-if="column.key === 'unit_price'">
+              <a-input-number
+                v-model:value="record.unit_price"
+                :min="0"
+                :step="1000"
+                style="width: 100%"
+                :formatter="value => `Rp ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="value => value.replace(/Rp\s?|(,*)/g, '')"
+              />
+            </template>
+            <template v-else-if="column.key === 'subtotal'">
+              {{ formatCurrency((record.quantity || 0) * (record.unit_price || 0)) }}
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-popconfirm
+                title="Hapus item ini?"
+                ok-text="Ya"
+                cancel-text="Batal"
+                @confirm="removeReviseItem(index)"
+              >
+                <a-button type="link" size="small" danger :disabled="reviseItems.length <= 1">
+                  Hapus
+                </a-button>
+              </a-popconfirm>
+            </template>
+          </template>
+        </a-table>
+
+        <div style="text-align: right; margin: 12px 0">
+          <strong>Total: {{ formatCurrency(reviseTotal) }}</strong>
+        </div>
+      </template>
+
+      <!-- Normal item table (hidden when revise form is open) -->
+      <template v-if="!showReviseForm">
+        <a-divider>Item Pesanan</a-divider>
+
+        <a-table
+          :columns="detailItemColumns"
+          :data-source="selectedPO?.po_items || []"
+          :pagination="false"
+          size="small"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'unit_price'">
+              {{ formatCurrency(record.unit_price) }}
+            </template>
+            <template v-else-if="column.key === 'subtotal'">
+              {{ formatCurrency(record.subtotal) }}
+            </template>
+          </template>
+        </a-table>
       </template>
     </a-modal>
   </div>
@@ -290,15 +666,20 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
+import { PlusOutlined, SearchOutlined, FilePdfOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons-vue'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import purchaseOrderService from '@/services/purchaseOrderService'
 import supplierService from '@/services/supplierService'
 import recipeService from '@/services/recipeService'
+import rabService from '@/services/rabService'
+import api from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
 import dayjs from 'dayjs'
 
 const authStore = useAuthStore()
 const canApprove = computed(() => authStore.user?.role === 'kepala_sppg')
+const isKepalaYayasan = computed(() => authStore.user?.role === 'kepala_yayasan')
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -306,6 +687,26 @@ const modalVisible = ref(false)
 const detailModalVisible = ref(false)
 const editingPO = ref(null)
 const selectedPO = ref(null)
+
+// Revision handling state (kepala_yayasan)
+const revisionActionLoading = ref(false)
+const showReviseForm = ref(false)
+const reviseItems = ref([])
+
+const reviseTotal = computed(() => {
+  return reviseItems.value.reduce((sum, item) => {
+    return sum + (item.quantity || 0) * (item.unit_price || 0)
+  }, 0)
+})
+
+const reviseItemColumns = [
+  { title: 'Bahan', key: 'ingredient_name', width: 200 },
+  { title: 'Satuan', key: 'unit', width: 80 },
+  { title: 'Jumlah', key: 'quantity', width: 120 },
+  { title: 'Harga Satuan', key: 'unit_price', width: 160 },
+  { title: 'Subtotal', key: 'subtotal', width: 160 },
+  { title: 'Aksi', key: 'actions', width: 80 }
+]
 const purchaseOrders = ref([])
 const activeSuppliers = ref([])
 const ingredients = ref([])
@@ -313,6 +714,140 @@ const searchText = ref('')
 const filterStatus = ref(undefined)
 const formRef = ref()
 const totalAmount = ref(0)
+const approvedRABs = ref([])
+const sppgList = ref([])
+const rabItems = ref([])
+
+// --- Batch creation state (kepala_yayasan) ---
+const batchCurrentStep = ref(0)
+const batchSelectedRABId = ref(undefined)
+const batchLoadingRABs = ref(false)
+const batchLoadingDetail = ref(false)
+const batchExpectedDelivery = ref(null)
+const batchAllItems = ref([])
+const batchSPPGId = ref(undefined)
+const batchSPPGName = ref('')
+const batchActiveKeys = ref([])
+
+const batchSupplierGroups = computed(() => {
+  const groups = {}
+  for (const item of batchAllItems.value) {
+    const supplierName = item.recommended_supplier?.name
+    if (!supplierName) continue
+    if (!groups[supplierName]) {
+      groups[supplierName] = { supplierName, items: [], total: 0 }
+    }
+    groups[supplierName].items.push(item)
+    const price = item.unit_price || item.estimated_price || 0
+    groups[supplierName].total += (item.quantity || 0) * price
+  }
+  return Object.values(groups)
+})
+
+const batchItemsWithoutSupplier = computed(() => {
+  return batchAllItems.value.filter(item => !item.recommended_supplier?.name)
+})
+
+const batchTotalItemsWithSupplier = computed(() => {
+  return batchSupplierGroups.value.reduce((sum, g) => sum + g.items.length, 0)
+})
+
+const batchGrandTotal = computed(() => {
+  return batchSupplierGroups.value.reduce((sum, g) => sum + g.total, 0)
+})
+
+const batchItemColumns = [
+  { title: 'Bahan', key: 'name' },
+  { title: 'Jumlah', key: 'quantity', width: 160 },
+  { title: 'Harga Satuan', key: 'unit_price', width: 160 },
+  { title: 'Subtotal', key: 'subtotal', width: 180 }
+]
+
+const handleBatchRABChange = async (rabId) => {
+  batchAllItems.value = []
+  batchSPPGId.value = undefined
+  batchSPPGName.value = ''
+  if (!rabId) return
+
+  batchLoadingDetail.value = true
+  try {
+    const response = await rabService.getRABDetail(rabId)
+    const rab = response.data.rab || response.data.data || response.data
+
+    // Auto-populate SPPG from RAB
+    batchSPPGId.value = rab.sppg_id
+    batchSPPGName.value = rab.sppg?.nama || rab.sppg?.name || `SPPG #${rab.sppg_id}`
+
+    // Filter items that don't have po_id yet (status "pending")
+    const items = (rab.items || []).filter(item => !item.po_id && item.status !== 'ordered')
+    batchAllItems.value = items
+  } catch (error) {
+    message.error('Gagal memuat detail RAB')
+    console.error(error)
+  } finally {
+    batchLoadingDetail.value = false
+  }
+}
+
+const handleBatchStepNext = async () => {
+  if (batchCurrentStep.value === 0) {
+    if (!batchSelectedRABId.value) {
+      message.warning('Pilih RAB terlebih dahulu')
+      return
+    }
+    if (batchSupplierGroups.value.length === 0) {
+      message.warning('Tidak ada item dengan supplier yang bisa dibuat PO')
+      return
+    }
+    // Open all collapse panels by default
+    batchActiveKeys.value = batchSupplierGroups.value.map(g => g.supplierName)
+    batchCurrentStep.value = 1
+    return
+  }
+
+  // Step 1: Submit batch
+  if (!batchExpectedDelivery.value) {
+    message.warning('Pilih tanggal pengiriman terlebih dahulu')
+    return
+  }
+
+  submitting.value = true
+  try {
+    const payload = {
+      rab_id: batchSelectedRABId.value,
+      expected_delivery: batchExpectedDelivery.value.format('YYYY-MM-DD')
+    }
+    const response = await purchaseOrderService.createBatchFromRAB(payload)
+    const count = response.data.created_count || response.data.total || batchSupplierGroups.value.length
+    message.success(`Berhasil membuat ${count} Purchase Order dari RAB`)
+    modalVisible.value = false
+    resetBatchForm()
+    fetchPurchaseOrders()
+  } catch (error) {
+    const errMsg = error.response?.data?.error || error.response?.data?.message || 'Gagal membuat PO batch'
+    message.error(errMsg)
+    console.error(error)
+  } finally {
+    submitting.value = false
+  }
+}
+
+const handleBatchCancel = () => {
+  modalVisible.value = false
+  resetBatchForm()
+}
+
+const resetBatchForm = () => {
+  batchCurrentStep.value = 0
+  batchSelectedRABId.value = undefined
+  batchExpectedDelivery.value = null
+  batchAllItems.value = []
+  batchSPPGId.value = undefined
+  batchSPPGName.value = ''
+  batchActiveKeys.value = []
+}
+
+// --- End batch creation state ---
 
 const pagination = reactive({
   current: 1,
@@ -323,22 +858,20 @@ const pagination = reactive({
 const formData = ref({
   supplier_id: undefined,
   expected_delivery: null,
+  rab_id: undefined,
+  target_sppg_id: undefined,
   items: []
 })
 
 const updateTotal = () => {
-  console.log('updateTotal called, items:', formData.value.items)
   const total = formData.value.items.reduce((sum, item) => {
-    console.log('  item:', item, 'subtotal:', item.subtotal, 'parsed:', parseFloat(item.subtotal) || 0)
     return sum + (parseFloat(item.subtotal) || 0)
   }, 0)
-  console.log('Total calculated:', total)
   totalAmount.value = total
 }
 
 // Watch for items changes and update total
-watch(() => formData.value.items, (newVal) => {
-  console.log('Items changed:', newVal)
+watch(() => formData.value.items, () => {
   updateTotal()
 }, { deep: true })
 
@@ -359,92 +892,31 @@ const rules = {
 }
 
 const columns = [
-  {
-    title: 'Nomor PO',
-    dataIndex: 'po_number',
-    key: 'po_number'
-  },
-  {
-    title: 'Supplier',
-    dataIndex: ['supplier', 'name'],
-    key: 'supplier_name'
-  },
-  {
-    title: 'Tanggal Order',
-    key: 'order_date'
-  },
-  {
-    title: 'Tanggal Pengiriman',
-    key: 'expected_delivery'
-  },
-  {
-    title: 'Total',
-    key: 'total_amount'
-  },
-  {
-    title: 'Status',
-    key: 'status',
-    width: 120
-  },
-  {
-    title: 'Aksi',
-    key: 'actions',
-    width: 200
-  }
+  { title: 'Nomor PO', dataIndex: 'po_number', key: 'po_number' },
+  { title: 'RAB', key: 'rab_number' },
+  { title: 'Supplier', dataIndex: ['supplier', 'name'], key: 'supplier_name' },
+  { title: 'SPPG Tujuan', key: 'target_sppg' },
+  { title: 'Tanggal Order', key: 'order_date' },
+  { title: 'Tanggal Pengiriman', key: 'expected_delivery' },
+  { title: 'Total', key: 'total_amount' },
+  { title: 'Status', key: 'status', width: 120 },
+  { title: 'Aksi', key: 'actions', width: 200 }
 ]
 
 const itemColumns = [
-  {
-    title: 'Bahan',
-    key: 'ingredient_id',
-    width: 250
-  },
-  {
-    title: 'Jumlah',
-    key: 'quantity',
-    width: 120
-  },
-  {
-    title: 'Harga Satuan',
-    key: 'unit_price',
-    width: 150
-  },
-  {
-    title: 'Subtotal',
-    key: 'subtotal',
-    width: 150
-  },
-  {
-    title: 'Aksi',
-    key: 'actions',
-    width: 80
-  }
+  { title: 'Bahan', key: 'ingredient_id', width: 250 },
+  { title: 'Jumlah', key: 'quantity', width: 120 },
+  { title: 'Harga Satuan', key: 'unit_price', width: 150 },
+  { title: 'Subtotal', key: 'subtotal', width: 150 },
+  { title: 'Aksi', key: 'actions', width: 80 }
 ]
 
 const detailItemColumns = [
-  {
-    title: 'Bahan',
-    dataIndex: ['ingredient', 'name'],
-    key: 'ingredient_name'
-  },
-  {
-    title: 'Jumlah',
-    dataIndex: 'quantity',
-    key: 'quantity'
-  },
-  {
-    title: 'Satuan',
-    dataIndex: ['ingredient', 'unit'],
-    key: 'unit'
-  },
-  {
-    title: 'Harga Satuan',
-    key: 'unit_price'
-  },
-  {
-    title: 'Subtotal',
-    key: 'subtotal'
-  }
+  { title: 'Bahan', dataIndex: ['ingredient', 'name'], key: 'ingredient_name' },
+  { title: 'Jumlah', dataIndex: 'quantity', key: 'quantity' },
+  { title: 'Satuan', dataIndex: ['ingredient', 'unit'], key: 'unit' },
+  { title: 'Harga Satuan', key: 'unit_price' },
+  { title: 'Subtotal', key: 'subtotal' }
 ]
 
 const fetchPurchaseOrders = async () => {
@@ -485,7 +957,52 @@ const fetchIngredients = async () => {
   }
 }
 
-const handleTableChange = (pag, filters, sorter) => {
+const fetchApprovedRABs = async () => {
+  batchLoadingRABs.value = true
+  try {
+    const response = await rabService.getRABList({ status: 'approved_yayasan' })
+    approvedRABs.value = response.data.rabs || response.data.data || []
+  } catch (error) {
+    console.error('Gagal memuat data RAB:', error)
+  } finally {
+    batchLoadingRABs.value = false
+  }
+}
+
+const fetchSPPGList = async () => {
+  try {
+    const response = await api.get('/sppg')
+    sppgList.value = response.data.sppgs || response.data.data || []
+  } catch (error) {
+    console.error('Gagal memuat data SPPG:', error)
+  }
+}
+
+const handleRABChange = async (rabId) => {
+  if (!rabId) {
+    rabItems.value = []
+    return
+  }
+  try {
+    const response = await rabService.getRABDetail(rabId)
+    const rab = response.data.rab || response.data.data || response.data
+    rabItems.value = (rab.items || []).filter(item => !item.po_id)
+  } catch (error) {
+    console.error('Gagal memuat item RAB:', error)
+  }
+}
+
+const filterRAB = (input, option) => {
+  const r = approvedRABs.value.find(rab => rab.id === option.value)
+  return r?.rab_number?.toLowerCase().includes(input.toLowerCase()) ?? false
+}
+
+const filterSPPG = (input, option) => {
+  const s = sppgList.value.find(sppg => sppg.id === option.value)
+  return s?.name?.toLowerCase().includes(input.toLowerCase()) ?? false
+}
+
+const handleTableChange = (pag) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
   fetchPurchaseOrders()
@@ -498,7 +1015,11 @@ const handleSearch = () => {
 
 const showCreateModal = () => {
   editingPO.value = null
-  resetForm()
+  if (isKepalaYayasan.value) {
+    resetBatchForm()
+  } else {
+    resetForm()
+  }
   modalVisible.value = true
 }
 
@@ -507,6 +1028,8 @@ const editPO = (po) => {
   formData.value = {
     supplier_id: po.supplier_id,
     expected_delivery: dayjs(po.expected_delivery),
+    rab_id: undefined,
+    target_sppg_id: undefined,
     items: po.po_items.map(item => ({
       ingredient_id: item.ingredient_id,
       quantity: item.quantity,
@@ -528,6 +1051,77 @@ const viewPO = async (po) => {
   }
 }
 
+const closeDetailModal = () => {
+  detailModalVisible.value = false
+  showReviseForm.value = false
+  reviseItems.value = []
+}
+
+const handleAcceptRevision = async () => {
+  revisionActionLoading.value = true
+  try {
+    await purchaseOrderService.acceptRevision(selectedPO.value.id)
+    message.success('Perubahan supplier diterima, PO dikonfirmasi')
+    closeDetailModal()
+    fetchPurchaseOrders()
+  } catch (error) {
+    const errMsg = error.response?.data?.error || error.response?.data?.message || 'Gagal menerima perubahan'
+    message.error(errMsg)
+    console.error(error)
+  } finally {
+    revisionActionLoading.value = false
+  }
+}
+
+const openReviseForm = () => {
+  reviseItems.value = (selectedPO.value.po_items || []).map(item => ({
+    id: item.id,
+    ingredient_id: item.ingredient_id,
+    ingredient: item.ingredient ? { ...item.ingredient } : null,
+    ingredient_name: item.ingredient?.name || '-',
+    quantity: item.quantity,
+    unit_price: item.unit_price
+  }))
+  showReviseForm.value = true
+}
+
+const cancelReviseForm = () => {
+  showReviseForm.value = false
+  reviseItems.value = []
+}
+
+const removeReviseItem = (index) => {
+  reviseItems.value.splice(index, 1)
+}
+
+const handleSubmitRevise = async () => {
+  if (reviseItems.value.length === 0) {
+    message.warning('Minimal satu item harus ada')
+    return
+  }
+
+  revisionActionLoading.value = true
+  try {
+    const payload = {
+      items: reviseItems.value.map(item => ({
+        ingredient_id: item.ingredient_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price
+      }))
+    }
+    await purchaseOrderService.revisePO(selectedPO.value.id, payload)
+    message.success('PO direvisi dan dikirim kembali ke supplier')
+    closeDetailModal()
+    fetchPurchaseOrders()
+  } catch (error) {
+    const errMsg = error.response?.data?.error || error.response?.data?.message || 'Gagal merevisi PO'
+    message.error(errMsg)
+    console.error(error)
+  } finally {
+    revisionActionLoading.value = false
+  }
+}
+
 const approvePO = async (po) => {
   try {
     await purchaseOrderService.approvePurchaseOrder(po.id)
@@ -540,10 +1134,61 @@ const approvePO = async (po) => {
   }
 }
 
+const exportPOToPDF = (po) => {
+  if (!po) return
+  const doc = new jsPDF()
+
+  // Title
+  doc.setFontSize(18)
+  doc.setTextColor(0, 0, 0)
+  doc.text('PURCHASE ORDER', 105, 20, { align: 'center' })
+
+  // PO Number subtitle
+  doc.setFontSize(12)
+  doc.text(po.po_number || '', 105, 28, { align: 'center' })
+
+  // PO Info
+  doc.setFontSize(10)
+  doc.text(`Nomor PO: ${po.po_number || '-'}`, 14, 42)
+  doc.text(`Supplier: ${po.supplier?.name || '-'}`, 14, 49)
+  doc.text(`Yayasan: ${po.yayasan?.nama || '-'}`, 14, 56)
+  doc.text(`SPPG Tujuan: ${po.target_sppg?.nama || po.target_sppg?.name || '-'}`, 14, 63)
+  doc.text(`Tanggal Order: ${formatDate(po.order_date)}`, 14, 70)
+  doc.text(`Tanggal Pengiriman: ${formatDate(po.expected_delivery)}`, 14, 77)
+  doc.text(`Status: ${getStatusText(po.status)}`, 14, 84)
+
+  // Items table
+  const items = (po.po_items || []).map(item => [
+    item.ingredient?.name || '-',
+    item.quantity?.toString() || '0',
+    item.ingredient?.unit || '-',
+    formatCurrency(item.unit_price),
+    formatCurrency(item.subtotal)
+  ])
+
+  autoTable(doc, {
+    startY: 92,
+    head: [['Bahan', 'Jumlah', 'Satuan', 'Harga Satuan', 'Subtotal']],
+    body: items,
+    theme: 'grid',
+    headStyles: { fillColor: [248, 44, 23] },
+    foot: [['', '', '', 'TOTAL', formatCurrency(po.total_amount)]],
+    footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' }
+  })
+
+  // Footer
+  const finalY = (doc.lastAutoTable?.finalY || 200) + 20
+  doc.setFontSize(8)
+  doc.setTextColor(150)
+  doc.text('Dokumen ini digenerate otomatis oleh sistem Dapur Sehat', 105, finalY, { align: 'center' })
+
+  doc.save(`PO-${po.po_number || 'draft'}.pdf`)
+}
+
 const handleSubmit = async () => {
   try {
     await formRef.value.validate()
-    
+
     if (formData.value.items.length === 0) {
       message.error('Minimal satu item harus ditambahkan')
       return
@@ -554,6 +1199,8 @@ const handleSubmit = async () => {
     const payload = {
       supplier_id: formData.value.supplier_id,
       expected_delivery: formData.value.expected_delivery.format('YYYY-MM-DD'),
+      rab_id: formData.value.rab_id || undefined,
+      target_sppg_id: formData.value.target_sppg_id || undefined,
       items: formData.value.items.map(item => ({
         ingredient_id: item.ingredient_id,
         quantity: item.quantity,
@@ -572,9 +1219,7 @@ const handleSubmit = async () => {
     modalVisible.value = false
     fetchPurchaseOrders()
   } catch (error) {
-    if (error.errorFields) {
-      return
-    }
+    if (error.errorFields) return
     message.error('Gagal menyimpan purchase order')
     console.error(error)
   } finally {
@@ -591,8 +1236,11 @@ const resetForm = () => {
   formData.value = {
     supplier_id: undefined,
     expected_delivery: null,
+    rab_id: undefined,
+    target_sppg_id: undefined,
     items: []
   }
+  rabItems.value = []
   formRef.value?.resetFields()
 }
 
@@ -613,12 +1261,9 @@ const removeItem = (index) => {
 
 const calculateSubtotal = (index) => {
   const item = formData.value.items[index]
-  console.log('calculateSubtotal called for index', index, 'item:', item)
   const qty = parseFloat(item.quantity) || 0
   const price = parseCurrency(item.unit_price)
-  console.log('  qty:', qty, 'price:', price)
   item.subtotal = qty * price
-  console.log('  new subtotal:', item.subtotal)
   updateTotal()
 }
 
@@ -644,7 +1289,9 @@ const disabledDate = (current) => {
 const getStatusColor = (status) => {
   const colors = {
     pending: 'orange',
+    revision_by_supplier: 'orange',
     approved: 'blue',
+    shipping: 'geekblue',
     received: 'green',
     cancelled: 'red'
   }
@@ -654,7 +1301,9 @@ const getStatusColor = (status) => {
 const getStatusText = (status) => {
   const texts = {
     pending: 'Pending',
+    revision_by_supplier: 'Revisi oleh Supplier',
     approved: 'Disetujui',
+    shipping: 'Sedang Dikirim',
     received: 'Diterima',
     cancelled: 'Dibatalkan'
   }
@@ -670,9 +1319,13 @@ const formatCurrency = (value) => {
   }).format(value)
 }
 
+const formatNumber = (value) => {
+  if (value === undefined || value === null || isNaN(value)) return '0'
+  return new Intl.NumberFormat('id-ID').format(value)
+}
+
 const parseCurrency = (value) => {
   if (!value) return 0
-  // Remove Rp, spaces, and dots (thousand separators), replace comma with dot
   const cleaned = value.toString().replace(/Rp\s?|[.]/g, '').replace(',', '.')
   return parseFloat(cleaned) || 0
 }
@@ -689,6 +1342,8 @@ onMounted(() => {
   fetchPurchaseOrders()
   fetchSuppliers()
   fetchIngredients()
+  fetchApprovedRABs()
+  fetchSPPGList()
 })
 </script>
 

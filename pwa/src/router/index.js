@@ -15,6 +15,7 @@ function getDefaultRoute(role) {
   if (roleStr === 'kepala_sppg') return '/dashboard'
   if (roleStr === 'ahli_gizi') return '/menu-planning'
   if (roleStr === 'sekolah') return '/school-monitoring'
+  if (roleStr === 'supplier') return '/supplier-dashboard'
   if (TASK_ALLOWED_ROLES.includes(roleStr)) return '/tasks'
   return '/attendance'
 }
@@ -154,6 +155,61 @@ const router = createRouter({
           name: 'risk-assessment-form',
           component: () => import('@/views/RiskAssessmentFormView.vue'),
           meta: { roles: ['kepala_yayasan'] }
+        },
+        // Supplier Portal routes
+        {
+          path: 'supplier-dashboard',
+          name: 'supplier-dashboard',
+          component: () => import('@/views/SupplierDashboardView.vue'),
+          meta: { roles: ['supplier'] }
+        },
+        {
+          path: 'supplier-products',
+          name: 'supplier-products',
+          component: () => import('@/views/SupplierProductsView.vue'),
+          meta: { roles: ['supplier'] }
+        },
+        {
+          path: 'supplier-products/form',
+          name: 'supplier-product-form',
+          component: () => import('@/views/SupplierProductFormView.vue'),
+          meta: { roles: ['supplier'] }
+        },
+        {
+          path: 'supplier-products/:id/edit',
+          name: 'supplier-product-edit',
+          component: () => import('@/views/SupplierProductFormView.vue'),
+          meta: { roles: ['supplier'] }
+        },
+        {
+          path: 'supplier-po',
+          name: 'supplier-po',
+          component: () => import('@/views/SupplierPOListView.vue'),
+          meta: { roles: ['supplier'] }
+        },
+        {
+          path: 'supplier-po/:id',
+          name: 'supplier-po-detail',
+          component: () => import('@/views/SupplierPODetailView.vue'),
+          meta: { roles: ['supplier'] }
+        },
+        {
+          path: 'supplier-invoices',
+          name: 'supplier-invoices',
+          component: () => import('@/views/SupplierInvoiceView.vue'),
+          meta: { roles: ['supplier'] }
+        },
+        {
+          path: 'supplier-notifications',
+          name: 'supplier-notifications',
+          component: () => import('@/views/SupplierNotificationsView.vue'),
+          meta: { roles: ['supplier'] }
+        },
+        {
+          path: 'supplier-payments',
+          name: 'supplier-payments',
+          component: () => import('@/views/SupplierPaymentsView.vue'),
+          meta: { roles: ['supplier'] }
         }
       ]
     }
