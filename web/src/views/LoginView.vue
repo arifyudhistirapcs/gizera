@@ -120,7 +120,8 @@ const handleLogin = async () => {
       pengadaan: '/purchase-orders',
       akuntan: '/financial-reports',
       chef: '/kds/cooking',
-      packing: '/kds/cooking'
+      packing: '/kds/cooking',
+      supplier: '/supplier-dashboard'
     }
     window.location.href = roleRoutes[role] || '/dashboard'
   } catch (err) {
