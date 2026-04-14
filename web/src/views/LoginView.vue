@@ -117,7 +117,7 @@ const handleLogin = async () => {
       kepala_yayasan: '/dashboard-yayasan',
       kepala_sppg: '/dashboard/kepala-sppg',
       ahli_gizi: '/menu-planning',
-      pengadaan: '/purchase-orders',
+      pengadaan: '/goods-receipts',
       akuntan: '/financial-reports',
       chef: '/kds/cooking',
       packing: '/kds/cooking',

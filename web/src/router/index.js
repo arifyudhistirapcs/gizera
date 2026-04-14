@@ -21,7 +21,7 @@ function getDefaultRouteForRole(role) {
     case 'ahli_gizi':
       return '/menu-planning'
     case 'pengadaan':
-      return '/purchase-orders'
+      return '/goods-receipts'
     case 'supplier':
       return '/supplier-dashboard'
     case 'akuntan':
@@ -211,7 +211,7 @@ const router = createRouter({
           component: () => import('@/views/SupplierListView.vue'),
           meta: {
             requiresAuth: true,
-            roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
+            roles: ['kepala_yayasan'],
             title: 'Manajemen Supplier'
           }
         },
@@ -221,7 +221,7 @@ const router = createRouter({
           component: () => import('@/views/PurchaseOrderListView.vue'),
           meta: {
             requiresAuth: true,
-            roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
+            roles: ['kepala_yayasan'],
             title: 'Purchase Order'
           }
         },

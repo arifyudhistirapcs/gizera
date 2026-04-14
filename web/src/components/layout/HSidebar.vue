@@ -360,7 +360,7 @@ const operationalMenuItems = [
     label: 'Supply Chain',
     emoji: '🛒',
     icon: ShoppingOutlined,
-    roles: ['kepala_sppg', 'pengadaan'],
+    roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan'],
     operational: true,
     children: [
       {
@@ -369,7 +369,7 @@ const operationalMenuItems = [
         emoji: '🏪',
         icon: ShopOutlined,
         route: '/suppliers',
-        roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan']
+        roles: ['kepala_yayasan']
       },
       {
         key: 'purchase-orders',
@@ -377,7 +377,7 @@ const operationalMenuItems = [
         emoji: '🛍️',
         icon: ShoppingCartOutlined,
         route: '/purchase-orders',
-        roles: ['kepala_sppg', 'pengadaan', 'kepala_yayasan']
+        roles: ['kepala_yayasan']
       },
       {
         key: 'goods-receipts',
