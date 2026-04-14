@@ -1,0 +1,11 @@
+CHANGESLOG - 13 April 2026
+
+Branch: jefri
+Repository: https://github.com/arifyudhistirapcs/gizera.git
+
+---
+
+[2026-04-13]
+
+- aac1e74 fix: add supplier role to login redirect routes
+- 8163dc8 feat: RAB, Procurement, Supplier Portal - full flow implementation
