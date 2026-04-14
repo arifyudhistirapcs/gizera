@@ -1,4 +1,4 @@
-CHANGESLOG - 12 April 2026 dan sebelumnya
+CHANGELOG - 12 April 2026 dan sebelumnya
 
 Branch: jefri
 Repository: https://github.com/arifyudhistirapcs/gizera.git
