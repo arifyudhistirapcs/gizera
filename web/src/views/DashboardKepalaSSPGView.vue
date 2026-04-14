@@ -124,7 +124,7 @@
         <div class="bento__supplier">
           <div class="bento__title-row">
             <h3 class="bento__title">🏪 Top Supplier</h3>
-            <a-button type="link" size="small" @click="goToSuppliers" style="color:#303030;padding:0;">Semua →</a-button>
+            <a-button type="link" size="small" @click="goToSuppliers" style="color:#764AF1;padding:0;">Semua →</a-button>
           </div>
           <div v-if="topSuppliers.length === 0" style="color:#6B6B6B;font-size:13px;padding:12px 0;">Belum ada data</div>
           <div v-else class="supplier-compact-list">
@@ -140,7 +140,7 @@
         <div v-if="criticalStockItems.length > 0" class="bento__stock">
           <div class="bento__title-row">
             <h3 class="bento__title">⚠️ Stok Kritis ({{ criticalStockItems.length }})</h3>
-            <a-button v-if="criticalStockItems.length > 4" type="link" size="small" @click="goToInventory" style="color:#303030;padding:0;">Lihat Semua →</a-button>
+            <a-button v-if="criticalStockItems.length > 4" type="link" size="small" @click="goToInventory" style="color:#764AF1;padding:0;">Lihat Semua →</a-button>
           </div>
           <div class="stock-compact-grid">
             <div v-for="item in criticalStockItems.slice(0, 4)" :key="item.ingredient_id" class="stock-compact">
@@ -413,10 +413,10 @@ const updateCharts = () => {
   const pieData = [
     { value: p.recipes_pending, name: 'Menunggu', itemStyle: { color: '#A3AED0' } },
     { value: p.recipes_cooking, name: 'Sedang Dimasak', itemStyle: { color: '#FFB547' } },
-    { value: p.recipes_ready, name: 'Selesai Dimasak', itemStyle: { color: '#05CD99' } },
+    { value: p.recipes_ready, name: 'Selesai Dimasak', itemStyle: { color: '#764AF1' } },
     { value: p.packing_pending, name: 'Siap Packing', itemStyle: { color: '#6B6B6B' } },
-    { value: p.packing_in_progress, name: 'Sedang Packing', itemStyle: { color: '#303030' } },
-    { value: p.packing_ready, name: 'Selesai Packing', itemStyle: { color: '#202020' } },
+    { value: p.packing_in_progress, name: 'Sedang Packing', itemStyle: { color: '#F82C17' } },
+    { value: p.packing_ready, name: 'Selesai Packing', itemStyle: { color: '#5A38C4' } },
   ].filter(item => item.value > 0)
 
   // If no data, show a "no data" placeholder
@@ -441,8 +441,8 @@ const updateCharts = () => {
   const deliveryBreakdown = d.status_breakdown || []
   const deliveryLabels = deliveryBreakdown.map(item => item.status_label)
   const deliveryData = deliveryBreakdown.map((item, index) => {
-    // Assign colors based on status
-    const colors = ['#A3AED0', '#FFB547', '#6B6B6B', '#05CD99', '#303030', '#202020']
+    // Assign colors based on status — mix red and purple
+    const colors = ['#A3AED0', '#FFB547', '#764AF1', '#F82C17', '#5A38C4', '#303030']
     return {
       value: item.count,
       itemStyle: { color: colors[index % colors.length], borderRadius: [0, 4, 4, 0] }
@@ -478,7 +478,7 @@ const updateCharts = () => {
   const cleaningPieData = [
     { value: c.items_pending, name: 'Menunggu', itemStyle: { color: '#A3AED0' } },
     { value: c.items_in_progress, name: 'Sedang Dicuci', itemStyle: { color: '#FFB547' } },
-    { value: c.items_completed, name: 'Selesai', itemStyle: { color: '#05CD99' } },
+    { value: c.items_completed, name: 'Selesai', itemStyle: { color: '#764AF1' } },
   ].filter(item => item.value > 0)
 
   // If no data, show a "no data" placeholder
@@ -734,7 +734,7 @@ onUnmounted(() => {
 }
 
 /* === TITLES === */
-.bento__title { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #303030; }
+.bento__title { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #764AF1; }
 .bento__title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .bento__title-row .bento__title { margin-bottom: 0; }
 
@@ -760,7 +760,7 @@ onUnmounted(() => {
 .cashflow-item { padding: 14px; border-radius: 10px; }
 .cashflow-item--income { background: #D1FAE5; }
 .cashflow-item--expense { background: #FDEAE7; }
-.cashflow-item--net { background: #DBEAFE; }
+.cashflow-item--net { background: #E8DAFE; }
 .cashflow-item__label { display: block; font-size: 12px; color: #6B6B6B; margin-bottom: 4px; }
 .cashflow-item__value { display: block; font-size: 18px; font-weight: 700; color: #303030; }
 .text-error { color: #F82C17 !important; }
@@ -780,7 +780,7 @@ onUnmounted(() => {
 .stock-compact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 @media (max-width: 1024px) { .stock-compact-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 768px) { .stock-compact-grid { grid-template-columns: 1fr; } }
-.stock-compact { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: #FFF; border: 1px solid #F0F0F0; border-radius: 10px; border-left: 3px solid #F82C17; }
+.stock-compact { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: #FFF; border: 1px solid #F0F0F0; border-radius: 10px; border-left: 3px solid #764AF1; }
 .stock-compact__info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .stock-compact__name { font-size: 13px; font-weight: 600; color: #303030; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stock-compact__qty { font-size: 12px; color: #F82C17; font-weight: 600; }

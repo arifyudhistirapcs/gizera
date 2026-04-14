@@ -28,6 +28,13 @@
   --h-fresh-mint-light: #E8DAFE;
   --h-fresh-mint-dark: #5A38C4;
   
+  /* === SECONDARY COLOR (Purple) === */
+  --h-secondary: #764AF1;
+  --h-secondary-hover: #5A38C4;
+  --h-secondary-active: #4A2DA6;
+  --h-secondary-light: #E8DAFE;
+  --h-secondary-lighter: rgba(118, 74, 241, 0.08);
+  
   --h-bg-highlight-warm: #FDEAE7;
   
   /* ========================================

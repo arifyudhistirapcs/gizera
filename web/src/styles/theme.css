@@ -95,13 +95,13 @@ body, html {
 a,
 .ant-typography a,
 .ant-link {
-  color: #000000;
+  color: #764AF1;
 }
 
 a:hover,
 .ant-typography a:hover,
 .ant-link:hover {
-  color: var(--primary-color);
+  color: #5A38C4;
 }
 
 /* Checkbox and Radio */
@@ -298,7 +298,7 @@ a:hover,
 
 /* Breadcrumb */
 .ant-breadcrumb a:hover {
-  color: var(--primary-color);
+  color: #5A38C4;
 }
 
 /* Dropdown menu item hover */

@@ -47,13 +47,17 @@
   border-color: #303030 !important;
 }
 
-/* Link button */
+/* Link button — secondary purple */
 .ant-btn-link {
-  color: #303030;
+  color: #764AF1;
 }
 
 .ant-btn-link:hover {
-  color: #404040;
+  color: #5A38C4;
+}
+
+.ant-btn-link:active {
+  color: #4A2DA6;
 }
 
 /* ========================================
@@ -210,6 +214,13 @@
   color: #303030;
   background: rgba(48, 48, 48, 0.1);
   border-color: rgba(48, 48, 48, 0.2);
+}
+
+/* Default/info tag — purple tint */
+.ant-tag-default,
+.ant-tag:not([class*="ant-tag-"]):not(.ant-tag-success):not(.ant-tag-warning):not(.ant-tag-error):not(.ant-tag-green):not(.ant-tag-orange):not(.ant-tag-red):not(.ant-tag-blue):not(.ant-tag-processing):not(.ant-tag-purple) {
+  background: #E8DAFE !important;
+  color: #764AF1 !important;
 }
 
 /* ========================================
@@ -671,6 +682,26 @@
   gap: 6px !important;
 }
 
+/* Table action link buttons — purple */
+.ant-table-tbody .ant-btn-link {
+  color: #764AF1 !important;
+}
+
+.ant-table-tbody .ant-btn-link:hover {
+  color: #5A38C4 !important;
+}
+
+/* Keep danger link buttons red in tables */
+.ant-table-tbody .ant-btn-link.ant-btn-dangerous,
+.ant-table-tbody .ant-btn-link[danger] {
+  color: #EE5D50 !important;
+}
+
+.ant-table-tbody .ant-btn-link.ant-btn-dangerous:hover,
+.ant-table-tbody .ant-btn-link[danger]:hover {
+  color: #e84438 !important;
+}
+
 .ant-btn-sm {
   height: 30px !important;
   font-size: 12px !important;
@@ -709,6 +740,12 @@
 .ant-tag-blue, .ant-tag-processing {
   background: #DBEAFE !important;
   color: #2563EB !important;
+}
+
+/* Purple tag */
+.ant-tag-purple {
+  background: #E8DAFE !important;
+  color: #764AF1 !important;
 }
 
 /* === MODAL V2 STYLE === */
@@ -803,6 +840,15 @@
 /* === NOTIFICATION V2 === */
 .ant-notification-notice {
   border-radius: 12px !important;
+}
+
+/* === BREADCRUMB — purple links === */
+.ant-breadcrumb a {
+  color: #764AF1 !important;
+}
+
+.ant-breadcrumb a:hover {
+  color: #5A38C4 !important;
 }
 
 /* === POPOVER V2 === */
