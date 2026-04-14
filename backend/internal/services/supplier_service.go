@@ -28,22 +28,33 @@ func NewSupplierService(db *gorm.DB) *SupplierService {
 
 // CreateSupplier creates a new supplier
 func (s *SupplierService) CreateSupplier(supplier *models.Supplier) error {
-	// Check for duplicate name
+	// Check for duplicate name, scoped by sppg_id if present
+	// Use NewDB session to avoid tenant middleware adding duplicate sppg_id conditions
 	var existing models.Supplier
-	err := s.db.Where("name = ?", supplier.Name).First(&existing).Error
+	dupQuery := s.db.Session(&gorm.Session{NewDB: true}).Where("name = ?", supplier.Name)
+	if supplier.SPPGID != nil {
+		dupQuery = dupQuery.Where("sppg_id = ?", *supplier.SPPGID)
+	} else {
+		dupQuery = dupQuery.Where("sppg_id IS NULL")
+	}
+	err := dupQuery.First(&existing).Error
 	if err == nil {
+		// Record found → duplicate
 		return ErrDuplicateSupplier
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		// Unexpected DB error
 		return err
 	}
+	// err == gorm.ErrRecordNotFound → name is available, proceed to create
 
 	// Set defaults
 	supplier.IsActive = true
 	supplier.OnTimeDelivery = 0
 	supplier.QualityRating = 0
 
-	return s.db.Create(supplier).Error
+	// Use unscoped DB for Create to avoid tenant scope interfering with GORM's post-insert SELECT
+	return s.db.Session(&gorm.Session{NewDB: true}).Create(supplier).Error
 }
 
 // GetSupplierByID retrieves a supplier by ID
@@ -65,11 +76,33 @@ func (s *SupplierService) GetSupplierByID(id uint) (*models.Supplier, error) {
 func (s *SupplierService) GetAllSuppliers(activeOnly bool) ([]models.Supplier, error) {
 	var suppliers []models.Supplier
 	query := s.db.Model(&models.Supplier{})
-	
+
 	if activeOnly {
 		query = query.Where("is_active = ?", true)
 	}
-	
+
+	err := query.Order("name ASC").Find(&suppliers).Error
+	return suppliers, err
+}
+
+// FilterSuppliers returns suppliers filtered by search, productCategory, and optional is_active.
+// isActive nil = all, true = active only, false = inactive only
+func (s *SupplierService) FilterSuppliers(search string, productCategory string, isActive *bool) ([]models.Supplier, error) {
+	var suppliers []models.Supplier
+	query := s.db.Model(&models.Supplier{})
+
+	if isActive != nil {
+		query = query.Where("is_active = ?", *isActive)
+	}
+
+	if search != "" {
+		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	if productCategory != "" {
+		query = query.Where("product_category = ?", productCategory)
+	}
+
 	err := query.Order("name ASC").Find(&suppliers).Error
 	return suppliers, err
 }
@@ -83,8 +116,13 @@ func (s *SupplierService) UpdateSupplier(id uint, updates *models.Supplier) erro
 	}
 
 	// Check for duplicate name (excluding current supplier)
+	// Use NewDB session to avoid tenant middleware adding duplicate sppg_id conditions
 	var existing models.Supplier
-	err = s.db.Where("name = ? AND id != ?", updates.Name, id).First(&existing).Error
+	dupQuery := s.db.Session(&gorm.Session{NewDB: true}).Where("name = ? AND id != ?", updates.Name, id)
+	if updates.SPPGID != nil {
+		dupQuery = dupQuery.Where("sppg_id = ?", *updates.SPPGID)
+	}
+	err = dupQuery.First(&existing).Error
 	if err == nil {
 		return ErrDuplicateSupplier
 	}
@@ -92,8 +130,8 @@ func (s *SupplierService) UpdateSupplier(id uint, updates *models.Supplier) erro
 		return err
 	}
 
-	// Update supplier
-	return s.db.Model(&models.Supplier{}).Where("id = ?", id).Updates(map[string]interface{}{
+	// Update supplier — use NewDB to avoid tenant middleware injecting duplicate FROM clause
+	return s.db.Session(&gorm.Session{NewDB: true}).Model(&models.Supplier{}).Where("id = ?", id).Updates(map[string]interface{}{
 		"name":             updates.Name,
 		"contact_person":   updates.ContactPerson,
 		"phone_number":     updates.PhoneNumber,

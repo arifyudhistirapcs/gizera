@@ -342,11 +342,16 @@ func (cs *CacheService) InvalidateOnSupplierChange() error {
 	if err := cs.InvalidateSupplierCache(); err != nil {
 		return err
 	}
-	
+
+	// Invalidate HTTP response cache so GET /suppliers returns fresh data
+	if err := cs.redis.InvalidateByTag("http_cache"); err != nil {
+		return err
+	}
+
 	// Invalidate dashboard cache
 	if err := cs.InvalidateDashboardCache(); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
