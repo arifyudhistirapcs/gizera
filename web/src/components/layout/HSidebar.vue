@@ -836,6 +836,7 @@ watch(() => props.collapsed, (newValue) => {
 .logo-content {
   display: flex;
   align-items: center;
+  justify-content: center;
   min-width: 0;
   flex: 1;
   height: 100%;

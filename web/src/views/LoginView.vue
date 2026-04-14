@@ -344,8 +344,9 @@ const handleLogin = async () => {
 }
 
 .brand-logo {
-  width: 80%;
-  max-width: 480px;
+  width: 50%;
+  min-width: 280px;
+  max-width: 400px;
   height: auto;
 }
 
