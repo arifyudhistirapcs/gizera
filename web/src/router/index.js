@@ -703,7 +703,7 @@ router.beforeEach(async (to, from, next) => {
 })
 
 router.afterEach((to, from) => {
-  const baseTitle = 'Dapur Sehat'
+  const baseTitle = 'POSe'
   const pageTitle = to.meta.title || to.name
   document.title = pageTitle ? `${pageTitle} - ${baseTitle}` : baseTitle
 })

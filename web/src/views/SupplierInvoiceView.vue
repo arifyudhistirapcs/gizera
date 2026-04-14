@@ -326,7 +326,7 @@ const exportInvoiceToPDF = (invoice) => {
   const finalY = y + 10
   doc.setFontSize(8)
   doc.setTextColor(150)
-  doc.text('Dokumen ini digenerate otomatis oleh sistem Dapur Sehat', 105, finalY, { align: 'center' })
+  doc.text('Dokumen ini digenerate otomatis oleh sistem POSe', 105, finalY, { align: 'center' })
 
   doc.save(`Invoice-${invoice.invoice_number || 'draft'}.pdf`)
 }

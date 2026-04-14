@@ -465,7 +465,7 @@ const exportPOToPDF = (po) => {
   const finalY = (doc.lastAutoTable?.finalY || tableResult?.finalY || 200) + 20
   doc.setFontSize(8)
   doc.setTextColor(150)
-  doc.text('Dokumen ini digenerate otomatis oleh sistem Dapur Sehat', 105, finalY, { align: 'center' })
+  doc.text('Dokumen ini digenerate otomatis oleh sistem POSe', 105, finalY, { align: 'center' })
 
   doc.save(`PO-${po.po_number || 'draft'}.pdf`)
 }

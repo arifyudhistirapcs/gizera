@@ -147,8 +147,8 @@
 
       <!-- App Info -->
       <div class="app-info">
-        <span>Dapur Sehat Mobile</span>
-        <span class="app-version">© 2026 Dapur Sehat</span>
+        <span>POSe Mobile</span>
+        <span class="app-version">© 2026 POSe</span>
       </div>
     </div>
   </div>

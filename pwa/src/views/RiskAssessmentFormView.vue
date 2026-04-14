@@ -590,7 +590,7 @@ async function capturePhoto() {
 
     ctx.font = `${smallFont}px sans-serif`
     ctx.textAlign = 'right'
-    ctx.fillText('Dapur Sehat - Audit', w - 12, h - barH * 0.5)
+    ctx.fillText('POSe - Audit', w - 12, h - barH * 0.5)
 
     // Convert to blob and upload
     const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85))

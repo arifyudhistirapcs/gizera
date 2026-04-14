@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 
 // IndexedDB for offline storage
-const db = new Dexie('dapur_sehat_pwa')
+const db = new Dexie('pose_pwa')
 
 db.version(1).stores({
   deliveryTasks: '++id, taskDate, driverId, schoolId, status, routeOrder, cachedAt',

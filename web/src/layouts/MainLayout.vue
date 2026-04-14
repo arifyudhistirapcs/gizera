@@ -1,7 +1,7 @@
 <template>
   <HorizonLayout
     :page-title="pageTitle"
-    :breadcrumb="{ parent: 'Dapur Sehat', current: pageTitle }"
+    :breadcrumb="{ parent: 'POSe', current: pageTitle }"
     :notification-count="unreadCount"
     @notification-click="showNotifications"
   >
@@ -58,7 +58,7 @@ const loadingNotifications = ref(false)
 const unreadCount = ref(0)
 
 const pageTitle = computed(() => {
-  return route.meta?.title || 'Dapur Sehat'
+  return route.meta?.title || 'POSe'
 })
 
 const showNotifications = () => {

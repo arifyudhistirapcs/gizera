@@ -64,11 +64,11 @@ const props = defineProps({
   },
   
   /**
-   * Breadcrumb object { parent: 'Dapur Sehat', current: 'Dashboard' }
+   * Breadcrumb object { parent: 'POSe', current: 'Dashboard' }
    */
   breadcrumb: {
     type: Object,
-    default: () => ({ parent: 'Dapur Sehat', current: 'Dashboard' })
+    default: () => ({ parent: 'POSe', current: 'Dashboard' })
   },
   
   /**

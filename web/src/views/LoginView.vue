@@ -5,8 +5,7 @@
       <div class="login-form-wrap">
         <!-- Mobile logo -->
         <div class="mobile-logo">
-          <img src="/dapur-sehat-dark.png" alt="Dapur Sehat" />
-          <span class="powered-by">powered by <span class="pose-text">POSe</span></span>
+          <img src="/pose-logo.svg" alt="POSe" />
         </div>
 
         <div class="form-header">
@@ -57,7 +56,7 @@
         </a-form>
 
         <div class="form-footer">
-          <p>© 2026 Dapur Sehat</p>
+          <p>© 2026 POSe</p>
         </div>
       </div>
     </div>
@@ -70,8 +69,7 @@
         <div class="circle circle-3"></div>
       </div>
       <div class="brand-content">
-        <img src="/dapur-sehat-light.png" alt="Dapur Sehat" class="brand-logo" />
-        <span class="brand-powered">powered by <span class="pose-text-light">POSe</span></span>
+        <img src="/pose-logo-white.svg" alt="POSe" class="brand-logo" />
       </div>
     </div>
   </div>
@@ -165,17 +163,6 @@ const handleLogin = async () => {
   width: auto;
   display: block;
   margin: 0 auto 4px;
-}
-
-.powered-by {
-  font-size: 11px;
-  color: #999;
-  letter-spacing: 0.3px;
-}
-
-.pose-text {
-  color: #F82C17;
-  font-weight: 700;
 }
 
 .form-header {
@@ -360,19 +347,6 @@ const handleLogin = async () => {
   width: 80%;
   max-width: 480px;
   height: auto;
-  filter: brightness(0) invert(1) drop-shadow(0 8px 32px rgba(0, 0, 0, 0.2));
-}
-
-.brand-powered {
-  margin-top: 12px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 0.3px;
-}
-
-.pose-text-light {
-  color: #fff;
-  font-weight: 700;
 }
 
 /* ===== RESPONSIVE ===== */

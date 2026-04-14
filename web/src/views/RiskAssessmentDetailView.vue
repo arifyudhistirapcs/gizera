@@ -397,7 +397,7 @@ const exportPdf = async () => {
     doc.setFontSize(10)
     doc.setTextColor(...GRAY)
     doc.setFont(undefined, 'normal')
-    doc.text('Audit Kepatuhan SOP - Dapur Sehat', pageWidth / 2, y, { align: 'center' })
+    doc.text('Audit Kepatuhan SOP - POSe', pageWidth / 2, y, { align: 'center' })
     y += 10
 
     // --- Informasi Audit ---
