@@ -19,19 +19,19 @@
             <img src="@/assets/illustrations/hero-cooking.svg" alt="" class="hero-illustration" />
             <div class="hero-metrics">
               <div class="hero-metric">
-                <span class="hero-metric__label">Porsi</span>
+                <span class="hero-metric__label">Total Porsi</span>
                 <span class="hero-metric__value">{{ kpis.portions_prepared }}</span>
               </div>
               <div class="hero-metric">
-                <span class="hero-metric__label">Delivery</span>
+                <span class="hero-metric__label">Pengiriman</span>
                 <span class="hero-metric__value">{{ kpis.delivery_rate }}%</span>
               </div>
               <div class="hero-metric">
-                <span class="hero-metric__label">On-Time</span>
+                <span class="hero-metric__label">Tepat Waktu</span>
                 <span class="hero-metric__value">{{ kpis.on_time_delivery_rate }}%</span>
               </div>
               <div class="hero-metric">
-                <span class="hero-metric__label">Stok</span>
+                <span class="hero-metric__label">Ketersediaan Stok</span>
                 <span class="hero-metric__value">{{ kpis.stock_availability }}%</span>
               </div>
             </div>
