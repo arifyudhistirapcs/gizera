@@ -1,0 +1,76 @@
+CHANGELOG - 14 April 2026
+Author  : Jefri
+Module  : Supply Chain - Supplier Management
+========================================================
+
+[BUG FIX] #1 - CreateSupplier gagal dengan error 500
+File    : backend/internal/services/supplier_service.go
+Masalah : Tenant middleware meng-inject sppg_id ke semua query via s.db,
+          sehingga duplikasi check menghasilkan query dengan kondisi
+          sppg_id duplikat (sppg_id = 1 AND sppg_id = 1). GORM mengembalikan
+          ErrRecordNotFound yang salah diinterpretasikan sebagai error fatal.
+Fix     : Gunakan s.db.Session(&gorm.Session{NewDB: true}) pada duplikasi
+          check dan Create agar tenant scope tidak di-inject ulang.
+
+------------------------------------------------------------------------
+
+[BUG FIX] #2 - UpdateSupplier gagal dengan error 500 (record not found)
+File    : backend/internal/services/supplier_service.go
+Masalah : Sama dengan #1 — duplikasi check pada UpdateSupplier menggunakan
+          s.db langsung sehingga tenant scope di-inject, menghasilkan
+          ErrRecordNotFound yang salah diinterpretasikan sebagai error.
+Fix     : Gunakan Session NewDB: true pada duplikasi check UpdateSupplier.
+
+------------------------------------------------------------------------
+
+[BUG FIX] #3 - UpdateSupplier berhasil tapi data tidak berubah
+File    : backend/internal/services/supplier_service.go
+Masalah : Query UPDATE menghasilkan error PostgreSQL:
+          "table name suppliers specified more than once (SQLSTATE 42712)"
+          karena tenant middleware meng-inject FROM "suppliers" ke dalam
+          UPDATE query sehingga tabel disebut dua kali.
+Fix     : Gunakan Session NewDB: true pada query UPDATE di UpdateSupplier.
+
+------------------------------------------------------------------------
+
+[BUG FIX] #4 - Data supplier tidak refresh setelah update (cache stale)
+File    : backend/internal/cache/service.go
+Masalah : HTTP response cache GET /suppliers disimpan dengan tag "http_cache"
+          (TTL 2 jam), namun InvalidateOnSupplierChange hanya flush tag
+          "supplier". Setelah PUT berhasil, GET berikutnya masih membaca
+          dari cache lama.
+Fix     : Tambahkan invalidasi tag "http_cache" di InvalidateOnSupplierChange
+          agar HTTP response cache ikut dibersihkan saat ada perubahan supplier.
+
+------------------------------------------------------------------------
+
+[BUG FIX] #5 - Filter supplier (search & status) tidak bekerja
+File    : backend/internal/handlers/supply_chain_handler.go
+          backend/internal/services/supplier_service.go
+Masalah : Handler GetAllSuppliers membaca parameter "q" dan "active_only",
+          sedangkan frontend mengirim "search" dan "is_active=active/inactive".
+          Parameter tidak pernah terbaca sehingga filter tidak diaplikasikan
+          ke query DB — query selalu: WHERE sppg_id = 1 AND is_active = true.
+Fix     : - Tambah fungsi FilterSuppliers di service dengan parameter
+            isActive *bool (nil=semua, true=aktif, false=tidak aktif)
+            dan ILIKE untuk search case-insensitive.
+          - Update handler untuk membaca "search" dan "is_active" dari
+            frontend, dengan fallback ke "q" dan "active_only" (legacy).
+          - Logika kepala_yayasan juga diupdate menggunakan isActiveFilter.
+
+------------------------------------------------------------------------
+
+[MAINTENANCE] - Truncate tabel suppliers & reset auto increment
+Database: public.suppliers (container erp-sppg-db)
+Aksi    : TRUNCATE TABLE public.suppliers RESTART IDENTITY CASCADE
+Alasan  : Membersihkan data test dan reset ID sequence ke awal.
+
+========================================================
+Files Changed:
+  - backend/internal/services/supplier_service.go
+  - backend/internal/handlers/supply_chain_handler.go
+  - backend/internal/cache/service.go
+
+Deploy   : docker compose up -d --build backend
+Container: erp-sppg-backend (healthy)
+========================================================

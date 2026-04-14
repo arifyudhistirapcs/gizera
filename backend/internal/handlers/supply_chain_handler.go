@@ -167,8 +167,31 @@ func (h *SupplyChainHandler) GetSupplier(c *gin.Context) {
 
 // GetAllSuppliers retrieves all suppliers
 func (h *SupplyChainHandler) GetAllSuppliers(c *gin.Context) {
-	activeOnly := c.DefaultQuery("active_only", "true") == "true"
-	query := c.Query("q")
+	// Support both "is_active" (frontend) and "active_only" (legacy)
+	// isActiveFilter: "active" | "inactive" | "" (all)
+	isActiveParam := c.Query("is_active")
+	var isActiveFilter *bool
+	switch isActiveParam {
+	case "active":
+		t := true
+		isActiveFilter = &t
+	case "inactive":
+		f := false
+		isActiveFilter = &f
+	default:
+		// legacy active_only param
+		if c.Query("active_only") == "true" {
+			t := true
+			isActiveFilter = &t
+		}
+		// else nil = show all
+	}
+
+	// Support both "search" (frontend) and "q" (legacy)
+	query := c.Query("search")
+	if query == "" {
+		query = c.Query("q")
+	}
 	productCategory := c.Query("product_category")
 
 	// Check if kepala_yayasan — use JOIN on supplier_yayasans
@@ -191,8 +214,8 @@ func (h *SupplyChainHandler) GetAllSuppliers(c *gin.Context) {
 		db := h.db.Joins("JOIN supplier_yayasans ON supplier_yayasans.supplier_id = suppliers.id").
 			Where("supplier_yayasans.yayasan_id = ?", yayasanID)
 
-		if activeOnly {
-			db = db.Where("suppliers.is_active = ?", true)
+		if isActiveFilter != nil {
+			db = db.Where("suppliers.is_active = ?", *isActiveFilter)
 		}
 		if query != "" {
 			db = db.Where("suppliers.name ILIKE ?", "%"+query+"%")
@@ -218,15 +241,7 @@ func (h *SupplyChainHandler) GetAllSuppliers(c *gin.Context) {
 	}
 
 	scopedService := h.supplierService.WithDB(getTenantScopedDB(c, h.db))
-	var suppliers []models.Supplier
-	var err error
-
-	if query != "" || productCategory != "" {
-		suppliers, err = scopedService.SearchSuppliers(query, productCategory, activeOnly)
-	} else {
-		suppliers, err = scopedService.GetAllSuppliers(activeOnly)
-	}
-
+	suppliers, err := scopedService.FilterSuppliers(query, productCategory, isActiveFilter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success":    false,
